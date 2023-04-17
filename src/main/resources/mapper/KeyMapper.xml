@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.KeyMapper">
+
+    <resultMap id="BaseResultMap" type="com.domain.Key">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="secretid" column="secretId" jdbcType="VARCHAR"/>
+            <result property="secretkey" column="secretKey" jdbcType="VARCHAR"/>
+            <result property="createById" column="create_by_id" jdbcType="INTEGER"/>
+            <result property="type" column="type" jdbcType="VARCHAR"/>
+            <result property="token" column="token" jdbcType="VARCHAR"/>
+            <result property="isTemporary" column="is_temporary" jdbcType="VARCHAR"/>
+            <result property="expirationTime" column="expiration_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,secretId,secretKey,
+        create_by_id,type,token,
+        is_temporary,expiration_time
+    </sql>
+</mapper>

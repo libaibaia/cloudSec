@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.Menu2Mapper">
+
+    <resultMap id="BaseResultMap" type="com.domain.Menu2">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="pid" column="pid" jdbcType="INTEGER"/>
+            <result property="type" column="type" jdbcType="OTHER"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="path" column="path" jdbcType="VARCHAR"/>
+            <result property="icon" column="icon" jdbcType="VARCHAR"/>
+            <result property="menuType" column="menu_type" jdbcType="OTHER"/>
+            <result property="url" column="url" jdbcType="VARCHAR"/>
+            <result property="component" column="component" jdbcType="VARCHAR"/>
+            <result property="keepalive" column="keepalive" jdbcType="TINYINT"/>
+            <result property="extend" column="extend" jdbcType="OTHER"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="weigh" column="weigh" jdbcType="INTEGER"/>
+            <result property="status" column="status" jdbcType="OTHER"/>
+            <result property="updatetime" column="updatetime" jdbcType="INTEGER"/>
+            <result property="createtime" column="createtime" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,pid,type,
+        title,name,path,
+        icon,menu_type,url,
+        component,keepalive,extend,
+        remark,weigh,status,
+        updatetime,createtime
+    </sql>
+</mapper>

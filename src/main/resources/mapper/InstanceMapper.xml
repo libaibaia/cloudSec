@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.InstanceMapper">
+
+    <resultMap id="BaseResultMap" type="com.domain.Instance">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="instanceId" column="instance_id" jdbcType="VARCHAR"/>
+            <result property="keyId" column="key_id" jdbcType="INTEGER"/>
+            <result property="region" column="region" jdbcType="VARCHAR"/>
+            <result property="isCommand" column="is_command" jdbcType="VARCHAR"/>
+            <result property="privateKey" column="private_key" jdbcType="VARCHAR"/>
+            <result property="publicKey" column="public_key" jdbcType="VARCHAR"/>
+            <result property="ip" column="ip" jdbcType="VARCHAR"/>
+            <result property="type" column="type" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,instance_id,key_id,
+        region,is_command,private_key,
+        public_key,ip,type
+    </sql>
+</mapper>
