@@ -7,14 +7,23 @@ import com.aliyun.ecs20140526.models.DescribeInstancesResponseBody;
 import com.aliyun.ecs20140526.models.DescribeInvocationResultsResponse;
 import com.aliyun.ecs20140526.models.DescribeRegionsResponseBody;
 import com.aliyun.oss.model.Bucket;
+import com.aliyun.rds20140815.models.DescribeDBInstanceNetInfoResponse;
+import com.aliyun.rds20140815.models.DescribeDBInstanceNetInfoResponseBody;
+import com.aliyun.rds20140815.models.DescribeDBInstancesResponseBody;
 import com.common.aliyun.Base;
 import com.common.aliyun.product.ECS;
 import com.common.aliyun.product.OSS;
+import com.common.aliyun.product.RDS;
+import com.domain.DatabasesInstance;
 import com.domain.Instance;
 import com.domain.Key;
+import com.mapper.DatabasesInstanceMapper;
 import com.mapper.InstanceMapper;
 import com.service.KeyService;
 import com.service.impl.BucketServiceImpl;
+import com.tencentcloudapi.cme.v20191029.models.VODExportInfo;
+import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -29,6 +38,8 @@ public class AliYunInstanceService {
     private KeyService keyService;
     @Resource
     private BucketServiceImpl bucketService;
+    @Resource
+    private DatabasesInstanceMapper databasesInstanceMapper;
 
     public void getInstanceList(Key key){
         Map<DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRegion, List<DescribeInstancesResponseBody.DescribeInstancesResponseBodyInstancesInstance>> ecsLists = ECS.getECSLists(key);
@@ -61,16 +72,65 @@ public class AliYunInstanceService {
         }
     }
 
+    public void getRdsLists(Key key){
+        try {
+            addDBInstance(RDS.getRDSLists(key),key);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void openWan(Key key,DatabasesInstance databasesInstance) throws Exception {
+        RDS.openWan(key,databasesInstance.getInstanceId());
+        databasesInstance.setPort("0");
+        databasesInstance.setDomain("");
+        databasesInstanceMapper.updateById(databasesInstance);
+    }
+    public void closeWan(Key key,DatabasesInstance databasesInstance) throws Exception {
+        RDS.closeWan(key,databasesInstance.getInstanceId());
+        DescribeDBInstanceNetInfoResponse response = RDS.descInstanceNetType(key, databasesInstance.getInstanceId());
+        for (DescribeDBInstanceNetInfoResponseBody.DescribeDBInstanceNetInfoResponseBodyDBInstanceNetInfosDBInstanceNetInfo res :
+                response.body.DBInstanceNetInfos.DBInstanceNetInfo) {
+            if (res.IPType.equals(RDS.publicType)){
+                databasesInstance.setDomain("IP:" + res.IPAddress + "\n" + "域名" + res.connectionString);
+                databasesInstance.setPort(res.port);
+            }
+            databasesInstanceMapper.updateById(databasesInstance);
+        }
+    }
+
+    private void addDBInstance(List<DescribeDBInstancesResponseBody.DescribeDBInstancesResponseBodyItemsDBInstance> rdsLists,Key key) throws Exception {
+        for (DescribeDBInstancesResponseBody.DescribeDBInstancesResponseBodyItemsDBInstance rds : rdsLists) {
+            DescribeDBInstanceNetInfoResponse describeDBInstanceNetInfoResponse = RDS.descInstanceNetType(key, rds.DBInstanceId);
+            DatabasesInstance databasesInstance = new DatabasesInstance();
+            for (DescribeDBInstanceNetInfoResponseBody.DescribeDBInstanceNetInfoResponseBodyDBInstanceNetInfosDBInstanceNetInfo res :
+                    describeDBInstanceNetInfoResponse.body.DBInstanceNetInfos.DBInstanceNetInfo) {
+                    databasesInstance.setInstanceId(rds.DBInstanceId);
+                    databasesInstance.setRegion(rds.regionId);
+                    databasesInstance.setKeyId(key.getId());
+                    databasesInstance.setInstanceName(rds.getDBInstanceId());
+                    databasesInstance.setType(rds.getEngine());
+                if (res.IPType.equals(RDS.publicType)){
+                    databasesInstance.setDomain("IP:" + res.IPAddress + "\n" + "域名" + res.connectionString);
+                    databasesInstance.setPort(res.port);
+                }
+                databasesInstanceMapper.insert(databasesInstance);
+            }
+        }
+    }
+
     public void getBucketLists(Key key){
         List<Bucket> bucketLists = OSS.getBucketLists(key.getSecretid(), key.getSecretkey());
-        com.domain.Bucket bucket = new com.domain.Bucket();
-        for (Bucket bucketList : bucketLists) {
-            bucket.setRegion(bucketList.getRegion());
-            bucket.setName(bucket.getName());
-            bucket.setCreateById(Integer.parseInt(StpUtil.getLoginId().toString()));
-            bucket.setEndPoint(bucket.getName() + "." + bucketList.getExtranetEndpoint());
-            bucket.setOwner(bucketList.getOwner().toString());
-            bucketService.save(bucket);
+        if (bucketLists.size() >= 1){
+            com.domain.Bucket bucket = new com.domain.Bucket();
+            for (Bucket bucketList : bucketLists) {
+                bucket.setRegion(bucketList.getRegion());
+                bucket.setName(bucketList.getName());
+                bucket.setCreateById(key.getCreateById());
+                bucket.setEndPoint(bucketList.getName() + "." + bucketList.getExtranetEndpoint());
+                bucket.setOwner(bucketList.getOwner().toString());
+                bucketService.save(bucket);
+
+            }
         }
     }
 

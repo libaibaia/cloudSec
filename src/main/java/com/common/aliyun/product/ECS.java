@@ -18,7 +18,6 @@ public class ECS {
     public static Map<DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRegion, List<DescribeInstancesResponseBody.DescribeInstancesResponseBodyInstancesInstance>> getECSLists(Key key){
         Map<DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRegion,List<DescribeInstancesResponseBody.DescribeInstancesResponseBodyInstancesInstance>> map =
                 new HashMap<>();
-        List<DescribeInstancesResponseBody.DescribeInstancesResponseBodyInstancesInstance> list = new ArrayList<>();
         try {
             List<DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRegion> regionInfo = Base.getRegionInfo(key, "ecs-cn-hangzhou.aliyuncs.com");
             for (DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRegion des : regionInfo) {
@@ -26,13 +25,16 @@ public class ECS {
                 DescribeInstancesRequest request = new DescribeInstancesRequest();
                 request.setRegionId(des.regionId);
                 DescribeInstancesResponse describeInstancesResponse = client.describeInstancesWithOptions(request, runtime);
-                map.put(des,describeInstancesResponse.getBody().instances.instance);
+                if (describeInstancesResponse.getBody().instances.instance.size() >= 1){
+                    map.put(des,describeInstancesResponse.getBody().instances.instance);
+                }
             }
             return map;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
 
     //此处endpoint为ecs-cn-hangzhou.aliyuncs.com
     public static void importKey(String keyName,String key,Client client,String regionId,String instanceId) throws Exception {

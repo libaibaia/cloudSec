@@ -53,11 +53,7 @@ public class DatabasesController {
         Key one = keyService.getOne(keyQueryWrapper);
         String s = null;
         if (Integer.parseInt(StpUtil.getLoginId().toString()) == one.getCreateById()){
-            try {
-                s = databasesInstanceService.openWan(id);
-            } catch (TencentCloudSDKException e) {
-                return SaResult.error("开启失败,原因：" + e.getMessage());
-            }
+            s = databasesInstanceService.openWan(id);
         }
         if (s != null){
             return SaResult.error(s);
@@ -68,14 +64,9 @@ public class DatabasesController {
     @RequestMapping("/close")
     public SaResult closeWanService(@RequestBody Map<String,Integer> args){
         Integer id = args.get("id");
-        try {
-            String s = databasesInstanceService.closeWan(id);
-            if (s!=null) return SaResult.error(s);
-            return SaResult.ok("关闭成功,请重新执行检测权限操作");
-        } catch (TencentCloudSDKException e) {
-            return SaResult.error("关闭失败,原因：" + e.getMessage());
-        }
-
+        String s = databasesInstanceService.closeWan(id);
+        if (s!=null) return SaResult.error(s);
+        return SaResult.ok("关闭成功,请重新执行检测权限操作");
     }
 
     @RequestMapping("/user")

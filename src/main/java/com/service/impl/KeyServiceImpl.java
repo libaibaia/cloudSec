@@ -64,12 +64,13 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
             {
                 aliYunInstanceService.getInstanceList(key);
                 aliYunInstanceService.getBucketLists(key);
+                aliYunInstanceService.getRdsLists(key);
             }
             case Tencent:
             {
                 tencentInstanceService.getInstanceList(key);
                 bucketService.getBucketList(key);
-                databasesInstanceService.getDatabasesLists(key);
+                tencentInstanceService.getDBLists(key);
             }
         }
     }

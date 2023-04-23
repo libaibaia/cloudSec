@@ -21,7 +21,7 @@ public class Base {
      */
     public static Client createClient(Key key, String endPoint) throws Exception {
         Config config;
-        if (key.getToken() != null){
+        if (!key.getToken().equals("")){
             config = new Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretid()).setSecurityToken(key.getToken());
         }else {
             config = new Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretkey());
