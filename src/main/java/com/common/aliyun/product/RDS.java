@@ -117,14 +117,4 @@ public class RDS {
         return describeDBInstanceNetInfoResponse;
     }
 
-    public static void main(String[] args) {
-        Key key = new Key();
-        key.setSecretid("LTAI5tCDaSyN8Ti469ig4JmA");
-        key.setSecretkey("fBaer7haylKgoXwiHW8dfNBPObqR0H");
-        try {
-            getRDSLists(key);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
