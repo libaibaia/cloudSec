@@ -2,12 +2,10 @@ package com.common.aliyun.product;
 
 import com.aliyun.rds20140815.Client;
 import com.aliyun.rds20140815.models.*;
+import com.domain.DatabasesInstance;
 import com.domain.Key;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RDS {
     public static String privateType = "Private";
@@ -27,10 +25,6 @@ public class RDS {
             }
         }
 
-        for (DescribeDBInstancesResponseBody.DescribeDBInstancesResponseBodyItemsDBInstance dbInstance : dbInstances) {
-            System.out.println(dbInstance.DBInstanceId);
-            descInstanceNetType(key,dbInstance.DBInstanceId);
-        }
         return dbInstances;
 
     }
@@ -75,16 +69,24 @@ public class RDS {
      * @param instanceID
      * @throws Exception
      */
-    public static void openWan(Key key,String instanceID) throws Exception {
+    public static Map<String, String> openWan(Key key, String instanceID) throws Exception {
         com.aliyun.rds20140815.Client client = getRdsClient(key);
+        Random random = new Random();
+        String s = "test" + random.nextInt(100);
         com.aliyun.rds20140815.models.AllocateInstancePublicConnectionRequest request = new com.aliyun.rds20140815.models.AllocateInstancePublicConnectionRequest()
                 .setDBInstanceId(instanceID)
                 .setPort("3306")
-                .setConnectionStringPrefix(instanceID);
+                .setConnectionStringPrefix(s);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions()
                 .setReadTimeout(50000)
                 .setConnectTimeout(50000);
-        client.allocateInstancePublicConnectionWithOptions(request, runtime);
+        AllocateInstancePublicConnectionResponse allocateInstancePublicConnectionResponse = client.allocateInstancePublicConnectionWithOptions(request, runtime);
+        String domain = allocateInstancePublicConnectionResponse.body.connectionString;
+        String port = "3306";
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("domain",domain);
+        hashMap.put("port",port);
+        return hashMap;
     }
 
     /**
@@ -92,11 +94,11 @@ public class RDS {
      * @param key
      * @throws Exception
      */
-    public static void closeWan(Key key,String instanceID) throws Exception {
+    public static void closeWan(Key key, DatabasesInstance databasesInstance) throws Exception {
         com.aliyun.rds20140815.Client client = getRdsClient(key);
         com.aliyun.rds20140815.models.ReleaseInstancePublicConnectionRequest request = new com.aliyun.rds20140815.models.ReleaseInstancePublicConnectionRequest();
-        request.setDBInstanceId(instanceID);
-        request.setCurrentConnectionString(instanceID);
+        request.setDBInstanceId(databasesInstance.getInstanceId());
+        request.setCurrentConnectionString(databasesInstance.getDomain());
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions().setReadTimeout(50000).setConnectTimeout(50000);
         client.releaseInstancePublicConnectionWithOptions(request, runtime);
     }

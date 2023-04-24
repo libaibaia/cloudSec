@@ -79,53 +79,49 @@ public class AliYunInstanceService {
             throw new RuntimeException(e);
         }
     }
-    public void openWan(Key key,DatabasesInstance databasesInstance) throws Exception {
-        RDS.openWan(key,databasesInstance.getInstanceId());
+    public void closeWan(Key key,DatabasesInstance databasesInstance) throws Exception {
+        RDS.closeWan(key,databasesInstance);
         databasesInstance.setPort("0");
         databasesInstance.setDomain("");
         databasesInstanceMapper.updateById(databasesInstance);
     }
-    public void closeWan(Key key,DatabasesInstance databasesInstance) throws Exception {
-        RDS.closeWan(key,databasesInstance.getInstanceId());
-        DescribeDBInstanceNetInfoResponse response = RDS.descInstanceNetType(key, databasesInstance.getInstanceId());
-        for (DescribeDBInstanceNetInfoResponseBody.DescribeDBInstanceNetInfoResponseBodyDBInstanceNetInfosDBInstanceNetInfo res :
-                response.body.DBInstanceNetInfos.DBInstanceNetInfo) {
-            if (res.IPType.equals(RDS.publicType)){
-                databasesInstance.setDomain("IP:" + res.IPAddress + "\n" + "域名" + res.connectionString);
-                databasesInstance.setPort(res.port);
-            }
-            databasesInstanceMapper.updateById(databasesInstance);
-        }
+    public void openWan(Key key,DatabasesInstance databasesInstance) throws Exception {
+        Map<String, String> res = RDS.openWan(key, databasesInstance.getInstanceId());
+        databasesInstance.setDomain(res.get("domain") );
+        databasesInstance.setPort(res.get("port"));
+        databasesInstanceMapper.updateById(databasesInstance);
     }
 
     private void addDBInstance(List<DescribeDBInstancesResponseBody.DescribeDBInstancesResponseBodyItemsDBInstance> rdsLists,Key key) throws Exception {
         for (DescribeDBInstancesResponseBody.DescribeDBInstancesResponseBodyItemsDBInstance rds : rdsLists) {
             DescribeDBInstanceNetInfoResponse describeDBInstanceNetInfoResponse = RDS.descInstanceNetType(key, rds.DBInstanceId);
             DatabasesInstance databasesInstance = new DatabasesInstance();
+            databasesInstance.setInstanceId(rds.DBInstanceId);
+            databasesInstance.setRegion(rds.regionId);
+            databasesInstance.setKeyId(key.getId());
+            databasesInstance.setInstanceName(rds.getDBInstanceId());
+            databasesInstance.setType(rds.getEngine());
             for (DescribeDBInstanceNetInfoResponseBody.DescribeDBInstanceNetInfoResponseBodyDBInstanceNetInfosDBInstanceNetInfo res :
                     describeDBInstanceNetInfoResponse.body.DBInstanceNetInfos.DBInstanceNetInfo) {
-                    databasesInstance.setInstanceId(rds.DBInstanceId);
-                    databasesInstance.setRegion(rds.regionId);
-                    databasesInstance.setKeyId(key.getId());
-                    databasesInstance.setInstanceName(rds.getDBInstanceId());
-                    databasesInstance.setType(rds.getEngine());
                 if (res.IPType.equals(RDS.publicType)){
                     databasesInstance.setDomain("IP:" + res.IPAddress + "\n" + "域名" + res.connectionString);
                     databasesInstance.setPort(res.port);
                 }
-                databasesInstanceMapper.insert(databasesInstance);
             }
+            databasesInstanceMapper.insert(databasesInstance);
         }
     }
 
     public void getBucketLists(Key key){
         List<Bucket> bucketLists = OSS.getBucketLists(key.getSecretid(), key.getSecretkey());
         if (bucketLists.size() >= 1){
-            com.domain.Bucket bucket = new com.domain.Bucket();
+
             for (Bucket bucketList : bucketLists) {
+                com.domain.Bucket bucket = new com.domain.Bucket();
                 bucket.setRegion(bucketList.getRegion());
                 bucket.setName(bucketList.getName());
                 bucket.setCreateById(key.getCreateById());
+                bucket.setKeyId(key.getId());
                 bucket.setEndPoint(bucketList.getName() + "." + bucketList.getExtranetEndpoint());
                 bucket.setOwner(bucketList.getOwner().toString());
                 bucketService.save(bucket);
