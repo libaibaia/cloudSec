@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  java-app:
+    container_name: app
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app
+    environment:
+      DB_PASSWORD: password
+    depends_on:
+      - db
+  vue-web:
+    container_name: vue-web
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app
+    ports:
+      - "80:80"
+    environment:
+      - API_IP=192.168.61.131
+    depends_on:
+      - java-app
+  db:
+    container_name: db
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - /home/cloud/data:/var/lib/mysql

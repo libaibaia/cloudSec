@@ -15,12 +15,13 @@
             <result property="user" column="user" jdbcType="VARCHAR"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
             <result property="type" column="type" jdbcType="VARCHAR"/>
+            <result property="whitelist" column="whitelist" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,instance_id,instance_name,
         domain,region,port,
         key_id,user,password,
-        type
+        type,whitelist
     </sql>
 </mapper>

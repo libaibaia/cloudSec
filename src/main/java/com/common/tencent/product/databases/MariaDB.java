@@ -1,5 +1,6 @@
 package com.common.tencent.product.databases;
 
+import com.common.LogAnnotation;
 import com.common.tencent.product.Base;
 import com.domain.Key;
 import com.tencentcloudapi.common.Credential;
@@ -18,6 +19,9 @@ public class MariaDB {
 
     private static final HttpProfile httpProfile = new HttpProfile();
     private static final ClientProfile clientProfile = new ClientProfile();
+    /*
+    权限列表
+     */
     private static final String[] perList = new String[]{
             "SELECT","INSERT","UPDATE","DELETE","CREATE","DROP",
             "REFERENCES","INDEX","ALTER","CREATE TEMPORARY TABLES",

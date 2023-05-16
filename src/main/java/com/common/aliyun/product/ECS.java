@@ -68,7 +68,7 @@ public class ECS {
         String s = execCommand(client, regionID, commandWithOptions.getBody().commandId, instanceId);
         //此处因为阿里云原因，执行后结果输出比较慢，需要sleep十秒
         Thread.sleep(10000);
-        return getExecResult(client,s,regionID);
+        return getExecResult(client,s,regionID,instanceId);
     }
     //执行命令
     private static String execCommand(Client client,String regionId,String commandId,String instanceID) throws Exception {
@@ -80,10 +80,11 @@ public class ECS {
         return invokeCommandResponse.getBody().getInvokeId();
     }
     //获取执行结果
-    private static DescribeInvocationResultsResponse getExecResult(Client client, String command,String regionId) throws Exception {
+    private static DescribeInvocationResultsResponse getExecResult(Client client, String command,String regionId,String instanceId) throws Exception {
         DescribeInvocationResultsRequest request = new DescribeInvocationResultsRequest();
         request.setInvokeId(command);
         request.setRegionId(regionId);
+        request.setInstanceId(instanceId);
         request.setIncludeHistory(true);
         return client.describeInvocationResultsWithOptions(request, runtime);
     }

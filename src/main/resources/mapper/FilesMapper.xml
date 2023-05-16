@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.FilesMapper">
+
+    <resultMap id="BaseResultMap" type="com.domain.Files">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="filePath" column="file_path" jdbcType="VARCHAR"/>
+            <result property="tpye" column="tpye" jdbcType="VARCHAR"/>
+            <result property="originalFileName" column="original_file_name" jdbcType="VARCHAR"/>
+            <result property="fileSize" column="file_size" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,file_path,
+        tpye,original_file_name,file_size
+    </sql>
+</mapper>

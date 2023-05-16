@@ -3,8 +3,9 @@ package com.common.aliyun;
 import com.aliyun.ims20190815.Client;
 import com.aliyun.ims20190815.models.CreateLoginProfileRequest;
 import com.aliyun.ims20190815.models.CreateUserRequest;
-import com.aliyun.ram20150501.models.GetUserResponse;
-import com.aliyun.tea.TeaException;
+import com.aliyun.ims20190815.models.GetUserResponse;
+import com.aliyun.ram20150501.models.ListPoliciesForUserResponse;
+import com.aliyun.ram20150501.models.ListPoliciesForUserResponseBody;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teaopenapi.models.OpenApiRequest;
 import com.aliyun.teaopenapi.models.Params;
@@ -96,6 +97,21 @@ public class User {
         attachPolicyToUserRequest.setPolicyType("System");
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
         client.attachPolicyToUserWithOptions(attachPolicyToUserRequest, runtime);
+    }
+
+    //获取用户信息
+    public static ListPoliciesForUserResponseBody.ListPoliciesForUserResponseBodyPolicies ListPoliciesForUser(Key key) throws Exception {
+        com.aliyun.ims20190815.models.GetUserRequest getUserRequest = new com.aliyun.ims20190815.models.GetUserRequest()
+                .setUserAccessKeyId(key.getSecretid());
+        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+        Client client = new Client(getIamClient(key, null));
+        GetUserResponse userWithOptions = client.getUserWithOptions(getUserRequest, runtime);
+        String username = userWithOptions.getBody().user.getUserPrincipalName().split("@")[0];
+        com.aliyun.ram20150501.models.ListPoliciesForUserRequest request = new com.aliyun.ram20150501.models.ListPoliciesForUserRequest()
+                .setUserName(username);
+        com.aliyun.ram20150501.Client ram = new com.aliyun.ram20150501.Client(getIamClient(key, "ram"));
+        ListPoliciesForUserResponse listPoliciesForUserResponse = ram.listPoliciesForUserWithOptions(request, runtime);
+        return listPoliciesForUserResponse.body.policies;
     }
 
 }

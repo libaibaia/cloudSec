@@ -2,6 +2,7 @@ package com.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.Type;
 import com.domain.Instance;
@@ -14,6 +15,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
 * @author Administrator
@@ -43,7 +46,16 @@ public class InstanceServiceImpl extends ServiceImpl<InstanceMapper, Instance>
             default:
                 return SaResult.error("未知类型，绑定失败");
         }
-
+    }
+    public List<Instance> getInstanceList(List<Integer> akId){
+        List<com.domain.Instance> list = new ArrayList<>();
+        for (Integer integer : akId) {
+            QueryWrapper<Instance> instanceQueryWrapper = new QueryWrapper<>();
+            instanceQueryWrapper.eq("key_id",integer);
+            List<com.domain.Instance> instances = this.baseMapper.selectList(instanceQueryWrapper);
+            if (instances != null) list.addAll(instances);
+        }
+        return list;
     }
 }
 

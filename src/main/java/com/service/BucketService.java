@@ -2,6 +2,7 @@ package com.service;
 
 import com.domain.Bucket;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.domain.Key;
 
 /**
 * @author Administrator
@@ -9,5 +10,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2023-04-16 01:14:54
 */
 public interface BucketService extends IService<Bucket> {
-
+    void downloadAllFile(Key key, Bucket bucket);
 }

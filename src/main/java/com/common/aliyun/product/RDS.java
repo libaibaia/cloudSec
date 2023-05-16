@@ -10,11 +10,12 @@ import java.util.*;
 public class RDS {
     public static String privateType = "Private";
     public static String publicType = "Public";
+    private static final com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions().setReadTimeout(50000)
+            .setConnectTimeout(50000);
 
     public static List<DescribeDBInstancesResponseBody.DescribeDBInstancesResponseBodyItemsDBInstance> getRDSLists(Key key) throws Exception {
         com.aliyun.rds20140815.Client client = getRdsClient(key);
         com.aliyun.rds20140815.models.DescribeDBInstancesRequest request = new com.aliyun.rds20140815.models.DescribeDBInstancesRequest();
-        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
         Map<String, DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRDSRegion> rdsRegion = getRdsRegion(key);
         java.util.List<DescribeDBInstancesResponseBody.DescribeDBInstancesResponseBodyItemsDBInstance> dbInstances = new ArrayList<>();
         for (String s : rdsRegion.keySet()) {
@@ -53,7 +54,6 @@ public class RDS {
         Client rdsClient = getRdsClient(key);
         Map<String,DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRDSRegion> map = new HashMap<>();
         com.aliyun.rds20140815.models.DescribeRegionsRequest request = new com.aliyun.rds20140815.models.DescribeRegionsRequest();
-        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
         DescribeRegionsResponse describeRegionsResponse = rdsClient.describeRegionsWithOptions(request, runtime);
         for (DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRDSRegion regionsRDSRegion : describeRegionsResponse.body.regions.RDSRegion) {
             if (!map.containsKey(regionsRDSRegion.regionId)){
@@ -69,20 +69,24 @@ public class RDS {
      * @param instanceID
      * @throws Exception
      */
-    public static Map<String, String> openWan(Key key, String instanceID) throws Exception {
+    public static Map<String, String> openWan(Key key, DatabasesInstance instanceID) throws Exception {
         com.aliyun.rds20140815.Client client = getRdsClient(key);
         Random random = new Random();
-        String s = "test" + random.nextInt(100);
+        String port= instanceID.getPort();
+        //端口同下
+        if (port == null || port.equals("")){
+            port = "3306";
+        }
+        //如果数据库中不存在域名，则说明默认外网域名不存在，此处创建，否则使用目标默认域名，保证目标域名信息不被破坏
+        if (instanceID.getDomain() == null || instanceID.getDomain().equals("")){
+            instanceID.setDomain("test" + random.nextInt(100));
+        }
         com.aliyun.rds20140815.models.AllocateInstancePublicConnectionRequest request = new com.aliyun.rds20140815.models.AllocateInstancePublicConnectionRequest()
-                .setDBInstanceId(instanceID)
-                .setPort("3306")
-                .setConnectionStringPrefix(s);
-        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions()
-                .setReadTimeout(50000)
-                .setConnectTimeout(50000);
+                .setDBInstanceId(instanceID.getInstanceId())
+                .setPort(port)
+                .setConnectionStringPrefix(instanceID.getDomain().split("\\.")[0]);
         AllocateInstancePublicConnectionResponse allocateInstancePublicConnectionResponse = client.allocateInstancePublicConnectionWithOptions(request, runtime);
         String domain = allocateInstancePublicConnectionResponse.body.connectionString;
-        String port = "3306";
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("domain",domain);
         hashMap.put("port",port);
@@ -99,7 +103,6 @@ public class RDS {
         com.aliyun.rds20140815.models.ReleaseInstancePublicConnectionRequest request = new com.aliyun.rds20140815.models.ReleaseInstancePublicConnectionRequest();
         request.setDBInstanceId(databasesInstance.getInstanceId());
         request.setCurrentConnectionString(databasesInstance.getDomain());
-        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions().setReadTimeout(50000).setConnectTimeout(50000);
         client.releaseInstancePublicConnectionWithOptions(request, runtime);
     }
 
@@ -112,11 +115,46 @@ public class RDS {
      */
     public static DescribeDBInstanceNetInfoResponse descInstanceNetType(Key key, String instanceID) throws Exception {
         com.aliyun.rds20140815.Client client = getRdsClient(key);
-        com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
         com.aliyun.rds20140815.models.DescribeDBInstanceNetInfoRequest request = new com.aliyun.rds20140815.models.DescribeDBInstanceNetInfoRequest();
         request.setDBInstanceId(instanceID);
-        DescribeDBInstanceNetInfoResponse describeDBInstanceNetInfoResponse = client.describeDBInstanceNetInfoWithOptions(request, runtime);
-        return describeDBInstanceNetInfoResponse;
+        return client.describeDBInstanceNetInfoWithOptions(request, runtime);
+    }
+
+    public static void createRDSUser(Key key,DatabasesInstance databasesInstance,String username,String password) throws Exception {
+        Client rdsClient = getRdsClient(key);
+        com.aliyun.rds20140815.models.CreateAccountRequest request = new com.aliyun.rds20140815.models.CreateAccountRequest();
+        request.setDBInstanceId(databasesInstance.getInstanceId());
+        request.setAccountName(username);
+        request.setAccountType("Super");
+        request.setAccountPassword(password);
+        try {
+            rdsClient.createAccountWithOptions(request, runtime);
+        } catch (Exception e) {
+            request.setAccountType("Normal");
+            rdsClient.createAccountWithOptions(request, runtime);
+        }
+    }
+
+    //获取白名单，存放在数据库，主要保证开启外网创建了数据库后能还原
+    public static List<DescribeDBInstanceIPArrayListResponseBody.DescribeDBInstanceIPArrayListResponseBodyItemsDBInstanceIPArray> getRDSWhitelist(Key key, DatabasesInstance databasesInstance) throws Exception {
+        com.aliyun.rds20140815.models.DescribeDBInstanceIPArrayListRequest request = new com.aliyun.rds20140815.models.DescribeDBInstanceIPArrayListRequest();
+        Client rdsClient = getRdsClient(key);
+        request.setDBInstanceId(databasesInstance.getInstanceId());
+        DescribeDBInstanceIPArrayListResponse response = rdsClient.describeDBInstanceIPArrayListWithOptions(request, runtime);
+        return response.body.items.DBInstanceIPArray;
+    }
+
+    public static void ModifyWhitelist(Key key,DatabasesInstance databasesInstance,Boolean isClose) throws Exception {
+        Client rdsClient = getRdsClient(key);
+        com.aliyun.rds20140815.models.ModifySecurityIpsRequest request = new com.aliyun.rds20140815.models.ModifySecurityIpsRequest();
+        request.setDBInstanceId(databasesInstance.getInstanceId());
+        //设置白名单，所有地址可访问
+        if (!isClose){
+            request.setSecurityIps(databasesInstance.getWhitelist() + ",0.0.0.0/0");
+        }else {
+            request.setSecurityIps(databasesInstance.getWhitelist());
+        }
+        rdsClient.modifySecurityIpsWithOptions(request, runtime);
     }
 
 }

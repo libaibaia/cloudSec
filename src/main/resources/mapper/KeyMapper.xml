@@ -13,11 +13,20 @@
             <result property="token" column="token" jdbcType="VARCHAR"/>
             <result property="isTemporary" column="is_temporary" jdbcType="VARCHAR"/>
             <result property="expirationTime" column="expiration_time" jdbcType="TIMESTAMP"/>
+            <result property="bucketName" column="bucket_name" jdbcType="VARCHAR"/>
+            <result property="taskStatus" column="task_status" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,secretId,secretKey,
         create_by_id,type,token,
-        is_temporary,expiration_time
+        is_temporary,expiration_time,bucket_name,
+        task_status,status,remark,
+        create_time,update_time,name
     </sql>
 </mapper>

@@ -1,9 +1,15 @@
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      maxRequestSize: 100MB
+      maxFileSize: 20MB
+      file-size-threshold: 20MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/ak_sk
+    url: jdbc:mysql://db:3306/key
     username: root
-    password: "123456"
+    password: ${DB_PASSWORD}
 server:
   port: 8000
   servlet:
@@ -31,3 +37,5 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: false
+
+

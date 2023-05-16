@@ -4,11 +4,16 @@ package com.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.common.Tools;
 import com.common.Type;
 import com.domain.Bucket;
+import com.domain.Instance;
 import com.domain.Key;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.service.BucketService;
+import com.service.InstanceService;
 import com.service.impl.BucketServiceImpl;
 import com.service.impl.ConsoleUserServiceImpl;
 import com.service.impl.DatabasesInstanceServiceImpl;
@@ -36,7 +41,7 @@ public class KeyController {
     @Resource
     private PermissionService permissionService;
     @Resource
-    private TencentInstanceService tencentInstanceService;
+    private InstanceService instanceService;
     @Resource
     private DatabasesInstanceServiceImpl databasesInstanceService;
     @Resource
@@ -45,9 +50,13 @@ public class KeyController {
     private ConsoleUserServiceImpl consoleUserService;
 
     @RequestMapping(value = "/lists",method = {RequestMethod.GET,RequestMethod.OPTIONS})
-    public SaResult getSecretList(){
-        List<Key> keys = keyService.getKeysByCreateId(Integer.parseInt(StpUtil.getLoginId().toString()));
-        return SaResult.ok("获取成功").set("lists",keys);
+    public SaResult getSecretList(@RequestParam(value = "page",defaultValue = "1",required = false) Integer page,
+                                  @RequestParam(value = "limit",defaultValue = "10",required = false) Integer limit){
+        QueryWrapper<Key> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("create_by_id",StpUtil.getLoginId());
+        Page<Object> objects = PageHelper.startPage(page, limit);
+        List<Key> list = keyService.list(queryWrapper);
+        return SaResult.ok("获取成功").set("lists",list).set("total",objects.getTotal());
     }
 
     //获取厂商类型
@@ -61,9 +70,8 @@ public class KeyController {
     @RequestMapping(value = "/add",method = {RequestMethod.POST})
     public SaResult addSecret(@RequestBody Key key){
         key.setCreateById(Integer.parseInt(StpUtil.getLoginId().toString()));
-        boolean b = keyService.saveKey(key);
-        if (b) return SaResult.ok();
-        return SaResult.error("添加失败");
+        if (keyService.saveKey(key))return SaResult.ok("添加完成");
+        return SaResult.error("添加失败，名称重复");
     }
 
     @DeleteMapping("/del")
@@ -97,9 +105,9 @@ public class KeyController {
     获取权限列表
      */
     @RequestMapping("/perm")
-    public SaResult getPermList(@RequestBody Map<String,String> id){
-        AttachPolicyInfo[] userPermList = permissionService.getUserPermList(Integer.parseInt(id.get("id")), Integer.parseInt(StpUtil.getLoginId().toString()));
-        return SaResult.ok().set("lists",userPermList);
+    public SaResult getPermList(@RequestBody Map<String,String> id) throws Exception {
+        List<Map> id1 = permissionService.getUserPermList(Integer.parseInt(id.get("id")), Integer.parseInt(StpUtil.getLoginId().toString()));
+        return SaResult.ok().set("lists",id1);
     }
     @RequestMapping("/restart")
     public SaResult restartAkSk(@RequestBody Map<String,String> args){
@@ -107,16 +115,48 @@ public class KeyController {
         String id = args.get("id");
         Key key = keyService.getById(Integer.parseInt(id));
         if (key.getCreateById().equals(Integer.parseInt(StpUtil.getLoginId().toString()))){
-            tencentInstanceService.delInstanceByKeyId(key.getId());
-            QueryWrapper<Bucket> bucketQueryWrapper = new QueryWrapper<>();
-            bucketQueryWrapper.eq("key_id",key.getId());
-            bucketService.remove(bucketQueryWrapper);
-            databasesInstanceService.delInstanceByKeyId(key.getId());
+            cleanInstanceInfo(key);
             key.setCreateById(Integer.parseInt(StpUtil.getLoginId().toString()));
             Tools.executorService.submit(() -> keyService.execute(key));
             return SaResult.ok("更新成功，稍后刷新");
         }
         return SaResult.error("更新失败");
+    }
+
+    @GetMapping("/start")
+    public SaResult startScan(){
+        Object loginId = StpUtil.getLoginId();
+        QueryWrapper<Key> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("create_by_id",loginId);
+        List<Key> list = keyService.list(queryWrapper);
+        for (Key key : list) {
+            cleanInstanceInfo(key);
+            key.setTaskStatus("等待检测");
+            Tools.executorService.submit(() -> keyService.execute(key));
+        }
+        return SaResult.ok("启动成功");
+    }
+
+    @GetMapping("/stop")
+    public SaResult stopTask(){
+        Tools.stopALLTask();
+        List<Key> list = keyService.list();
+        for (Key key : list) {
+            key.setTaskStatus("停止检测");
+            keyService.updateById(key);
+            cleanInstanceInfo(key);
+        }
+        return SaResult.ok("停止成功");
+    }
+
+    private void cleanInstanceInfo(Key key) {
+        QueryWrapper<Instance> instanceQueryWrapper = new QueryWrapper<>();
+        instanceQueryWrapper.eq("key_id", key.getId());
+        instanceService.remove(instanceQueryWrapper);
+        QueryWrapper<Bucket> bucketQueryWrapper = new QueryWrapper<>();
+        bucketQueryWrapper.eq("key_id", key.getId());
+        bucketService.remove(bucketQueryWrapper);
+        databasesInstanceService.delInstanceByKeyId(key.getId());
     }
 
 }

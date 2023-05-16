@@ -222,6 +222,4 @@ public class UserPermissionList{
         this.key = key;
     }
 
-    public void test(){
-    }
 }

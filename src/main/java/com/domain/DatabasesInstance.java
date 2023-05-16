@@ -12,6 +12,7 @@ import java.io.Serializable;
  */
 @TableName(value ="databases_instance")
 public class DatabasesInstance implements Serializable {
+
     /**
      * 
      */
@@ -62,6 +63,11 @@ public class DatabasesInstance implements Serializable {
      * 
      */
     private String type;
+
+    /**
+     * 
+     */
+    private String whitelist;
 
     public DatabasesInstance() {
     }
@@ -219,6 +225,20 @@ public class DatabasesInstance implements Serializable {
         this.type = type;
     }
 
+    /**
+     * 
+     */
+    public String getWhitelist() {
+        return whitelist;
+    }
+
+    /**
+     * 
+     */
+    public void setWhitelist(String whitelist) {
+        this.whitelist = whitelist;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -240,7 +260,8 @@ public class DatabasesInstance implements Serializable {
             && (this.getKeyId() == null ? other.getKeyId() == null : this.getKeyId().equals(other.getKeyId()))
             && (this.getUser() == null ? other.getUser() == null : this.getUser().equals(other.getUser()))
             && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
-            && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()));
+            && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
+            && (this.getWhitelist() == null ? other.getWhitelist() == null : this.getWhitelist().equals(other.getWhitelist()));
     }
 
     @Override
@@ -257,6 +278,7 @@ public class DatabasesInstance implements Serializable {
         result = prime * result + ((getUser() == null) ? 0 : getUser().hashCode());
         result = prime * result + ((getPassword() == null) ? 0 : getPassword().hashCode());
         result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
+        result = prime * result + ((getWhitelist() == null) ? 0 : getWhitelist().hashCode());
         return result;
     }
 
@@ -276,6 +298,7 @@ public class DatabasesInstance implements Serializable {
         sb.append(", user=").append(user);
         sb.append(", password=").append(password);
         sb.append(", type=").append(type);
+        sb.append(", whitelist=").append(whitelist);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

@@ -12,7 +12,7 @@ import java.util.List;
 public class RandomPwd {
 
     private static final String lowStr = "abcdefghijklmnopqrstuvwxyz";
-    private static final String specialStr = "~!@#$%^&*()_+/-=[]{};:'<>?.";
+    private static final String specialStr = "!@#$%^&*()_+-=";
     private static final String numStr = "0123456789";
 
     // 随机获取字符串字符

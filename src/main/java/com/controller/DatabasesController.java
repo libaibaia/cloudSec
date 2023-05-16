@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.common.RandomPwd;
 import com.domain.DatabasesInstance;
 import com.domain.Key;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.service.KeyService;
 import com.service.impl.DatabasesInstanceServiceImpl;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
@@ -21,18 +23,21 @@ import java.util.*;
 
 @RestController
 @SaCheckLogin
-@RequestMapping("/api/mysql")
+@RequestMapping("/api/databases")
 public class DatabasesController {
     @Resource
     private DatabasesInstanceServiceImpl databasesInstanceService;
     @Resource
     private KeyService keyService;
     @RequestMapping("/lists")
-    public SaResult getMysqlLists(@RequestParam(required = false) Integer page,@RequestParam(required = false) String quick_search){
+    public SaResult getMysqlLists(@RequestParam(required = false) String quick_search,
+                                  @RequestParam(value = "page",defaultValue = "1",required = false) Integer page,
+                                  @RequestParam(value = "limit",defaultValue = "10",required = false) Integer limit){
         List<DatabasesInstance> databasesList = new ArrayList<>();
+        Page<DatabasesInstance> objects = PageHelper.startPage(page, limit);
         if (quick_search != null){
             QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
-            keyQueryWrapper.eq("secretId",quick_search);
+            keyQueryWrapper.eq("name",quick_search);
             Key one = keyService.getOne(keyQueryWrapper);
             if (one != null){
                 QueryWrapper<DatabasesInstance> databasesInstanceQueryWrapper = new QueryWrapper<>();
@@ -42,12 +47,12 @@ public class DatabasesController {
         }else{
             databasesList = databasesInstanceService.list();
         }
-        return SaResult.ok().set("lists", databasesList);
+        return SaResult.ok().set("lists", databasesList).set("total",objects.getTotal());
     }
     @RequestMapping("/open")
     public SaResult openWanService(@RequestBody Map<String,Integer> args){
         Integer id = args.get("id");
-        DatabasesInstance databasesById = databasesInstanceService.getInstanceById(id);
+        DatabasesInstance databasesById = databasesInstanceService.getById(id);
         QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
         keyQueryWrapper.eq("id",databasesById.getKeyId());
         Key one = keyService.getOne(keyQueryWrapper);
@@ -73,29 +78,37 @@ public class DatabasesController {
     public SaResult createUser(@RequestBody Map<String,String> args){
         String id = args.get("id");
         DatabasesInstance mysqlById = databasesInstanceService.getInstanceById(Integer.valueOf(id));
-        if (mysqlById.getType().equals(DatabasesInstanceServiceImpl.postgres)){
-            String username = args.get("username");
-            try {
-                String dbUser = databasesInstanceService.createDBUser(Integer.parseInt(id), username, RandomPwd.getRandomPwd(8));
-                if (dbUser != null){
-                    return SaResult.error(dbUser);
-                }
-                return SaResult.ok("创建成功");
-            } catch (TencentCloudSDKException e) {
-                return SaResult.error("创建失败，原因：" + e.getMessage());
-            }
-        }
+        Random r = new Random();
+        int i = r.nextInt(100);
         try {
-            Random r = new Random();
-            int i = r.nextInt(100);
-            String dbUser = databasesInstanceService.createDBUser(Integer.parseInt(id), "test" + i, RandomPwd.getRandomPwd(8));
-            if (dbUser != null){
-                return SaResult.error(dbUser);
-            }
+            databasesInstanceService.createDBUser(Integer.parseInt(id), "test" + i, RandomPwd.getRandomPwd(8));
             return SaResult.ok("创建成功");
-        } catch (TencentCloudSDKException e) {
+        } catch (Exception e) {
             return SaResult.error("创建失败，原因：" + e.getMessage());
         }
+
+//        if (mysqlById.getType().equals(DatabasesInstanceServiceImpl.postgres)){
+//
+//            try {
+//                String dbUser = databasesInstanceService.createDBUser(Integer.parseInt(id), username, RandomPwd.getRandomPwd(8));
+//                if (dbUser != null){
+//                    return SaResult.error(dbUser);
+//                }
+//                return SaResult.ok("创建成功");
+//            } catch (Exception e) {
+//                return SaResult.error("创建失败，原因：" + e.getMessage());
+//            }
+//        }
+//        try {
+//
+//            String dbUser = databasesInstanceService.createDBUser(Integer.parseInt(id), "test" + i, RandomPwd.getRandomPwd(8));
+//            if (dbUser != null){
+//                return SaResult.error(dbUser);
+//            }
+//            return SaResult.ok("创建成功");
+//        } catch (TencentCloudSDKException e) {
+//            return SaResult.error("创建失败，原因：" + e.getMessage());
+//        }
     }
 
     @RequestMapping("/userLists")

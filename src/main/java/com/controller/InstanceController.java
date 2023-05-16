@@ -13,6 +13,8 @@ import com.common.aliyun.product.ECS;
 import com.common.tencent.product.cvm.CVM;
 import com.domain.Instance;
 import com.domain.Key;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.service.impl.InstanceServiceImpl;
 import com.service.impl.KeyServiceImpl;
 import com.service.impl.tencent.TencentInstanceService;
@@ -47,17 +49,20 @@ public class InstanceController {
 //     * @return 结果集合
 //     */
     @RequestMapping("/lists")
-    public SaResult getInstanceLists(@RequestParam(required = false) String quick_search){
+    public SaResult getInstanceLists(@RequestParam(required = false) String quick_search,
+                                     @RequestParam(value = "page",defaultValue = "1",required = false) Integer page,
+                                     @RequestParam(value = "limit",defaultValue = "10",required = false) Integer limit){
         List<Key> keys = keyService.getKeysByCreateId(Integer.parseInt(StpUtil.getLoginId().toString()));
+        Page<Instance> objects = PageHelper.startPage(page, limit);
         List<Instance> instanceList = new ArrayList<>();
         if (quick_search != null){
             QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
-            keyQueryWrapper.eq("secretId",quick_search);
+            keyQueryWrapper.eq("name",quick_search);
             Key one = keyService.getOne(keyQueryWrapper);
             if (one != null){
-                ArrayList<Integer> objects = new ArrayList<>();
-                objects.add(one.getId());
-                instanceList = tencentInstanceService.getInstanceList(objects);
+                ArrayList<Integer> list = new ArrayList<>();
+                list.add(one.getId());
+                instanceList = instanceService.getInstanceList(list);
             }
         }
         else {
@@ -65,26 +70,25 @@ public class InstanceController {
             for (Key key : keys) {
                 list.add(key.getId());
             }
-            instanceList = tencentInstanceService.getInstanceList(list);
+            instanceList = instanceService.getInstanceList(list);
         }
-        return  SaResult.ok("获取成功").set("lists",instanceList);
+        return  SaResult.ok("获取成功").set("lists",instanceList).set("total",objects.getTotal());
     }
     @RequestMapping("/exec")
     public SaResult execCommand(@RequestBody Map<String,String> info) throws UnsupportedEncodingException {
-        com.domain.Instance id = tencentInstanceService.getInstanceByID(Integer.parseInt(info.get("id")));
-
-        if (id != null){
-            Key key = keyService.getById(id.getKeyId());
+        Instance instance = instanceService.getById(Integer.parseInt(info.get("id")));
+        if (instance != null){
+            Key key = keyService.getById(instance.getKeyId());
             StringBuilder builder = new StringBuilder();
             if (key.getType().equals(Type.Tencent.toString())){
                 if (key.getCreateById() == Integer.parseInt(StpUtil.getLoginId().toString())){
                     CVM cvm = new CVM(key);
-                    com.tencentcloudapi.cvm.v20170312.models.Instance instance = new com.tencentcloudapi.cvm.v20170312.models.Instance();
-                    instance.setInstanceId(id.getInstanceId());
+                    com.tencentcloudapi.cvm.v20170312.models.Instance current_instance = new com.tencentcloudapi.cvm.v20170312.models.Instance();
+                    instance.setInstanceId(instance.getInstanceId());
                     RegionInfo regionInfo = new RegionInfo();
-                    regionInfo.setRegion(id.getRegion());
+                    regionInfo.setRegion(instance.getRegion());
                     Map<com.tencentcloudapi.cvm.v20170312.models.Instance, DescribeInvocationTasksResponse> execArgs =
-                            cvm.getOutCommandPut(info.get("execArgs"), new com.tencentcloudapi.cvm.v20170312.models.Instance[]{instance}, regionInfo);
+                            cvm.getOutCommandPut(info.get("execArgs"), new com.tencentcloudapi.cvm.v20170312.models.Instance[]{current_instance}, regionInfo);
                     for (com.tencentcloudapi.cvm.v20170312.models.Instance instance1 : execArgs.keySet()) {
                         for (InvocationTask invocationTask : execArgs.get(instance1).getInvocationTaskSet()) {
                             String taskStatus;
@@ -99,8 +103,8 @@ public class InstanceController {
             }
             if (key.getType().equals(Type.AliYun.toString())){
                 try {
-                    DescribeInvocationResultsResponse command = ECS.createCommand(Base.createClient(key, "ecs-cn-hangzhou.aliyuncs.com"), id.getRegion(),
-                            "test", ECS.getType(key.getType()), info.get("execArgs"), id.getInstanceId());
+                    DescribeInvocationResultsResponse command = ECS.createCommand(Base.createClient(key, "ecs-cn-hangzhou.aliyuncs.com"), instance.getRegion(),
+                            "test", ECS.getType(instance.getType()), info.get("execArgs"), instance.getInstanceId());
                     for (DescribeInvocationResultsResponseBody.DescribeInvocationResultsResponseBodyInvocationInvocationResultsInvocationResult result : command.getBody().invocation.invocationResults.invocationResult) {
                         byte[] decode = Base64.getDecoder().decode(result.output.getBytes());
                         builder.append(new String(decode));

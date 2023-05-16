@@ -1,9 +1,7 @@
 package com.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -53,6 +51,43 @@ public class Key implements Serializable {
      * 
      */
     private Date expirationTime;
+
+    /**
+     * 
+     */
+    private String bucketName;
+
+    /**
+     * 
+     */
+    private String taskStatus;
+
+    /**
+     * 
+     */
+    private String status;
+
+    /**
+     * 
+     */
+    private String remark;
+
+    /**
+     * 
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private Date createTime;
+
+    /**
+     * 
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Date updateTime;
+
+    /**
+     * 
+     */
+    private String name;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -169,6 +204,104 @@ public class Key implements Serializable {
         this.expirationTime = expirationTime;
     }
 
+    /**
+     * 
+     */
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    /**
+     * 
+     */
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
+    /**
+     * 
+     */
+    public String getTaskStatus() {
+        return taskStatus;
+    }
+
+    /**
+     * 
+     */
+    public void setTaskStatus(String taskStatus) {
+        this.taskStatus = taskStatus;
+    }
+
+    /**
+     * 
+     */
+    public String getStatus() {
+        return status;
+    }
+
+    /**
+     * 
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    /**
+     * 
+     */
+    public String getRemark() {
+        return remark;
+    }
+
+    /**
+     * 
+     */
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    /**
+     * 
+     */
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    /**
+     * 
+     */
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    /**
+     * 
+     */
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    /**
+     * 
+     */
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    /**
+     * 
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * 
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -188,7 +321,14 @@ public class Key implements Serializable {
             && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
             && (this.getToken() == null ? other.getToken() == null : this.getToken().equals(other.getToken()))
             && (this.getIsTemporary() == null ? other.getIsTemporary() == null : this.getIsTemporary().equals(other.getIsTemporary()))
-            && (this.getExpirationTime() == null ? other.getExpirationTime() == null : this.getExpirationTime().equals(other.getExpirationTime()));
+            && (this.getExpirationTime() == null ? other.getExpirationTime() == null : this.getExpirationTime().equals(other.getExpirationTime()))
+            && (this.getBucketName() == null ? other.getBucketName() == null : this.getBucketName().equals(other.getBucketName()))
+            && (this.getTaskStatus() == null ? other.getTaskStatus() == null : this.getTaskStatus().equals(other.getTaskStatus()))
+            && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
+            && (this.getRemark() == null ? other.getRemark() == null : this.getRemark().equals(other.getRemark()))
+            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
+            && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
+            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()));
     }
 
     @Override
@@ -203,6 +343,13 @@ public class Key implements Serializable {
         result = prime * result + ((getToken() == null) ? 0 : getToken().hashCode());
         result = prime * result + ((getIsTemporary() == null) ? 0 : getIsTemporary().hashCode());
         result = prime * result + ((getExpirationTime() == null) ? 0 : getExpirationTime().hashCode());
+        result = prime * result + ((getBucketName() == null) ? 0 : getBucketName().hashCode());
+        result = prime * result + ((getTaskStatus() == null) ? 0 : getTaskStatus().hashCode());
+        result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
+        result = prime * result + ((getRemark() == null) ? 0 : getRemark().hashCode());
+        result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
+        result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
+        result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
         return result;
     }
 
@@ -220,6 +367,13 @@ public class Key implements Serializable {
         sb.append(", token=").append(token);
         sb.append(", isTemporary=").append(isTemporary);
         sb.append(", expirationTime=").append(expirationTime);
+        sb.append(", bucketName=").append(bucketName);
+        sb.append(", taskStatus=").append(taskStatus);
+        sb.append(", status=").append(status);
+        sb.append(", remark=").append(remark);
+        sb.append(", createTime=").append(createTime);
+        sb.append(", updateTime=").append(updateTime);
+        sb.append(", name=").append(name);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
