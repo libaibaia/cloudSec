@@ -12,8 +12,12 @@
 ![image](https://user-images.githubusercontent.com/108923559/232520276-bd9e23fc-eab2-4af1-ad99-ecb5d3bb834c.png)
 ![image](https://user-images.githubusercontent.com/108923559/232520972-8deed19a-f5b2-4fdd-b5fd-156ea933ded7.png)
 ![image](https://user-images.githubusercontent.com/108923559/232521203-c0320ef8-0df3-4f3a-b9fe-c3afe8aaf5f7.png)
-3. 存储桶，暂时没有加入文件操作的功能，后期会加入
+3. 存储桶，文件操作，打包下载所有文件及单独文件url生成
+- 预览文件列表
 ![image](https://user-images.githubusercontent.com/108923559/232521771-cfb4230c-231f-4093-b433-e819eb7b5230.png)
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/ca40b9f8-b1be-4dd9-8720-abe35ce8d687)
+- 上传
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/12981dbb-d4c3-4646-87ff-bbdc81d1e3a1)
 4. 控制台用户，需要在ak/sk管理处添加控制台用户
 ![image](https://user-images.githubusercontent.com/108923559/232523622-87daeb12-21dc-49f6-a604-d02b41f0bc64.png)
 5. 数据库
@@ -24,33 +28,48 @@
 
 ## docker部署
 ```yaml
-version: "3"
-services:
-  mysql:
-    image: registry.cn-qingdao.aliyuncs.com/lx_project/project:mysql
-    container_name: mysql
-    volumes:
-      - /home/mysql/data:/var/lib/mysql # 挂载目录，可以自定义
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-    ports:
-      - "3306:3306" 
-  app:
-    image: registry.cn-qingdao.aliyuncs.com/lx_project/project:app
-    links:
-      - "mysql:db"
-    container_name: app
-    ports:
-      - "8000:8000"
-  web:
-    image: registry.cn-qingdao.aliyuncs.com/lx_project/project:web
-    container_name: web
-    environment:
-      API_IP: 192.168.61.129 #更改此处为本机IP
-      API_PORT: 8000
-    ports:
-      - "80:80"
-# 其余部分无需更改，默认即可
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      maxRequestSize: 100MB
+      maxFileSize: 20MB
+      file-size-threshold: 20MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/ak_sk
+    username: root
+    password: 123456
+server:
+  port: 8000
+  servlet:
+    encoding:
+      charset: utf-8
+      enabled: true
+      force: true
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+
+sa-token:
+  # token名称 (同时也是cookie名称)
+  token-name: Authorization
+  # token有效期，单位s 默认30天, -1代表永不过期
+  timeout: 2592000
+  # token临时有效期 (指定时间内无操作就视为token过期) 单位: 秒
+  activity-timeout: 1800
+  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
+  is-concurrent: true
+  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
+  is-share: true
+  # token风格
+  token-style: uuid
+  # 是否输出操作日志
+  is-log: false
+
+
+
 ```
 
 启动脚本
