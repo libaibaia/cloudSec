@@ -28,46 +28,33 @@
 
 ## docker部署
 ```yaml
-spring:
-  servlet:
-    multipart:
-      enabled: true
-      maxRequestSize: 100MB
-      maxFileSize: 20MB
-      file-size-threshold: 20MB
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/ak_sk
-    username: root
-    password: 123456
-server:
-  port: 8000
-  servlet:
-    encoding:
-      charset: utf-8
-      enabled: true
-      force: true
+version: '3.8'
 
-mybatis:
-  configuration:
-    map-underscore-to-camel-case: true
-
-sa-token:
-  # token名称 (同时也是cookie名称)
-  token-name: Authorization
-  # token有效期，单位s 默认30天, -1代表永不过期
-  timeout: 2592000
-  # token临时有效期 (指定时间内无操作就视为token过期) 单位: 秒
-  activity-timeout: 1800
-  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
-  is-concurrent: true
-  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
-  is-share: true
-  # token风格
-  token-style: uuid
-  # 是否输出操作日志
-  is-log: false
-
+services:
+  java-app:
+    container_name: app
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app
+    environment:
+      DB_PASSWORD: password
+    depends_on:
+      - db
+  vue-web:
+    container_name: vue-web
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app
+    ports:
+      - "80:80"
+    environment:
+      - API_IP=192.168.61.131
+    depends_on:
+      - java-app
+  db:
+    container_name: db
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - /home/cloud/data:/var/lib/mysql
 
 
 ```
