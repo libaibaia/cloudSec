@@ -62,16 +62,13 @@ services:
 启动脚本
 ```bash
 docker-compose up -d
-docker exec -it web /bin/bash "/home/Iinit.sh" #因为需要更改前端API接口地址，所以需要执行这个脚本，也可以docker-compose启动后进入容器手动执行
-exit
-echo "start ok"
 ```
 
 ## 本地部署
 - 数据库mysql5.7
 - jdk8
 - node 16.16
-前端项目地址：https://github.com/libaibaia/cloudSecVue/tree/master
+前端项目地址：https://github.com/libaibaia/vue-web
 - 步骤：
 1. 编译后端项目（将application中的mysql改为本地mysql地址） mnv package
 2. 前端项目打包,打包前更改.env.production文件中的VITE_AXIOS_BASE_URL为本机IP，然后，npm install --> npm run build
