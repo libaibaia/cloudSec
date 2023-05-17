@@ -40,7 +40,7 @@
 ```yaml
 services:
   java-app:
-    container_name: app
+    container_name: java-app
     image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app
     environment:
       DB_PASSWORD: password
