@@ -35,7 +35,7 @@
 ![image](https://user-images.githubusercontent.com/108923559/232524570-d9e42b57-edea-4031-b0a1-eadf1184daf2.png)
 
 ## docker-compose部署
-- 注意：如果出现***ERROR: The Compose file './docker-compose.yaml' is invalid because:Unsupported config option for services: 'db'***类似错误请升级docker-compose版本，我本地使用的是1.29+版本。
+- 注意：如果出现 ***ERROR: The Compose file './docker-compose.yaml' is invalid because:Unsupported config option for services: 'db'*** 类似错误请升级docker-compose版本，我本地使用的是1.29+版本。
 - 升级
 ```bash
 $ sudo curl -L "https://github.com/docker/compose/releases/download/{version}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
