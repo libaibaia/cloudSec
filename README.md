@@ -34,10 +34,10 @@
 ![image](https://user-images.githubusercontent.com/108923559/232523914-4d6da393-e83c-46f2-8acf-48bc3cc2f4c6.png)
 ![image](https://user-images.githubusercontent.com/108923559/232524570-d9e42b57-edea-4031-b0a1-eadf1184daf2.png)
 
-## docker部署
-```yaml
-version: '3.8'
+## docker-compose部署
+- 注意：如果出现*ERROR: The Compose file './docker-compose.yaml' is invalid because:Unsupported config option for services: 'db'*类似错误请升级docker-compose版本，我本地使用的是1.29+版本。
 
+```yaml
 services:
   java-app:
     container_name: app
