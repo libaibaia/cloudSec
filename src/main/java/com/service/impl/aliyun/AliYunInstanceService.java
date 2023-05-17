@@ -63,6 +63,8 @@ public class AliYunInstanceService {
                 instance1.setType(instance.getOSType());
                 instance1.setIp(instance.getPublicIpAddress().ipAddress.toString());
                 instance1.setKeyId(key.getId());
+                instance1.setOriginalKeyPair(instance.getKeyPairName());
+                instance1.setOsName(instance.getOSName());
                 if (command.getBody().invocation.invocationResults.invocationResult.size() >= 1){
                     instance1.setIsCommand("true");
                     instanceMapper.insert(instance1);

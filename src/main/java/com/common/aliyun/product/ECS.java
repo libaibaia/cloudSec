@@ -49,7 +49,7 @@ public class ECS {
         client.rebootInstanceWithOptions(rebootInstanceRequest, runtime);
     }
     //绑定密钥，需要密钥所在的区域id，密钥名称，要绑定的实例id
-    private static void bindKeyPair(Client client,String regionId,String keyName,String instanceId) throws Exception {
+    public static void bindKeyPair(Client client,String regionId,String keyName,String instanceId) throws Exception {
         AttachKeyPairRequest attachKeyPairRequest = new AttachKeyPairRequest();
         attachKeyPairRequest.setKeyPairName(keyName);
         attachKeyPairRequest.setRegionId(regionId);

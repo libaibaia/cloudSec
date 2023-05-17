@@ -1,6 +1,7 @@
 package com.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,6 +17,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
+@SaCheckLogin
 @RequestMapping("/api/files")
 public class FileController {
     @Resource

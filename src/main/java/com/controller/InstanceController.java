@@ -37,8 +37,6 @@ public class InstanceController {
     private Logger logger = LoggerFactory.getLogger(InstanceController.class);
 
     @Resource
-    private TencentInstanceService tencentInstanceService;
-    @Resource
     private KeyServiceImpl keyService;
     @Resource
     private InstanceServiceImpl instanceService;
@@ -131,5 +129,16 @@ public class InstanceController {
         String keyName = params.get("keyName");
         String key = params.get("key");
         return instanceService.bindKeyPair(id,keyName,key);
+    }
+
+    @RequestMapping("/restoreKey")
+    public SaResult originalKeyPair(@RequestParam("id") Integer id){
+        Instance byId = instanceService.getById(id);
+        try {
+            instanceService.restoreKey(byId);
+        } catch (Exception e) {
+            return SaResult.error(e.getMessage());
+        }
+        return SaResult.ok("成功");
     }
 }

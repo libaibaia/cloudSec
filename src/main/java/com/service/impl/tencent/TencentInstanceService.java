@@ -63,6 +63,8 @@ public class TencentInstanceService {
                     instance.setKeyId(key.getId());
                     instance.setRegion(instance1.any().get("region").toString());
                     instance.setIsCommand((invocationTask.getCommandId().equals("null"))?"null":"true");
+                    instance.setOriginalKeyPair(Arrays.toString(instance1.getLoginSettings().getKeyIds()));
+                    instance.setOsName(instance1.getOsName());
                     instanceMapper.insert(instance);
                     logger.info("成功添加一个资源，id:" + invocationTask.getInstanceId());
                 }

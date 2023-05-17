@@ -58,6 +58,16 @@ public class Instance implements Serializable {
      */
     private String type;
 
+    /**
+     * 
+     */
+    private String originalKeyPair;
+
+    /**
+     * 
+     */
+    private String osName;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
@@ -187,6 +197,34 @@ public class Instance implements Serializable {
         this.type = type;
     }
 
+    /**
+     * 
+     */
+    public String getOriginalKeyPair() {
+        return originalKeyPair;
+    }
+
+    /**
+     * 
+     */
+    public void setOriginalKeyPair(String originalKeyPair) {
+        this.originalKeyPair = originalKeyPair;
+    }
+
+    /**
+     * 
+     */
+    public String getOsName() {
+        return osName;
+    }
+
+    /**
+     * 
+     */
+    public void setOsName(String osName) {
+        this.osName = osName;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -207,7 +245,9 @@ public class Instance implements Serializable {
             && (this.getPrivateKey() == null ? other.getPrivateKey() == null : this.getPrivateKey().equals(other.getPrivateKey()))
             && (this.getPublicKey() == null ? other.getPublicKey() == null : this.getPublicKey().equals(other.getPublicKey()))
             && (this.getIp() == null ? other.getIp() == null : this.getIp().equals(other.getIp()))
-            && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()));
+            && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
+            && (this.getOriginalKeyPair() == null ? other.getOriginalKeyPair() == null : this.getOriginalKeyPair().equals(other.getOriginalKeyPair()))
+            && (this.getOsName() == null ? other.getOsName() == null : this.getOsName().equals(other.getOsName()));
     }
 
     @Override
@@ -223,6 +263,8 @@ public class Instance implements Serializable {
         result = prime * result + ((getPublicKey() == null) ? 0 : getPublicKey().hashCode());
         result = prime * result + ((getIp() == null) ? 0 : getIp().hashCode());
         result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
+        result = prime * result + ((getOriginalKeyPair() == null) ? 0 : getOriginalKeyPair().hashCode());
+        result = prime * result + ((getOsName() == null) ? 0 : getOsName().hashCode());
         return result;
     }
 
@@ -241,6 +283,8 @@ public class Instance implements Serializable {
         sb.append(", publicKey=").append(publicKey);
         sb.append(", ip=").append(ip);
         sb.append(", type=").append(type);
+        sb.append(", originalKeyPair=").append(originalKeyPair);
+        sb.append(", osName=").append(osName);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

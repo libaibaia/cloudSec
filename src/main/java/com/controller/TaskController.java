@@ -1,6 +1,7 @@
 package com.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.core.io.FileUtil;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@SaCheckLogin
 @RequestMapping("/api/task")
 public class TaskController {
 

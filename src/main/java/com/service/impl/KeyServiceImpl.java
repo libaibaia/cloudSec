@@ -11,6 +11,7 @@ import com.domain.Key;
 import com.service.KeyService;
 import com.mapper.KeyMapper;
 import com.service.impl.aliyun.AliYunInstanceService;
+import com.service.impl.qiniu.QiNiuService;
 import com.service.impl.tencent.TencentInstanceService;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,10 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
     @Resource
     @Lazy
     private TencentInstanceService tencentInstanceService;
+
+    @Resource
+    @Lazy
+    private QiNiuService qiNiuService;
     @Resource
     @Lazy
     private BucketServiceImpl bucketService;
@@ -81,7 +86,9 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
         KeyService keyService = this;
         switch (type){
             case AliYun:
+
             {
+                Integer defaultValue = 3;
                 try {
                     Base.getRegionInfo(key, "ecs-cn-hangzhou.aliyuncs.com");
                 } catch (Exception e) {
@@ -92,21 +99,22 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                 AtomicInteger detectProgress = new AtomicInteger(3);
                 Tools.executorService.submit(() -> {
                     aliYunInstanceService.getInstanceList(key,detectProgress);
-                    updateStatus(detectProgress,key,keyService);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 Tools.executorService.submit(() -> {
                     aliYunInstanceService.getBucketLists(key,detectProgress);
-                    updateStatus(detectProgress,key,keyService);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 Tools.executorService.submit(() -> {
                     aliYunInstanceService.getRdsLists(key,detectProgress);
-                    updateStatus(detectProgress,key,keyService);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
                 });
 
                 break;
             }
             case Tencent:
             {
+                Integer defaultValue = 3;
                 try {
                     com.common.tencent.product.Base.getRegionList(com.common.tencent.product.Base.createCredential(key),"cvm");
                 } catch (TencentCloudSDKException e) {
@@ -117,21 +125,29 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                 AtomicInteger detectProgress = new AtomicInteger(3);
                 Tools.executorService.submit(() -> {
                     tencentInstanceService.getInstanceList(key,detectProgress);
-                    updateStatus(detectProgress,key,keyService);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 Tools.executorService.submit(() -> {
                         bucketService.getBucketList(key,detectProgress);
-                        updateStatus(detectProgress,key,keyService);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 Tools.executorService.submit(() -> {
                     tencentInstanceService.getDBLists(key,detectProgress);
-                    updateStatus(detectProgress,key,keyService);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
+                });
+            }
+            case QINiu:{
+                Integer defaultValue = 1;
+                AtomicInteger detectProgress = new AtomicInteger(1);
+                Tools.executorService.execute(() -> {
+                    qiNiuService.getInstanceList(key,detectProgress);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
                 });
             }
         }
     }
 
-    public void updateStatus(AtomicInteger detectProgress,Key key,KeyService keyService){
+    public void updateStatus(AtomicInteger detectProgress,Key key,KeyService keyService,Integer defaultValue){
         NumberFormat numberFormat = NumberFormat.getNumberInstance();
         numberFormat.setMaximumFractionDigits(2);
         if (detectProgress.get() <= 0) {
@@ -139,7 +155,7 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
             log.info("检测key{}结束",key.getSecretid());
         }
         else {
-            String format = numberFormat.format((float)(3 - detectProgress.get()) / (float) 3 * 100);
+            String format = numberFormat.format((float)(3 - detectProgress.get()) / (float) defaultValue * 100);
             key.setTaskStatus(format + "%");
         }
         keyService.updateById(key);
