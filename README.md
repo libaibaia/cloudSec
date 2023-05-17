@@ -77,6 +77,8 @@ services:
 启动脚本
 ```bash
 docker-compose up -d
+#然后访问http://<IP>/admin/login
+#默认账号密码admin/admin123
 ```
 
 ## 本地部署
