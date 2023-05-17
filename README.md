@@ -1,7 +1,15 @@
 # cloudSec
 # 云安全-AK/SK泄露利用工具
-***前端采用vue3,基于buildadmin模板，后端springboot，原接口调用厂商的SDK***
-## 关于使用(目前接入了腾讯云的所以下述功能接口，阿里云目前仅支持服务器资源检测，其余厂商需要慢慢补充)
+- ***注意：部分代码中由于时间关系未做权限控制，存在越权，建议本地搭建使用即可***
+- ***前端采用vue3,基于buildadmin模板，后端springboot，原接口调用厂商的SDK***
+## 关于使用(目前接入了腾讯云的所以下述功能接口，阿里云已更新加入，其余厂商需要慢慢补充)
+## 关于后续添加的厂商
+- 亚马逊云
+- 七牛云
+- 华为云
+- 微软云
+- 谷歌
+以上是后续的更详细方向，有点多，可能一时半会更新不完
 ***注：如果页面白屏刷新浏览器即可，因为热更新的原因导致，后期会解决。***
 1. AK/SK管理
 ![image](https://user-images.githubusercontent.com/108923559/232522170-4e0bf7ee-067c-4401-9ed1-f7f51abfe5a5.png)
@@ -26,13 +34,20 @@
 ![image](https://user-images.githubusercontent.com/108923559/232523914-4d6da393-e83c-46f2-8acf-48bc3cc2f4c6.png)
 ![image](https://user-images.githubusercontent.com/108923559/232524570-d9e42b57-edea-4031-b0a1-eadf1184daf2.png)
 
-## docker部署
-```yaml
-version: '3.8'
+## docker-compose部署
+- 注意：如果出现 ***ERROR: The Compose file './docker-compose.yaml' is invalid because:Unsupported config option for services: 'db'*** 类似错误请升级docker-compose版本，我本地使用的是1.29+版本。
+- 升级
+```bash
+$ sudo curl -L "https://github.com/docker/compose/releases/download/{version}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
+$ sudo chmod +x /usr/local/bin/docker-compose
+
+```
+
+```yaml
 services:
   java-app:
-    container_name: app
+    container_name: java-app
     image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app
     environment:
       DB_PASSWORD: password
@@ -62,13 +77,15 @@ services:
 启动脚本
 ```bash
 docker-compose up -d
+#然后访问http://<IP>/admin/login
+#默认账号密码admin/admin123
 ```
 
 ## 本地部署
 - 数据库mysql5.7
 - jdk8
 - node 16.16
-前端项目地址：https://github.com/libaibaia/vue-web
+前端项目地址：[https://github.com/libaibaia/vue-web](https://github.com/libaibaia/web-vue)
 - 步骤：
 1. 编译后端项目（将application中的mysql改为本地mysql地址） mnv package
 2. 前端项目打包,打包前更改.env.production文件中的VITE_AXIOS_BASE_URL为本机IP，然后，npm install --> npm run build
