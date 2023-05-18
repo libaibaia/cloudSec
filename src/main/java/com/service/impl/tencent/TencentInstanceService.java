@@ -66,11 +66,12 @@ public class TencentInstanceService {
                     instance.setOriginalKeyPair(Arrays.toString(instance1.getLoginSettings().getKeyIds()));
                     instance.setOsName(instance1.getOsName());
                     instanceMapper.insert(instance);
-                    logger.info("成功添加一个资源，id:" + invocationTask.getInstanceId());
+                    logger.info("成功添加一个资源，id:" + instance.getInstanceId());
                 }
             }
         } catch (TencentCloudSDKException e) {
             logger.error(e.getMessage());
+            return;
         }
         status.decrementAndGet();
     }

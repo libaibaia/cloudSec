@@ -7,13 +7,17 @@ import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.PutObjectResult;
 import com.common.aliyun.product.OSS;
 import com.common.modle.File;
+import com.common.qiniu.base.BaseAuth;
 import com.common.tencent.product.COS;
 import com.domain.Files;
 import com.domain.Key;
 import com.qcloud.cos.model.COSObjectSummary;
+import com.qiniu.storage.model.FileInfo;
+import com.qiniu.storage.model.FileListing;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +26,7 @@ import java.util.Map;
 
 public class Bucket {
 
-    public static List<File> geFileLists(Key key, com.domain.Bucket bucket){
+    public static List<File> geFileLists(Key key, com.domain.Bucket bucket,String keyWord){
         Type type = Type.valueOf(key.getType());
         List<File> files = new ArrayList<>();
         switch (type){
@@ -42,11 +46,18 @@ public class Bucket {
                                     + "/" + list.getKey(), bucket.getName(),bucket.getId()));
                 }
                 break;
+            case QINiu:
+                List<FileListing> fileLists1 = com.common.qiniu.Bucket.getFileLists(bucket, BaseAuth.getAuth(key), keyWord);
+                for (FileListing fileListing : fileLists1) {
+                    for (FileInfo item : fileListing.items) {
+                        files.add(new File(item.key,"","",bucket.getName(),bucket.getId()));
+                    }
+                }
         }
         return files;
     }
 
-    public static URL createFileUrl(Key key, com.domain.Bucket bucket,String keyName){
+    public static URL createFileUrl(Key key, com.domain.Bucket bucket,String keyName,boolean isHttps) throws MalformedURLException {
         Type type = Type.valueOf(key.getType());
         URL url = null;
         switch (type){
@@ -56,6 +67,8 @@ public class Bucket {
             case AliYun:
                 url = OSS.downloadOneFile(key, bucket, keyName);
                 break;
+            case QINiu:
+                url = new URL(com.common.qiniu.Bucket.downLoadFile(BaseAuth.getAuth(key),bucket,keyName,isHttps));
         }
         return url;
     }
@@ -93,6 +106,9 @@ public class Bucket {
                     String uri = putObjectResult.getResponse().getUri();
                     f.setFilePath(uri);
                     break;
+                case QINiu:
+                    com.common.qiniu.Bucket.uploadFile(BaseAuth.getAuth(key),bucket,file1.getName(),file1);
+                    f.setFilePath("https://" + bucket.getName() + "." + bucket.getEndPoint() + "." + "/" + f.getOriginalFileName());
             }
             list.add(f);
         }

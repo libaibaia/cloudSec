@@ -53,8 +53,10 @@ public class KeyController {
 
     @RequestMapping(value = "/lists",method = {RequestMethod.GET,RequestMethod.OPTIONS})
     public SaResult getSecretList(@RequestParam(value = "page",defaultValue = "1",required = false) Integer page,
-                                  @RequestParam(value = "limit",defaultValue = "10",required = false) Integer limit){
+                                  @RequestParam(value = "limit",defaultValue = "10",required = false) Integer limit,
+                                  @RequestParam(value = "quick_search",required = false,defaultValue = "*") String searchKey){
         QueryWrapper<Key> queryWrapper = new QueryWrapper<>();
+        if (!searchKey.equals("*")) queryWrapper.like("name",searchKey);
         queryWrapper.eq("create_by_id",StpUtil.getLoginId());
         Page<Object> objects = PageHelper.startPage(page, limit);
         List<Key> list = keyService.list(queryWrapper);
@@ -92,12 +94,10 @@ public class KeyController {
     @GetMapping("/update")
     public SaResult updateSecret(@RequestParam("id") Integer id){
         Key key = keyService.getById(id);
-        HashMap<Object, Object> hashMap = new HashMap<>();
-        hashMap.put("row",key);
-        return SaResult.ok().setData(hashMap);
+        return SaResult.ok().set("row",key);
     }
     @PostMapping("/update")
-    public SaResult updateSecret(Key key){
+    public SaResult updateSecret(@RequestBody Key key){
         boolean aBoolean = keyService.updateById(key);
         if (aBoolean) return SaResult.ok("更新成功");
         return SaResult.error("更新失败");

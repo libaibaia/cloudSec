@@ -2,6 +2,7 @@ package com.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.common.LogAnnotation;
 import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.product.OSS;
@@ -30,6 +31,8 @@ public class BucketServiceImpl extends ServiceImpl<BucketMapper, Bucket>
     private BucketMapper bucketMapper;
     @Resource
     private TaskService taskService;
+
+    @LogAnnotation(title = "获取存储桶")
     public void getBucketList(Key key, AtomicInteger status){
         COS cos = new COS();
         QueryWrapper<Bucket> queryWrapper = new QueryWrapper<>();

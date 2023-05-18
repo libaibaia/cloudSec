@@ -18,4 +18,7 @@ public class Tools {
             executorService.remove(queue.poll());
         }
     }
+    public static String[] getBucketName(String bucketName){
+        return bucketName!=null ? bucketName.split(",") : null;
+    }
 }

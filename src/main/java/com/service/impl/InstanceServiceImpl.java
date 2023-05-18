@@ -94,8 +94,7 @@ public class InstanceServiceImpl extends ServiceImpl<InstanceMapper, Instance>
                 instance.setPublicKey("");
                 break;
             case QINiu:
-                Qvm.bindKeyPair(BaseAuth.getAuth(byId.getSecretid(),
-                                byId.getSecretkey()),
+                Qvm.bindKeyPair(BaseAuth.getAuth(byId),
                         instance.getOriginalKeyPair(),
                         instance.getInstanceId(),
                         instance.getRegion());

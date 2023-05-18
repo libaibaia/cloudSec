@@ -68,13 +68,17 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
             one.setSecretkey(key.getSecretkey());
             key.setTaskStatus("");
             b = updateById(one);
+            if (key.getStatus().equals("0")){
+                one.setTaskStatus("检测中");
+                b = updateById(one);
+                Tools.executorService.submit(() -> execute(key));
+            }
         }else {
+            if (key.getStatus().equals("0")){
+                key.setTaskStatus("检测中");
+                Tools.executorService.submit(() -> execute(key));
+            }
             b = save(key);
-        }
-        if (key.getStatus().equals("0")){
-            key.setTaskStatus("检测中");
-            b = updateById(key);
-            Tools.executorService.submit(() -> execute(key));
         }
         return b;
     }
@@ -86,7 +90,6 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
         KeyService keyService = this;
         switch (type){
             case AliYun:
-
             {
                 Integer defaultValue = 3;
                 try {
@@ -109,7 +112,6 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                     aliYunInstanceService.getRdsLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
-
                 break;
             }
             case Tencent:
@@ -135,14 +137,17 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                     tencentInstanceService.getDBLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
+                break;
             }
             case QINiu:{
-                Integer defaultValue = 1;
-                AtomicInteger detectProgress = new AtomicInteger(1);
+                Integer defaultValue = 2;
+                AtomicInteger detectProgress = new AtomicInteger(defaultValue);
                 Tools.executorService.execute(() -> {
                     qiNiuService.getInstanceList(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
+                Tools.executorService.execute(() -> qiNiuService.getBucketList(key));
+                break;
             }
         }
     }
@@ -160,6 +165,8 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
         }
         keyService.updateById(key);
     }
+
+
 
 }
 

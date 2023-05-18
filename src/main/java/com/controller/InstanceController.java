@@ -82,7 +82,7 @@ public class InstanceController {
                 if (key.getCreateById() == Integer.parseInt(StpUtil.getLoginId().toString())){
                     CVM cvm = new CVM(key);
                     com.tencentcloudapi.cvm.v20170312.models.Instance current_instance = new com.tencentcloudapi.cvm.v20170312.models.Instance();
-                    instance.setInstanceId(instance.getInstanceId());
+                    current_instance.setInstanceId(instance.getInstanceId());
                     RegionInfo regionInfo = new RegionInfo();
                     regionInfo.setRegion(instance.getRegion());
                     Map<com.tencentcloudapi.cvm.v20170312.models.Instance, DescribeInvocationTasksResponse> execArgs =

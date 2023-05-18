@@ -2,14 +2,16 @@ package com.service.impl.qiniu;
 
 import cn.dev33.satoken.util.SaResult;
 import com.common.LogAnnotation;
+import com.common.qiniu.Bucket;
 import com.common.qiniu.base.BaseAuth;
+import com.common.qiniu.base.model.BucketModel;
 import com.common.qiniu.base.model.qvm.InstanceInfo;
 import com.common.qiniu.base.model.qvm.InstanceInfoResponse;
 import com.common.qiniu.base.model.qvm.KeyResponse;
 import com.common.qiniu.qvm.Qvm;
 import com.domain.Instance;
 import com.domain.Key;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mapper.BucketMapper;
 import com.qiniu.util.Auth;
 import com.service.impl.InstanceServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -28,10 +32,12 @@ public class QiNiuService {
     @Resource
     @Lazy
     private InstanceServiceImpl instanceService;
+    @Resource
+    private BucketMapper bucketMapper;
 
     @LogAnnotation(title = "检测七牛云服务器")
     public void getInstanceList(Key key, AtomicInteger status){
-        Auth auth = BaseAuth.getAuth(key.getSecretid(), key.getSecretkey());
+        Auth auth = BaseAuth.getAuth(key);
         try {
             InstanceInfoResponse instanceLists = Qvm.getInstanceLists(auth);
             for (InstanceInfo datum : instanceLists.getData()) {
@@ -54,7 +60,7 @@ public class QiNiuService {
 
     public SaResult bindKeyPair(Key key, String keyName, Instance instance){
         try {
-            KeyResponse keyResponse = Qvm.createKeyPair(BaseAuth.getAuth(key.getSecretid(), key.getSecretkey()), keyName, instance.getInstanceId(), instance.getRegion());
+            KeyResponse keyResponse = Qvm.createKeyPair(BaseAuth.getAuth(key), keyName, instance.getInstanceId(), instance.getRegion());
             instance.setPrivateKey(keyResponse.getData().getPrivate_key_body());
             instance.setPublicKey(keyResponse.getData().getPublic_key_body());
             instanceService.updateById(instance);
@@ -62,6 +68,21 @@ public class QiNiuService {
             return SaResult.error(e.getMessage());
         }
         return SaResult.ok();
+    }
 
+
+    @LogAnnotation(title = "检测七牛存储桶")
+    public void getBucketList(Key key){
+        List<BucketModel> bucketLists = Bucket.getBucketLists(BaseAuth.getAuth(key));
+        com.domain.Bucket bucket = new com.domain.Bucket();
+        for (BucketModel bucketList : bucketLists) {
+            bucket.setEndPoint(Arrays.toString(bucketList.getDomain()));
+            bucket.setName(bucketList.getName());
+            bucket.setRegion(bucketList.getRegion());
+            bucket.setKeyId(key.getId());
+            bucket.setCreateById(key.getCreateById());
+            bucket.setOwner("");
+            bucketMapper.insert(bucket);
+        }
     }
 }

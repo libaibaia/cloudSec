@@ -3,6 +3,7 @@ package com.common.tencent.product;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
+import com.common.Tools;
 import com.domain.Key;
 import com.domain.Task;
 import com.qcloud.cos.COSClient;
@@ -11,16 +12,22 @@ import com.qcloud.cos.auth.BasicCOSCredentials;
 import com.qcloud.cos.auth.BasicSessionCredentials;
 import com.qcloud.cos.auth.COSCredentials;
 import com.qcloud.cos.exception.CosClientException;
+import com.qcloud.cos.exception.CosServiceException;
 import com.qcloud.cos.http.HttpMethodName;
 import com.qcloud.cos.model.*;
 import com.qcloud.cos.region.Region;
 import com.qcloud.cos.utils.IOUtils;
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
+import com.tencentcloudapi.region.v20220627.models.RegionInfo;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+
+@Slf4j
 public class COS {
 
     public static String cosEndPoint = "%s.cos.%s.myqcloud.com";
@@ -33,10 +40,38 @@ public class COS {
      * @return 桶列表
      */
     public List<Bucket> getCosList(Key key){
-        Map<String,String> result = new HashMap<>();
         ClientConfig clientConfig = new ClientConfig();
         COSClient cosClient = new COSClient(getCred(key), clientConfig);
-        return cosClient.listBuckets();
+        List<Bucket> buckets = cosClient.listBuckets();
+        RegionInfo[] region = new RegionInfo[0];
+        try {
+            region = Base.getRegionList(Base.createCredential(key), "COS");
+        } catch (TencentCloudSDKException e) {
+            log.info(e.getMessage());
+        }
+        String[] bucketName = Tools.getBucketName(key.getBucketName());
+        //遍历对应区域及名称获取存储桶
+        for (String s : bucketName) {
+            for (RegionInfo regionInfo : region) {
+                clientConfig.setRegion(new Region(regionInfo.getRegion()));
+                try {
+                    boolean b = cosClient.doesBucketExist(s);
+                    if(b) {
+                        for (Bucket bucket : buckets) {
+                            if (!bucket.getName().equals(s) && bucket.getLocation().equals(regionInfo.getRegion())){
+                                Bucket bucket1 = new Bucket();
+                                bucket1.setLocation(String.format(cosEndPoint, s,regionInfo.getRegionName()));
+                                bucket1.setName(s);
+                                buckets.add(bucket1);
+                            }
+                        }
+                    }
+                }catch (Exception e){
+                    log.info(e.getMessage());
+                }
+            }
+        }
+        return buckets;
     }
     private static COSCredentials getCred(Key key){
         COSCredentials cred = null;
@@ -132,5 +167,57 @@ public class COS {
         } while (objectListing.isTruncated());
         return list;
     }
+
+//    public static void main(String[] args){
+//        Key key = new Key();
+//        key.setSecretid("AKIDZw6DLFgMZZKuFO6zSfdMr8D4j9KGmQeh");
+//        key.setSecretkey("xkIbfU4SgfT4RZVCettgEWbR2OYTBetv");
+//        key.setToken("");
+//        String bucketName = "rejiejay-1251940173";
+//        ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
+//        ClientConfig clientConfig = new ClientConfig();
+//        clientConfig.setRegion(new Region("ap-guangzhou"));
+//        COSClient cosclient = new COSClient(getCred(key), clientConfig);
+//// 设置bucket名称
+//        listObjectsRequest.setBucketName(bucketName);
+//// prefix表示列出的object的key以prefix开始
+//        listObjectsRequest.setPrefix("images/");
+//// deliter表示分隔符, 设置为/表示列出当前目录下的object, 设置为空表示列出所有的object
+//        listObjectsRequest.setDelimiter("/");
+//// 设置最大遍历出多少个对象, 一次listobject最大支持1000
+//        listObjectsRequest.setMaxKeys(1000);
+//        ObjectListing objectListing = null;
+//        do {
+//            try {
+//                objectListing = cosclient.listObjects(listObjectsRequest);
+//            } catch (CosServiceException e) {
+//                e.printStackTrace();
+//                return;
+//            } catch (CosClientException e) {
+//                e.printStackTrace();
+//                return;
+//            }
+//            // common prefix表示表示被delimiter截断的路径, 如delimter设置为/, common prefix则表示所有子目录的路径
+//            List<String> commonPrefixs = objectListing.getCommonPrefixes();
+//
+//            // object summary表示所有列出的object列表
+//            List<COSObjectSummary> cosObjectSummaries = objectListing.getObjectSummaries();
+//            for (COSObjectSummary cosObjectSummary : cosObjectSummaries) {
+//                // 文件的路径key
+//                String s = cosObjectSummary.getKey();
+//                // 文件的etag
+//                String etag = cosObjectSummary.getETag();
+//                // 文件的长度
+//                long fileSize = cosObjectSummary.getSize();
+//                // 文件的存储类型
+//                String storageClasses = cosObjectSummary.getStorageClass();
+//            }
+//
+//            String nextMarker = objectListing.getNextMarker();
+//            listObjectsRequest.setMarker(nextMarker);
+//        } while (objectListing.isTruncated());
+//
+//    }
+
 
 }

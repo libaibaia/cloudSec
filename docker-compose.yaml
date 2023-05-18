@@ -1,16 +1,14 @@
-version: '3.8'
-
 services:
   java-app:
-    container_name: app
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app
+    container_name: java-app
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-1.1
     environment:
-      DB_PASSWORD: password
+      DB_PASSWORD: 111111
     depends_on:
       - db
   vue-web:
     container_name: vue-web
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app-1.1
     ports:
       - "80:80"
     environment:
@@ -19,9 +17,10 @@ services:
       - java-app
   db:
     container_name: db
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:db
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:mysql-1.1
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: 111111
     volumes:
       - /home/cloud/data:/var/lib/mysql
+

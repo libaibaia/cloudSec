@@ -106,9 +106,9 @@ public class CVM {
         try {
             return client.RunCommand(req);
         } catch (TencentCloudSDKException e) {
-            logger.error(e.getMessage());
+            logger.info(e.getMessage());
+            return null;
         }
-        return null;
     }
 
     public Map<Instance, DescribeInvocationTasksResponse> getOutCommandPut(String command, Instance[] instanceId, RegionInfo regionInfo){

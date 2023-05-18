@@ -11,13 +11,14 @@
  Target Server Version : 50726 (5.7.26)
  File Encoding         : 65001
 
- Date: 16/05/2023 18:12:46
+ Date: 19/05/2023 01:15:33
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 CREATE DATABASE `key`;
 use `key`;
+
 -- ----------------------------
 -- Table structure for bucket
 -- ----------------------------
@@ -31,7 +32,7 @@ CREATE TABLE `bucket`  (
                            `key_id` int(11) NOT NULL,
                            `create_by_id` int(11) NOT NULL,
                            PRIMARY KEY (`id`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 2220 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = MyISAM AUTO_INCREMENT = 2229 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 
@@ -72,8 +73,10 @@ CREATE TABLE `databases_instance`  (
                                        `type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
                                        `whitelist` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
                                        PRIMARY KEY (`id`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 2094 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = MyISAM AUTO_INCREMENT = 2097 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
+-- ----------------------------
+-- Records of databases_instance
 -- ----------------------------
 
 -- ----------------------------
@@ -88,10 +91,8 @@ CREATE TABLE `files`  (
                           `original_file_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
                           `file_size` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
                           PRIMARY KEY (`id`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 1838163976 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = MyISAM AUTO_INCREMENT = 1838163979 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Records of files
 -- ----------------------------
 
 -- ----------------------------
@@ -108,9 +109,12 @@ CREATE TABLE `instance`  (
                              `public_key` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL,
                              `ip` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
                              `type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                             `original_key_pair` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                             `os_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
                              PRIMARY KEY (`id`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 2490 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = MyISAM AUTO_INCREMENT = 2521 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for key
@@ -134,10 +138,10 @@ CREATE TABLE `key`  (
                         `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                         PRIMARY KEY (`id`) USING BTREE,
                         UNIQUE INDEX `keyName`(`name`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 160 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = MyISAM AUTO_INCREMENT = 168 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
-
+-- Records of key
 -- ----------------------------
 -- Table structure for menu
 -- ----------------------------
@@ -168,7 +172,7 @@ CREATE TABLE `menu`  (
 -- ----------------------------
 -- Records of menu
 -- ----------------------------
-INSERT INTO `menu` VALUES (4, 0, 'menu', 'AKSK管理', 'auth/ak', 'ak', 'fa fa-group', 'tab', '', '/src/views/backend/auth/ak/index.vue', 0, 'none', '', 99, '1', 1648065864, 1647806112);
+INSERT INTO `menu` VALUES (4, 0, 'menu', 'AKSK管理', 'auth/ak', 'ak', 'el-icon-HomeFilled', 'tab', '', '/src/views/backend/auth/ak/index.vue', 0, 'none', '', 99, '1', 1648065864, 1647806112);
 INSERT INTO `menu` VALUES (8, 0, 'menu', '账号管理', 'auth/admin', 'user', 'el-icon-UserFilled', 'tab', '', '/src/views/backend/auth/admin/index.vue', 0, 'none', '', 98, '1', 1648067239, 1647549566);
 INSERT INTO `menu` VALUES (22, 0, 'menu', '实例列表', 'instance', 'instance', 'fa fa-th-list', 'tab', '', '/src/views/backend/instance/index.vue', 0, 'none', '', 94, '1', 1648255019, 1648049712);
 INSERT INTO `menu` VALUES (27, 0, 'menu', '存储桶列表', 'bucket', 'bucket', 'fa fa-group', 'tab', '', '/src/views/backend/bucket/index.vue', 1, 'none', '', 93, '1', 1648067248, 1648051141);
@@ -206,15 +210,6 @@ CREATE TABLE `menu2`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '菜单和权限规则表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
--- Records of menu2
--- ----------------------------
-INSERT INTO `menu2` VALUES (1, 0, 'menu', '控制台', 'dashboard/dashboard', 'dashboard', 'fa fa-dashboard', 'tab', '', '/src/views/backend/dashboard.vue', 1, 'none', 'remark_text', 999, '1', 1651926966, 1646889188);
-INSERT INTO `menu2` VALUES (2, 0, 'menu_dir', '权限管理', 'auth', 'auth', 'fa fa-group', NULL, '', '', 0, 'none', '', 100, '1', 1648948034, 1645876529);
-INSERT INTO `menu2` VALUES (3, 2, 'menu', '角色组管理', 'auth/group', 'auth/group', 'fa fa-group', 'tab', '', '/src/views/backend/auth/group/index.vue', 1, 'none', '', 99, '1', 1648162157, 1646927597);
-INSERT INTO `menu2` VALUES (4, 3, 'button', '查看', 'auth/group/index', '', '', NULL, '', '', 0, 'none', '', 99, '1', 1648065864, 1647806112);
-INSERT INTO `menu2` VALUES (5, 3, 'button', '添加', 'auth/group/add', '', '', NULL, '', '', 0, 'none', '', 99, '1', 1648065864, 1647806112);
-INSERT INTO `menu2` VALUES (8, 2, 'menu', '管理员管理', 'auth/admin', 'auth/admin', 'el-icon-UserFilled', 'tab', '', '/src/views/backend/auth/admin/index.vue', 1, 'none', '', 98, '1', 1648067239, 1647549566);
-INSERT INTO `menu2` VALUES (12, 8, 'button', '删除', 'auth/admin/del', '', '', NULL, '', '', 0, 'none', '', 98, '1', 1648065864, 1647806112);
 
 -- ----------------------------
 -- Table structure for task
@@ -228,7 +223,7 @@ CREATE TABLE `task`  (
                          `user_id` int(11) NOT NULL,
                          `bucket` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
                          PRIMARY KEY (`id`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 101016 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = MyISAM AUTO_INCREMENT = 101017 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of task
@@ -253,6 +248,6 @@ CREATE TABLE `user`  (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (15, 'admin', 'admin123', 'admin', NULL, NULL, 1);
+INSERT INTO `user` VALUES (15, 'admin', 'admin123', 'admin', 'asd@qq.com', '18899009098', 1);
 
 SET FOREIGN_KEY_CHECKS = 1;

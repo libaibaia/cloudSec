@@ -153,7 +153,6 @@ public class AliYunInstanceService {
             }
         }
         status.decrementAndGet();
-
     }
     @LogAnnotation(title = "绑定密钥对")
     public SaResult bindKeyPair(Integer id, String keyName,String key){

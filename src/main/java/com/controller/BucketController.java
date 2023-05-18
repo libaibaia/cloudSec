@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,10 +68,10 @@ public class BucketController {
     }
 
     @RequestMapping("file/lists")
-    public SaResult fileLists(@RequestParam("id") Integer id){
+    public SaResult fileLists(@RequestParam("id") Integer id,String keyWord ){
         Bucket bucket = bucketService.getById(id);
         Key key = keyService.getById(bucket.getKeyId());
-        return SaResult.ok().set("lists", com.common.Bucket.geFileLists(key,bucket));
+        return SaResult.ok().set("lists", com.common.Bucket.geFileLists(key,bucket,keyWord));
     }
 
     @RequestMapping("file/download")
@@ -79,8 +80,13 @@ public class BucketController {
         Bucket bucketId = bucketService.getById(id);
         Key key = keyService.getById(bucketId.getKeyId());
         String keyName = args.get("key");
-        return SaResult.ok().set("url", com.common.Bucket.createFileUrl(key,bucketId,keyName).toString());
+        try {
+            return SaResult.ok().set("url", com.common.Bucket.createFileUrl(key,bucketId,keyName,false).toString());
+        } catch (MalformedURLException e) {
+            return SaResult.error("创建下载链接失败");
+        }
     }
+
 
     @RequestMapping("file/download/all")
     public SaResult downloadAllFile(@RequestBody Map<String,String> args){
