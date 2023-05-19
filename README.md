@@ -48,7 +48,7 @@ $ sudo chmod +x /usr/local/bin/docker-compose
 services:
   java-app:
     container_name: java-app
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-1.1.1
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-1.1.2
     environment:
       DB_PASSWORD: 111111
     depends_on:
