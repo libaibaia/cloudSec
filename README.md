@@ -9,6 +9,7 @@
 - 华为云
 - 微软云
 - 谷歌
+- 因为缺少好多资源，某些功能不能直接测试，如果有相关资源可以提供的师傅可以发给我测试一下
 以上是后续的更详细方向，有点多，可能一时半会更新不完
 ***注：如果页面白屏刷新浏览器即可，因为热更新的原因导致，后期会解决。***
 1. AK/SK管理
@@ -48,14 +49,14 @@ $ sudo chmod +x /usr/local/bin/docker-compose
 services:
   java-app:
     container_name: java-app
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-1.1.2
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-1.2
     environment:
       DB_PASSWORD: 111111
     depends_on:
       - db
   vue-web:
     container_name: vue-web
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app-1.1
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app-1.2
     ports:
       - "80:80"
     environment:
@@ -64,7 +65,7 @@ services:
       - java-app
   db:
     container_name: db
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:mysql-1.1
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:mysql-1.2
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 111111
