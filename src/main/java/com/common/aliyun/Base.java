@@ -1,5 +1,6 @@
 package com.common.aliyun;
 
+import cn.hutool.core.util.StrUtil;
 import com.aliyun.ecs20140526.Client;
 import com.aliyun.ecs20140526.models.DescribeRegionsRequest;
 import com.aliyun.ecs20140526.models.DescribeRegionsResponse;
@@ -21,7 +22,7 @@ public class Base {
      */
     public static Client createClient(Key key, String endPoint) throws Exception {
         Config config;
-        if (!key.getToken().equals("")){
+        if (!StrUtil.isBlank(key.getToken())){
             config = new Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretid()).setSecurityToken(key.getToken());
         }else {
             config = new Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretkey());

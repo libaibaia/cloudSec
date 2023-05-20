@@ -1,6 +1,7 @@
 package com.service.impl.qiniu;
 
 import cn.dev33.satoken.util.SaResult;
+import cn.hutool.core.util.StrUtil;
 import com.common.LogAnnotation;
 import com.common.qiniu.Bucket;
 import com.common.qiniu.base.BaseAuth;
@@ -76,7 +77,9 @@ public class QiNiuService {
         List<BucketModel> bucketLists = Bucket.getBucketLists(BaseAuth.getAuth(key));
         com.domain.Bucket bucket = new com.domain.Bucket();
         for (BucketModel bucketList : bucketLists) {
-            bucket.setEndPoint(Arrays.toString(bucketList.getDomain()));
+            String[] domain = bucketList.getDomain();
+            StrUtil.trim(domain);
+            bucket.setEndPoint(Arrays.toString(domain));
             bucket.setName(bucketList.getName());
             bucket.setRegion(bucketList.getRegion());
             bucket.setKeyId(key.getId());

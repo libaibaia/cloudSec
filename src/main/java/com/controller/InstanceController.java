@@ -55,7 +55,7 @@ public class InstanceController {
         List<Instance> instanceList = new ArrayList<>();
         if (quick_search != null){
             QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
-            keyQueryWrapper.eq("name",quick_search);
+            keyQueryWrapper.like("name",quick_search);
             Key one = keyService.getOne(keyQueryWrapper);
             if (one != null){
                 ArrayList<Integer> list = new ArrayList<>();

@@ -71,6 +71,7 @@ public class OSS {
     public static Task downloadALLFile(Key key, com.domain.Bucket bucket, Task task){
         com.aliyun.oss.OSS ossClient = getOssClient(key, bucket.getEndPoint());
         List<OSSObjectSummary> lists = getFileLists(key, bucket);
+        List<File> files = new ArrayList<>();
         long current = DateUtil.current();
         String path = "../../" + current;
         File dir = FileUtil.mkdir(path);
@@ -78,11 +79,13 @@ public class OSS {
             //取消key中的/转换为.，防止路径文件无法存储文件
             File file = FileUtil.newFile(dir + "\\" + list.getKey().replace("/","."));
             ossClient.getObject(new GetObjectRequest(bucket.getName(), list.getKey()), file);
+            files.add(file);
         }
-        File zip = ZipUtil.zip(dir.getPath(), FileUtil.createTempFile(bucket.getName(),".zip", true).getPath());
+        File zipFile = Tools.createZipFile(files, bucket.getName());
         task.setStatus("成功");
-        task.setFilename(zip.getName());
-        task.setFilePath(zip.getAbsolutePath());
+        task.setFilename(zipFile.getName());
+        task.setFilePath(zipFile.getAbsolutePath());
+        FileUtil.del(dir);
         return task;
 
     }

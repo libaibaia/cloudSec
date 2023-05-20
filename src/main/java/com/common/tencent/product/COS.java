@@ -2,6 +2,7 @@ package com.common.tencent.product;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.common.Tools;
 import com.domain.Key;
@@ -42,6 +43,7 @@ public class COS {
     public List<Bucket> getCosList(Key key){
         ClientConfig clientConfig = new ClientConfig();
         COSClient cosClient = new COSClient(getCred(key), clientConfig);
+
         List<Bucket> buckets = cosClient.listBuckets();
         RegionInfo[] region = new RegionInfo[0];
         try {
@@ -49,28 +51,35 @@ public class COS {
         } catch (TencentCloudSDKException e) {
             log.info(e.getMessage());
         }
-        String[] bucketName = Tools.getBucketName(key.getBucketName());
-        //遍历对应区域及名称获取存储桶
-        for (String s : bucketName) {
-            for (RegionInfo regionInfo : region) {
-                clientConfig.setRegion(new Region(regionInfo.getRegion()));
-                try {
-                    boolean b = cosClient.doesBucketExist(s);
-                    if(b) {
-                        for (Bucket bucket : buckets) {
-                            if (!bucket.getName().equals(s) && bucket.getLocation().equals(regionInfo.getRegion())){
-                                Bucket bucket1 = new Bucket();
-                                bucket1.setLocation(String.format(cosEndPoint, s,regionInfo.getRegionName()));
-                                bucket1.setName(s);
-                                buckets.add(bucket1);
+        if (!StrUtil.isBlank(key.getBucketName())) {
+            String[] bucketName = Tools.getBucketName(key.getBucketName());
+            //遍历对应区域及名称获取存储桶
+            for (String s : bucketName) {
+                for (RegionInfo regionInfo : region) {
+                    clientConfig.setRegion(new Region(regionInfo.getRegion()));
+                    try {
+                        boolean b = cosClient.doesBucketExist(s);
+                        if(b) {
+                            for (Bucket bucket : buckets) {
+                                if (!bucket.getName().equals(s) && bucket.getLocation().equals(regionInfo.getRegion())){
+                                    Bucket bucket1 = new Bucket();
+                                    bucket1.setLocation(String.format(cosEndPoint, s,regionInfo.getRegionName()));
+                                    bucket1.setName(s);
+                                    buckets.add(bucket1);
+                                }
                             }
                         }
+                    }catch (CosServiceException exception){
+                        log.info("检测存储桶" + s + "出现错误当前检测区域" + regionInfo.getRegion());
+                        log.info("异常原因" + exception.getErrorMessage() + "错误码" + exception.getErrorCode());
+                    }catch (CosClientException ignored){
+                        log.info("检测存储桶" + s + "出现错误当前检测区域" + regionInfo.getRegion());
+                        log.info("异常原因" + ignored.getMessage() + "错误码" + ignored.getErrorCode() + ignored.getLocalizedMessage());
                     }
-                }catch (Exception e){
-                    log.info(e.getMessage());
                 }
             }
         }
+
         return buckets;
     }
     private static COSCredentials getCred(Key key){
@@ -111,7 +120,6 @@ public class COS {
         File dir = FileUtil.mkdir(path);
         for (COSObjectSummary fileList : fileLists) {
             //取消key中的/转换为.，防止路径文件无法存储文件
-
             COSObjectInputStream cosObjectInput = null;
             GetObjectRequest getObjectRequest = new GetObjectRequest(bucket.getName(), fileList.getKey());
             try {
@@ -137,6 +145,7 @@ public class COS {
         task.setStatus("成功");
         task.setFilename(zip.getName());
         task.setFilePath(zip.getAbsolutePath());
+        FileUtil.del(dir);
         return task;
     }
 

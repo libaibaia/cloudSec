@@ -1,17 +1,25 @@
 package com.common.qiniu;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
+import cn.hutool.http.HttpUtil;
 import com.common.qiniu.base.BaseAuth;
 import com.common.qiniu.base.model.BucketModel;
 import com.domain.Key;
+import com.domain.Task;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.storage.*;
 import com.qiniu.storage.model.BucketInfo;
+import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 import com.qiniu.util.Auth;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 public class Bucket {
@@ -22,7 +30,7 @@ public class Bucket {
         String[] domainLists = endPoint.substring(1, endPoint.length() - 1).split(",");
         Random random = new Random();
         String randomElement = domainLists[random.nextInt(domainLists.length)];
-        DownloadUrl url = new DownloadUrl(randomElement, useHttps, keyName);
+        DownloadUrl url = new DownloadUrl(StrUtil.trim(randomElement), useHttps, keyName);
         try {
             String s = url.buildURL(auth, System.currentTimeMillis() / 1000 + 3600);
             return s;
@@ -31,8 +39,29 @@ public class Bucket {
         }
     }
 
-    public static void downAllFile(){
-
+    public static Task downAllFile(Key key, com.domain.Bucket bucket, Task task){
+        Auth auth = BaseAuth.getAuth(key);
+        long current = DateUtil.current();
+        String path = "../../" + current;
+        File dir = FileUtil.mkdir(path);
+        List<FileListing> fileLists = getFileLists(bucket, auth, null);
+        for (FileListing fileList : fileLists) {
+            for (FileInfo item : fileList.items) {
+                String s = downLoadFile(auth, bucket, item.key, false);
+                File file = new File(dir + "\\" + item.key.replace("/", "."));
+                try {
+                    HttpUtil.downloadFile(s,file);
+                }catch (Exception e){
+                    System.out.println(item.key + "---下载失败原因：" + e.getMessage());
+                }
+            }
+        }
+        File zip = ZipUtil.zip(dir.getPath(), FileUtil.createTempFile(bucket.getName(), ".zip", true).getPath());
+        task.setStatus("成功");
+        task.setFilename(zip.getName());
+        task.setFilePath(zip.getAbsolutePath());
+        FileUtil.del(dir);
+        return task;
     }
 
     public static List<BucketModel>  getBucketLists(Auth auth){

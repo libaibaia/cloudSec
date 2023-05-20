@@ -37,7 +37,7 @@ public class DatabasesController {
         Page<DatabasesInstance> objects = PageHelper.startPage(page, limit);
         if (quick_search != null){
             QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
-            keyQueryWrapper.eq("name",quick_search);
+            keyQueryWrapper.like("name",quick_search);
             Key one = keyService.getOne(keyQueryWrapper);
             if (one != null){
                 QueryWrapper<DatabasesInstance> databasesInstanceQueryWrapper = new QueryWrapper<>();

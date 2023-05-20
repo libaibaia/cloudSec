@@ -387,12 +387,13 @@ public class TencentInstanceService {
         }
     }
 
+    @LogAnnotation(title = "获取腾讯数据库列表")
     public void getDBLists(Key key, AtomicInteger status){
         try {
             getRedisLists(key);
             getMongoDbList(key);
         } catch (TencentCloudSDKException e) {
-            throw new RuntimeException(e);
+            logger.info(e.getMessage());
         }
         getMysqlList(key);
         getMariadbList(key);

@@ -68,6 +68,9 @@ public class BucketServiceImpl extends ServiceImpl<BucketMapper, Bucket>
                 case AliYun:
                     task1 = OSS.downloadALLFile(key, bucket, task);
                     break;
+                case QINiu:
+                    task1 = com.common.qiniu.Bucket.downAllFile(key, bucket, task);
+                    break;
             }
             taskService.updateById(task1);
         });

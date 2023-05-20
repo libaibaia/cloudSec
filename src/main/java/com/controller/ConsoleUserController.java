@@ -82,7 +82,7 @@ public class ConsoleUserController {
         Page<ConsoleUser> objects = PageHelper.startPage(page, limit);
         QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
         if (quick_search != null){
-            keyQueryWrapper.eq("name",quick_search);
+            keyQueryWrapper.like("name",quick_search);
             Key one = keyService.getOne(keyQueryWrapper);
             QueryWrapper<ConsoleUser> consoleUserQueryWrapper = new QueryWrapper<>();
             consoleUserQueryWrapper.eq("key_id",one.getId());
