@@ -43,19 +43,19 @@ $ sudo curl -L "https://github.com/docker/compose/releases/download/{version}/do
 $ sudo chmod +x /usr/local/bin/docker-compose
 
 ```
-## 更新yaml，后续更新数据库密码不要更改，不然跟原来数据重叠会导致登录不上去
+## 更新yaml，建议把之前的持久化数据删了， /home/cloud/data,因为改数据库字段了，会报错。。。
 ```yaml
 services:
   java-app:
     container_name: java-app
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-1.0
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-1.1.2
     environment:
       DB_PASSWORD: 111111
     depends_on:
       - db
   vue-web:
     container_name: vue-web
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app-1.0
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app-1.1
     ports:
       - "80:80"
     environment:
@@ -64,12 +64,13 @@ services:
       - java-app
   db:
     container_name: db
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:mysql-1.0
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:mysql-1.1
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 111111
     volumes:
       - /home/cloud/data:/var/lib/mysql
+
 ```
 
 启动脚本
