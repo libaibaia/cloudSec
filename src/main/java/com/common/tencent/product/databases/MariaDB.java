@@ -43,10 +43,17 @@ public class MariaDB {
         MariadbClient client = new MariadbClient(credential, "", clientProfile);
         DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
         for (RegionInfo regionList : regionLists) {
-            client.setRegion(regionList.getRegion());
-            DescribeDBInstancesResponse resp = client.DescribeDBInstances(req);
-            if (resp.getTotalCount() >= 1){
-                dbInstances.addAll(Arrays.asList(resp.getInstances()));
+            long defaultSize = 100L;
+            req.setLimit(defaultSize);
+            req.setOffset(0L);
+            while (true){
+                client.setRegion(regionList.getRegion());
+                DescribeDBInstancesResponse resp = client.DescribeDBInstances(req);
+                if (resp.getTotalCount() >= 1){
+                    dbInstances.addAll(Arrays.asList(resp.getInstances()));
+                    defaultSize += defaultSize;
+                    req.setOffset(defaultSize);
+                }else break;
             }
         }
         return dbInstances;

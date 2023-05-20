@@ -18,16 +18,21 @@ public class RDS {
         com.aliyun.rds20140815.models.DescribeDBInstancesRequest request = new com.aliyun.rds20140815.models.DescribeDBInstancesRequest();
         Map<String, DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRDSRegion> rdsRegion = getRdsRegion(key);
         java.util.List<DescribeDBInstancesResponseBody.DescribeDBInstancesResponseBodyItemsDBInstance> dbInstances = new ArrayList<>();
+        request.setPageSize(100);
+
         for (String s : rdsRegion.keySet()) {
-            request.setRegionId(rdsRegion.get(s).regionId);
-            DescribeDBInstancesResponse describeDBInstancesResponse = client.describeDBInstancesWithOptions(request, runtime);
-            if (describeDBInstancesResponse.body.items.DBInstance.size() >= 1){
-                dbInstances.addAll(describeDBInstancesResponse.body.items.DBInstance);
+            int currentPage = 1;
+            while (true){
+                request.setPageNumber(currentPage);
+                request.setRegionId(rdsRegion.get(s).regionId);
+                DescribeDBInstancesResponse describeDBInstancesResponse = client.describeDBInstancesWithOptions(request, runtime);
+                if (describeDBInstancesResponse.body.items.DBInstance.size() >= 1){
+                    dbInstances.addAll(describeDBInstancesResponse.body.items.DBInstance);
+                    currentPage += 1;
+                }else break;
             }
         }
-
         return dbInstances;
-
     }
     private static Client getRdsClient(Key key) throws Exception {
         com.aliyun.teaopenapi.models.Config config = null;

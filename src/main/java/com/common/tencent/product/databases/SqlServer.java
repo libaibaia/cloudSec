@@ -26,11 +26,19 @@ public class SqlServer {
         DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
         SqlserverClient client = new SqlserverClient(credential, "", clientProfile);
         for (RegionInfo sqlserver : sqlservers) {
-            client.setRegion(sqlserver.getRegion());
-            DescribeDBInstancesResponse resp = client.DescribeDBInstances(req);
-            if (resp.getTotalCount() >= 1){
-                list.addAll(Arrays.asList(resp.getDBInstances()));
+            long defaultSize = 100L;
+            req.setLimit(defaultSize);
+            req.setOffset(0L);
+            while (true){
+                client.setRegion(sqlserver.getRegion());
+                DescribeDBInstancesResponse resp = client.DescribeDBInstances(req);
+                if (resp.getTotalCount() >= 1){
+                    list.addAll(Arrays.asList(resp.getDBInstances()));
+                    defaultSize += defaultSize;
+                    req.setOffset(defaultSize);
+                }else break;
             }
+
         }
         return list;
     }

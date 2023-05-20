@@ -64,32 +64,42 @@ public class CVM {
 
     /**
      * 遍历所有区域中存在的云服务器
+     *
      * @return 云服务器列表
      */
-    public Map<RegionInfo, Instance[]> getCvmList() throws TencentCloudSDKException {
-        Map<RegionInfo, Instance[]> map = new HashMap<>();
+    public Map<RegionInfo, Map<String, Instance[]>> getCvmList() throws TencentCloudSDKException {
         httpProfile.setEndpoint(cvmEndPoint);
         ClientProfile clientProfile = new ClientProfile();
         clientProfile.setHttpProfile(httpProfile);
         RegionInfo[] regionInfos = Base.getRegionList(Base.createCredential(key),"cvm");
-
+        Map<RegionInfo, Map<String, Instance[]>> allRegionsInstances = new HashMap<>();
         if (regionInfos != null){
             for (RegionInfo regionInfo : regionInfos) {
-                String region = regionInfo.getRegion();
-                CvmClient cvmClient = new CvmClient(Base.createCredential(key),region,clientProfile);
+                Map<String, Instance[]> regionInstances = new HashMap<>();
+                CvmClient cvmClient = new CvmClient(Base.createCredential(key),regionInfo.getRegion(),clientProfile);
                 DescribeInstancesRequest req = new DescribeInstancesRequest();
+                long limit = 100L;
+                long offset = 0;
+                req.setLimit(limit);
                 try {
-                    DescribeInstancesResponse describeInstancesResponse = cvmClient.DescribeInstances(req);
-                    Instance[] instanceSet = describeInstancesResponse.getInstanceSet();
-                    if (instanceSet.length >= 1){
-                        map.put(regionInfo,instanceSet);
+                    while (true){
+                        DescribeInstancesResponse describeInstancesResponse = cvmClient.DescribeInstances(req);
+                        Instance[] instanceSet = describeInstancesResponse.getInstanceSet();
+                        if (instanceSet.length >= 1){
+                            regionInstances.put(regionInfo.getRegion(), instanceSet);
+                            offset += limit;
+                            req.setOffset(offset);
+                        } else {
+                            break;
+                        }
                     }
+                    allRegionsInstances.put(regionInfo, regionInstances);
                 } catch (TencentCloudSDKException e) {
                     logger.error(e.getMessage());
                 }
             }
         }
-        return map;
+        return allRegionsInstances;
     }
     /*
     执行实例命令，在这之前需要提供凭证，实例id，执行的命令及区域参数，需要有tat操作权限
@@ -172,29 +182,48 @@ public class CVM {
     初始添加凭证会执行这个方法，用于检测那些区域的服务器可以执行命令
      */
     public Map<Instance, List<InvocationTask>> getResult() throws TencentCloudSDKException {
-        Map<RegionInfo, Instance[]> cvmList = getCvmList();
+        Map<RegionInfo, Map<String, Instance[]>> cvmList1 = getCvmList();
         Map<Instance,List<InvocationTask>> re = new HashMap<>();
-        if (cvmList.size() >= 1){
-            List<Instance> list = new ArrayList<>();
-            List<InvocationTask> des = new ArrayList<>();
-            for (RegionInfo regionInfo : cvmList.keySet()) {
-                Instance[] instances = cvmList.get(regionInfo);
-                list.addAll(Arrays.asList(instances));
-                Map<Instance, DescribeInvocationTasksResponse> whoami = getOutCommandPut("whoami", list.toArray(new Instance[list.size()]), regionInfo);
-                for (Map.Entry<Instance, DescribeInvocationTasksResponse> execRes : whoami.entrySet()) {
-                    for (InvocationTask invocationTask : whoami.get(execRes.getKey()).getInvocationTaskSet()) {
-                        execRes.getKey().set("region",regionInfo.getRegion());
-                        re.put(execRes.getKey(),Arrays.asList(whoami.get(execRes.getKey()).getInvocationTaskSet()));
+        if (!cvmList1.isEmpty()){
+            for (RegionInfo regionInfo : cvmList1.keySet()){
+                Map<String, Instance[]> stringMap = cvmList1.get(regionInfo);
+                for (String region : stringMap.keySet()){
+                    List<Instance> list = new ArrayList<>();
+                    Instance[] instances = stringMap.get(region);
+                    list.addAll(Arrays.asList(instances));
+                    Map<Instance, DescribeInvocationTasksResponse> whoami = getOutCommandPut("whoami", list.toArray(new Instance[list.size()]), regionInfo);
+                    for (Map.Entry<Instance, DescribeInvocationTasksResponse> execRes : whoami.entrySet()) {
+                        for (InvocationTask invocationTask : whoami.get(execRes.getKey()).getInvocationTaskSet()) {
+                            execRes.getKey().set("region",regionInfo.getRegion());
+                            re.put(execRes.getKey(),Arrays.asList(whoami.get(execRes.getKey()).getInvocationTaskSet()));
+                        }
                     }
                 }
-//
-//                for (DescribeInvocationTasksResponse describeInvocationTasksResponse : whoami) {
-//                    des.addAll(Arrays.asList(describeInvocationTasksResponse.getInvocationTaskSet()));
-//                    re.put(regionInfo,des);
-//                }
-//                re.put(regionInfo,des);
             }
         }
+
+
+//        if (cvmList.size() >= 1){
+//            List<Instance> list = new ArrayList<>();
+//            List<InvocationTask> des = new ArrayList<>();
+//            for (RegionInfo regionInfo : cvmList.keySet()) {
+//                Instance[] instances = cvmList.get(regionInfo);
+//                list.addAll(Arrays.asList(instances));
+//                Map<Instance, DescribeInvocationTasksResponse> whoami = getOutCommandPut("whoami", list.toArray(new Instance[list.size()]), regionInfo);
+//                for (Map.Entry<Instance, DescribeInvocationTasksResponse> execRes : whoami.entrySet()) {
+//                    for (InvocationTask invocationTask : whoami.get(execRes.getKey()).getInvocationTaskSet()) {
+//                        execRes.getKey().set("region",regionInfo.getRegion());
+//                        re.put(execRes.getKey(),Arrays.asList(whoami.get(execRes.getKey()).getInvocationTaskSet()));
+//                    }
+//                }
+////
+////                for (DescribeInvocationTasksResponse describeInvocationTasksResponse : whoami) {
+////                    des.addAll(Arrays.asList(describeInvocationTasksResponse.getInvocationTaskSet()));
+////                    re.put(regionInfo,des);
+////                }
+////                re.put(regionInfo,des);
+//            }
+//        }
         return re;
     }
 

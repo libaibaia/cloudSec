@@ -46,10 +46,17 @@ public class Mysql {
             CdbClient client = new CdbClient(credential, "", clientProfile);
             DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
             for (RegionInfo cdb : cdbs) {
-                client.setRegion(cdb.getRegion());
-                DescribeDBInstancesResponse resp = client.DescribeDBInstances(req);
-                if (resp.getItems().length >= 1){
-                    res.addAll(Arrays.asList(resp.getItems()));
+                long defaultSize = 100L;
+                req.setLimit(defaultSize);
+                req.setOffset(0L);
+                while (true){
+                    client.setRegion(cdb.getRegion());
+                    DescribeDBInstancesResponse resp = client.DescribeDBInstances(req);
+                    if (resp.getItems().length >= 1){
+                        res.addAll(Arrays.asList(resp.getItems()));
+                        defaultSize += defaultSize;
+                        req.setOffset(defaultSize);
+                    }else break;
                 }
             }
         } catch (TencentCloudSDKException e) {

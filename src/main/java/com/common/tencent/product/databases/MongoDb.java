@@ -27,10 +27,17 @@ public class MongoDb {
         DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
         List<InstanceDetail> list = new ArrayList<>();
         for (RegionInfo mongodb : mongodbs) {
-            client.setRegion(mongodb.getRegion());
-            DescribeDBInstancesResponse response = client.DescribeDBInstances(req);
-            if (response.getTotalCount() >= 1){
-                list.addAll(Arrays.asList(response.getInstanceDetails()));
+            long defaultSize = 100L;
+            req.setLimit(defaultSize);
+            req.setOffset(0L);
+            while (true){
+                client.setRegion(mongodb.getRegion());
+                DescribeDBInstancesResponse response = client.DescribeDBInstances(req);
+                if (response.getTotalCount() >= 1){
+                    list.addAll(Arrays.asList(response.getInstanceDetails()));
+                    defaultSize += defaultSize;
+                    req.setOffset(defaultSize);
+                }else break;
             }
         }
 

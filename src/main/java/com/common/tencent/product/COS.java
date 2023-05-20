@@ -43,7 +43,6 @@ public class COS {
     public List<Bucket> getCosList(Key key){
         ClientConfig clientConfig = new ClientConfig();
         COSClient cosClient = new COSClient(getCred(key), clientConfig);
-
         List<Bucket> buckets = cosClient.listBuckets();
         RegionInfo[] region = new RegionInfo[0];
         try {

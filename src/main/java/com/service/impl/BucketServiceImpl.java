@@ -38,17 +38,22 @@ public class BucketServiceImpl extends ServiceImpl<BucketMapper, Bucket>
         QueryWrapper<Bucket> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("key_id",key.getId());
         bucketMapper.delete(queryWrapper);
-        List<com.qcloud.cos.model.Bucket> cosList = cos.getCosList(key);
-        for (com.qcloud.cos.model.Bucket bucket : cosList) {
-            Bucket bucket1 = new Bucket();
-            bucket1.setEndPoint(bucket.getBucketType() + "." + bucket.getLocation() + "." +"myqcloud.com");
-            bucket1.setName(bucket.getName());
-            bucket1.setCreateById(key.getCreateById());
-            bucket1.setOwner(bucket.getOwner().toString());
-            bucket1.setKeyId(key.getId());
-            bucket1.setRegion(bucket.getLocation());
-            bucketMapper.insert(bucket1);
+        try {
+            List<com.qcloud.cos.model.Bucket> cosList = cos.getCosList(key);
+            for (com.qcloud.cos.model.Bucket bucket : cosList) {
+                Bucket bucket1 = new Bucket();
+                bucket1.setEndPoint(bucket.getBucketType() + "." + bucket.getLocation() + "." +"myqcloud.com");
+                bucket1.setName(bucket.getName());
+                bucket1.setCreateById(key.getCreateById());
+                bucket1.setOwner(bucket.getOwner().toString());
+                bucket1.setKeyId(key.getId());
+                bucket1.setRegion(bucket.getLocation());
+                bucketMapper.insert(bucket1);
+            }
+        }catch (Exception e){
+            log.error(e.getMessage());
         }
+
         status.decrementAndGet();
     }
 

@@ -78,6 +78,12 @@
 			<version>1.0.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>eci20180808</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.aliyun/ims20190815 -->
 		<dependency>
 			<groupId>com.aliyun</groupId>

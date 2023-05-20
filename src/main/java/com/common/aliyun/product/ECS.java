@@ -23,10 +23,16 @@ public class ECS {
             for (DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRegion des : regionInfo) {
                 Client client = Base.createClient(key,des.getRegionEndpoint());
                 DescribeInstancesRequest request = new DescribeInstancesRequest();
+                request.setPageSize(100);
                 request.setRegionId(des.regionId);
-                DescribeInstancesResponse describeInstancesResponse = client.describeInstancesWithOptions(request, runtime);
-                if (describeInstancesResponse.getBody().instances.instance.size() >= 1){
-                    map.put(des,describeInstancesResponse.getBody().instances.instance);
+                int page = 1;
+                while (true){
+                    DescribeInstancesResponse describeInstancesResponse = client.describeInstancesWithOptions(request, runtime);
+                    if (describeInstancesResponse.getBody().instances.instance.size() >= 1){
+                        map.put(des,describeInstancesResponse.getBody().instances.instance);
+                        page += 1;
+                        request.setPageNumber(page);
+                    }else break;
                 }
             }
             return map;

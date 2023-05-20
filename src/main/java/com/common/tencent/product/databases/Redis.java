@@ -26,10 +26,17 @@ public class Redis {
         DescribeInstancesRequest req = new DescribeInstancesRequest();
         List<InstanceSet> instanceSets = new ArrayList<>();
         for (RegionInfo redi : redis) {
-            client.setRegion(redi.getRegion());
-            DescribeInstancesResponse resp = client.DescribeInstances(req);
-            if (resp.getTotalCount() >= 1){
-                instanceSets.addAll(Arrays.asList(resp.getInstanceSet()));
+            long defaultSize = 100L;
+            req.setLimit(defaultSize);
+            req.setOffset(0L);
+            while (true){
+                client.setRegion(redi.getRegion());
+                DescribeInstancesResponse resp = client.DescribeInstances(req);
+                if (resp.getTotalCount() >= 1){
+                    instanceSets.addAll(Arrays.asList(resp.getInstanceSet()));
+                    defaultSize += defaultSize;
+                    req.setOffset(defaultSize);
+                }else break;
             }
         }
 

@@ -37,15 +37,22 @@ public class PostgreSQL {
         DescribeDBInstancesRequest req = new DescribeDBInstancesRequest();
         PostgresClient client = new PostgresClient(credential, "", clientProfile);
         for (RegionInfo postgresRegionList : postgresRegionLists) {
-            client.setRegion(postgresRegionList.getRegion());
-            DescribeDBInstancesResponse resp = null;
-            try {
-                resp = client.DescribeDBInstances(req);
-            } catch (TencentCloudSDKException e) {
-                continue;
-            }
-            if (resp.getTotalCount() >= 1){
-                dbInstances.addAll(Arrays.asList(resp.getDBInstanceSet()));
+            long defaultSize = 100L;
+            req.setLimit(defaultSize);
+            req.setOffset(0L);
+            while (true){
+                client.setRegion(postgresRegionList.getRegion());
+                DescribeDBInstancesResponse resp = null;
+                try {
+                    resp = client.DescribeDBInstances(req);
+                } catch (TencentCloudSDKException e) {
+                    continue;
+                }
+                if (resp.getTotalCount() >= 1){
+                    dbInstances.addAll(Arrays.asList(resp.getDBInstanceSet()));
+                    defaultSize += defaultSize;
+                    req.setOffset(defaultSize);
+                }else break;
             }
         }
         return dbInstances;

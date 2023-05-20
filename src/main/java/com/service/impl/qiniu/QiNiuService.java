@@ -40,18 +40,20 @@ public class QiNiuService {
     public void getInstanceList(Key key, AtomicInteger status){
         Auth auth = BaseAuth.getAuth(key);
         try {
-            InstanceInfoResponse instanceLists = Qvm.getInstanceLists(auth);
-            for (InstanceInfo datum : instanceLists.getData()) {
-                Instance instance = new Instance();
-                instance.setInstanceId(datum.getInstance_id());
-                instance.setType(datum.getOs_type());
-                instance.setIp(datum.getEip_address().getIp_address());
-                instance.setRegion(datum.getRegion_id());
-                instance.setOriginalKeyPair(datum.getKey_pair_name());
-                instance.setIsCommand("七牛暂不支持执行命令");
-                instance.setKeyId(key.getId());
-                instance.setOsName(datum.getOs_name());
-                instanceService.getBaseMapper().insert(instance);
+            List<InstanceInfoResponse> instanceLists = Qvm.getInstanceLists(auth);
+            for (InstanceInfoResponse infoResponse : instanceLists) {
+                for (InstanceInfo datum : infoResponse.getData()) {
+                    Instance instance = new Instance();
+                    instance.setInstanceId(datum.getInstance_id());
+                    instance.setType(datum.getOs_type());
+                    instance.setIp(datum.getEip_address().getIp_address());
+                    instance.setRegion(datum.getRegion_id());
+                    instance.setOriginalKeyPair(datum.getKey_pair_name());
+                    instance.setIsCommand("七牛暂不支持执行命令");
+                    instance.setKeyId(key.getId());
+                    instance.setOsName(datum.getOs_name());
+                    instanceService.getBaseMapper().insert(instance);
+                }
             }
         } catch (Exception e) {
             log.info("获取七牛云服务器出错原因：" + e.getMessage());
