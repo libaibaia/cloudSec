@@ -1,5 +1,6 @@
 package com.common.qiniu.qvm;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.http.*;
 import com.common.qiniu.base.RegionInfo;
 import com.common.qiniu.base.model.error.ErrorException;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qiniu.util.Auth;
 
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,8 +40,7 @@ public class Qvm {
      * @throws JsonProcessingException
      */
     public static List<InstanceInfoResponse> getInstanceLists(Auth auth) throws Exception {
-        String s = auth.signQiniuAuthorization(BaseUrl + QvmBaseUrl.QvmInstanceList.getUrl(),
-                QvmBaseUrl.QvmRegionListUrl.getMethod(),null,"");
+
         Map<String,Object> args = new HashMap<>();
         int page = 1;
         args.put("size",100);
@@ -47,14 +48,16 @@ public class Qvm {
         List<InstanceInfoResponse> responses = new ArrayList<>();
         while (true){
             HttpRequest request = HttpRequest.get(BaseUrl + QvmBaseUrl.QvmInstanceList.getUrl())
-                    .form(args)
-                    .auth("Qiniu " + s);
+                    .form(args);
+            String s = auth.signQiniuAuthorization(request.getUrl() + "?" + "size=" + args.get("size") + "&" + "page=" + args.get("page"),
+                    QvmBaseUrl.QvmRegionListUrl.getMethod(),null,"");
+                    request.auth("Qiniu " + s).setHttpProxy("127.0.0.1",8080);
             HttpResponse execute = request.execute();
             ObjectMapper objectMapper = new ObjectMapper();
             //如果响应不为200则代表失败，失败抛出异常，其中包含错误信息
             isSuccess(execute);
             InstanceInfoResponse instanceInfoResponse = objectMapper.readValue(execute.body(), InstanceInfoResponse.class);
-            if (instanceInfoResponse.getData().size() >= 1){
+            if (!ObjectUtil.isNull(instanceInfoResponse.getData()) && instanceInfoResponse.getData().size() >= 1){
                 responses.add(instanceInfoResponse);
                 page += 1;
                 args.put("page",page);

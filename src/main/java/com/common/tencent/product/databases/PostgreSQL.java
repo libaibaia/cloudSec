@@ -45,14 +45,15 @@ public class PostgreSQL {
                 DescribeDBInstancesResponse resp = null;
                 try {
                     resp = client.DescribeDBInstances(req);
+                    if (resp.getTotalCount() >= 1){
+                        dbInstances.addAll(Arrays.asList(resp.getDBInstanceSet()));
+                        defaultSize += defaultSize;
+                        req.setOffset(defaultSize);
+                    }else break;
                 } catch (TencentCloudSDKException e) {
-                    continue;
+                    System.out.println(e.getMessage());
+                    break;
                 }
-                if (resp.getTotalCount() >= 1){
-                    dbInstances.addAll(Arrays.asList(resp.getDBInstanceSet()));
-                    defaultSize += defaultSize;
-                    req.setOffset(defaultSize);
-                }else break;
             }
         }
         return dbInstances;

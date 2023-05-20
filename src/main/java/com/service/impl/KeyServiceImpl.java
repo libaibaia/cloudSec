@@ -146,7 +146,10 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                     qiNiuService.getInstanceList(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
-                Tools.executorService.execute(() -> qiNiuService.getBucketList(key));
+                Tools.executorService.execute(() -> {
+                    qiNiuService.getBucketList(key,detectProgress);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
+                });
                 break;
             }
         }

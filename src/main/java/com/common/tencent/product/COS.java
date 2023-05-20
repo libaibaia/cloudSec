@@ -43,14 +43,24 @@ public class COS {
     public List<Bucket> getCosList(Key key){
         ClientConfig clientConfig = new ClientConfig();
         COSClient cosClient = new COSClient(getCred(key), clientConfig);
-        List<Bucket> buckets = cosClient.listBuckets();
-        RegionInfo[] region = new RegionInfo[0];
+        List<Bucket> buckets = new ArrayList<>();
+        List<Bucket> buckets1 = new ArrayList<>();
+        List<Bucket> res = new ArrayList<>();
+
         try {
-            region = Base.getRegionList(Base.createCredential(key), "COS");
-        } catch (TencentCloudSDKException e) {
-            log.info(e.getMessage());
+            buckets = cosClient.listBuckets();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
         }
+
+        //不具有列出存储桶权限时使用存储桶名称查看是否具有操作权限
         if (!StrUtil.isBlank(key.getBucketName())) {
+            RegionInfo[] region = new RegionInfo[0];
+            try {
+                region = Base.getRegionList(Base.createCredential(key), "COS");
+            } catch (TencentCloudSDKException e) {
+                log.info(e.getMessage());
+            }
             String[] bucketName = Tools.getBucketName(key.getBucketName());
             //遍历对应区域及名称获取存储桶
             for (String s : bucketName) {
@@ -59,12 +69,16 @@ public class COS {
                     try {
                         boolean b = cosClient.doesBucketExist(s);
                         if(b) {
+                            Bucket bucket1 = new Bucket();
+                            bucket1.setLocation(String.format(cosEndPoint, s,regionInfo.getRegionName()));
+                            bucket1.setName(s);
+                            buckets.add(bucket1);
+                            buckets1.add(bucket1);
                             for (Bucket bucket : buckets) {
-                                if (!bucket.getName().equals(s) && bucket.getLocation().equals(regionInfo.getRegion())){
-                                    Bucket bucket1 = new Bucket();
-                                    bucket1.setLocation(String.format(cosEndPoint, s,regionInfo.getRegionName()));
-                                    bucket1.setName(s);
-                                    buckets.add(bucket1);
+                                if (bucket.getName().equals(s) && bucket.getLocation().equals(regionInfo.getRegion())){
+                                    break;
+                                }else {
+
                                 }
                             }
                         }
@@ -79,7 +93,24 @@ public class COS {
             }
         }
 
-        return buckets;
+        //去重
+        res.addAll(buckets);
+        for (Bucket element : buckets1) {
+            boolean isExist = false;
+            // 查找元素中是否有相同 ID 的元素
+            for (Bucket mergedElement : res) {
+                if (mergedElement.getName().equals(element.getName()) && mergedElement.getLocation().equals(element.getLocation())) {
+                    isExist = true;
+                    break;
+                }
+            }
+            if (!isExist) {
+                res.add(element);
+            }
+        }
+
+
+        return res;
     }
     private static COSCredentials getCred(Key key){
         COSCredentials cred = null;

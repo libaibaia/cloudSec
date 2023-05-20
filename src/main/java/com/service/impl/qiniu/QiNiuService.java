@@ -75,7 +75,7 @@ public class QiNiuService {
 
 
     @LogAnnotation(title = "检测七牛存储桶")
-    public void getBucketList(Key key){
+    public void getBucketList(Key key,AtomicInteger status){
         List<BucketModel> bucketLists = Bucket.getBucketLists(BaseAuth.getAuth(key));
         com.domain.Bucket bucket = new com.domain.Bucket();
         for (BucketModel bucketList : bucketLists) {
@@ -89,5 +89,6 @@ public class QiNiuService {
             bucket.setOwner("");
             bucketMapper.insert(bucket);
         }
+        status.decrementAndGet();
     }
 }
