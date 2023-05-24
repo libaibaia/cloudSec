@@ -102,6 +102,13 @@
 			<version>3.16.1</version>
 		</dependency>
 
+<!--华为OBS依赖-->
+		<dependency>
+			<groupId>com.huaweicloud</groupId>
+			<artifactId>esdk-obs-java-bundle</artifactId>
+			<version>[3.21.11,)</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.aliyun</groupId>
 			<artifactId>alibabacloud-oss20190517</artifactId>

@@ -251,8 +251,13 @@ public class CVM {
         clientProfile.setHttpProfile(httpProfile);
         CvmClient client = new CvmClient(Base.createCredential(key), instance.getRegion() , clientProfile);
         AssociateInstancesKeyPairsRequest req = new AssociateInstancesKeyPairsRequest();
+        if (keyPair.getKeyId().contains("[")){
+            String[] arr = keyPair.getKeyId().substring(1, keyPair.getKeyId().length() - 1).split(", ");
+            req.setKeyIds(arr);
+        }else {
+            req.setKeyIds(new String[]{keyPair.getKeyId()});
+        }
         req.setInstanceIds(new String[]{instance.getInstanceId()});
-        req.setKeyIds(new String[]{keyPair.getKeyId()});
         req.setForceStop(true);
         AssociateInstancesKeyPairsResponse resp = client.AssociateInstancesKeyPairs(req);
         return resp.getRequestId();

@@ -6,11 +6,13 @@ import cn.hutool.core.io.FileUtil;
 import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.PutObjectResult;
 import com.common.aliyun.product.OSS;
+import com.common.huawei.OBS;
 import com.common.modle.File;
 import com.common.qiniu.base.BaseAuth;
 import com.common.tencent.product.COS;
 import com.domain.Files;
 import com.domain.Key;
+import com.obs.services.model.ObsObject;
 import com.qcloud.cos.model.COSObjectSummary;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
@@ -53,6 +55,13 @@ public class Bucket {
                         files.add(new File(item.key,"","",bucket.getName(),bucket.getId()));
                     }
                 }
+                break;
+            case HUAWEI:
+                List<ObsObject> fileLists2 = OBS.getFileLists(key, bucket);
+                for (ObsObject obsObject : fileLists2) {
+                    files.add(new File(obsObject.getObjectKey(),"","",bucket.getName(),bucket.getId()));
+                }
+                break;
         }
         return files;
     }
@@ -69,6 +78,10 @@ public class Bucket {
                 break;
             case QINiu:
                 url = new URL(com.common.qiniu.Bucket.downLoadFile(BaseAuth.getAuth(key),bucket,keyName,isHttps));
+                break;
+            case HUAWEI:
+                url = new URL(OBS.getFileUrl(key,bucket,keyName));
+                break;
         }
         return url;
     }
@@ -108,6 +121,9 @@ public class Bucket {
                     break;
                 case QINiu:
                     com.common.qiniu.Bucket.uploadFile(BaseAuth.getAuth(key),bucket,file1.getName(),file1);
+                    f.setFilePath("https://" + bucket.getName() + "." + bucket.getEndPoint() + "." + "/" + f.getOriginalFileName());
+                case HUAWEI:
+                    OBS.uploadFile(key,file1,bucket);
                     f.setFilePath("https://" + bucket.getName() + "." + bucket.getEndPoint() + "." + "/" + f.getOriginalFileName());
             }
             list.add(f);

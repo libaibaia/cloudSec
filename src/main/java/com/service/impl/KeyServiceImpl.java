@@ -1,5 +1,6 @@
 package com.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.aliyun.ecs20140526.models.DescribeRegionsResponseBody;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -7,20 +8,24 @@ import com.common.LogAnnotation;
 import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.Base;
+import com.common.huawei.OBS;
 import com.domain.Key;
 import com.service.KeyService;
 import com.mapper.KeyMapper;
 import com.service.impl.aliyun.AliYunInstanceService;
+import com.service.impl.huawei.HaWeiService;
 import com.service.impl.qiniu.QiNiuService;
 import com.service.impl.tencent.TencentInstanceService;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.coyote.http11.Constants.a;
@@ -42,16 +47,17 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
     @Resource
     @Lazy
     private TencentInstanceService tencentInstanceService;
+    @Autowired
+    private ExecutorService executorService;
 
     @Resource
     @Lazy
     private QiNiuService qiNiuService;
     @Resource
-    @Lazy
-    private BucketServiceImpl bucketService;
+    private HaWeiService haWeiService;
     @Resource
     @Lazy
-    private DatabasesInstanceServiceImpl databasesInstanceService;
+    private BucketServiceImpl bucketService;
     public List<Key> getKeysByCreateId(Integer id){
         QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
         keyQueryWrapper.eq("create_by_id",id);
@@ -66,17 +72,18 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
         if (one != null){
             one.setSecretid(key.getSecretid());
             one.setSecretkey(key.getSecretkey());
-            key.setTaskStatus("");
+            one.setToken(StrUtil.isBlank(key.getToken()) ? "" : key.getToken());
+            one.setTaskStatus("");
             b = updateById(one);
             if (key.getStatus().equals("0")){
                 one.setTaskStatus("检测中");
                 b = updateById(one);
-                Tools.executorService.submit(() -> execute(key));
+                executorService.submit(() -> execute(one));
             }
         }else {
             if (key.getStatus().equals("0")){
                 key.setTaskStatus("检测中");
-                Tools.executorService.submit(() -> execute(key));
+                executorService.submit(() -> execute(key));
             }
             b = save(key);
         }
@@ -100,15 +107,16 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                     return;
                 }
                 AtomicInteger detectProgress = new AtomicInteger(3);
-                Tools.executorService.submit(() -> {
+
+                executorService.submit(() -> {
                     aliYunInstanceService.getInstanceList(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
-                Tools.executorService.submit(() -> {
+                executorService.submit(() -> {
                     aliYunInstanceService.getBucketLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
-                Tools.executorService.submit(() -> {
+                executorService.submit(() -> {
                     aliYunInstanceService.getRdsLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
@@ -125,15 +133,15 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                     return;
                 }
                 AtomicInteger detectProgress = new AtomicInteger(3);
-                Tools.executorService.submit(() -> {
+                executorService.submit(() -> {
                     tencentInstanceService.getInstanceList(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
-                Tools.executorService.submit(() -> {
+                executorService.submit(() -> {
                         bucketService.getBucketList(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
-                Tools.executorService.submit(() -> {
+                executorService.submit(() -> {
                     tencentInstanceService.getDBLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
@@ -142,16 +150,27 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
             case QINiu:{
                 Integer defaultValue = 2;
                 AtomicInteger detectProgress = new AtomicInteger(defaultValue);
-                Tools.executorService.execute(() -> {
+                executorService.execute(() -> {
                     qiNiuService.getInstanceList(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
-                Tools.executorService.execute(() -> {
+                executorService.execute(() -> {
                     qiNiuService.getBucketList(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 break;
             }
+            case HUAWEI:
+            {
+                Integer defaultValue = 1;
+                AtomicInteger detectProgress = new AtomicInteger(defaultValue);
+                executorService.execute(() -> {
+                    haWeiService.getBucketLists(key,detectProgress);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
+                });
+                break;
+            }
+
         }
     }
 

@@ -186,8 +186,7 @@ public class COS {
         COSClient cosclient = new COSClient(getCred(key), clientConfig);
         ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
         listObjectsRequest.setBucketName(bucket.getName());
-        // 设置最大遍历出多少个对象, 一次listobject最大支持1000
-        listObjectsRequest.setMaxKeys(1000);
+        listObjectsRequest.setMaxKeys(100);
         ObjectListing objectListing = null;
         do {
             try {

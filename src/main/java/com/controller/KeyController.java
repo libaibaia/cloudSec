@@ -22,6 +22,7 @@ import com.service.impl.KeyServiceImpl;
 import com.service.impl.tencent.PermissionService;
 import com.service.impl.tencent.TencentInstanceService;
 import com.tencentcloudapi.cam.v20190116.models.AttachPolicyInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -31,6 +32,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @RestController
@@ -44,6 +47,9 @@ public class KeyController {
     private PermissionService permissionService;
     @Resource
     private InstanceService instanceService;
+    @Autowired
+    private ExecutorService executorService;
+
     @Resource
     private DatabasesInstanceServiceImpl databasesInstanceService;
     @Resource
@@ -119,7 +125,7 @@ public class KeyController {
         if (key.getCreateById().equals(Integer.parseInt(StpUtil.getLoginId().toString()))){
             cleanInstanceInfo(key);
             key.setCreateById(Integer.parseInt(StpUtil.getLoginId().toString()));
-            Tools.executorService.submit(() -> keyService.execute(key));
+            executorService.submit(() -> keyService.execute(key));
             return SaResult.ok("更新成功，稍后刷新");
         }
         return SaResult.error("更新失败");
@@ -134,14 +140,14 @@ public class KeyController {
         for (Key key : list) {
             cleanInstanceInfo(key);
             key.setTaskStatus("等待检测");
-            Tools.executorService.submit(() -> keyService.execute(key));
+            executorService.submit(() -> keyService.execute(key));
         }
         return SaResult.ok("启动成功");
     }
 
     @GetMapping("/stop")
     public SaResult stopTask(){
-        Tools.stopALLTask();
+        getNewThreadPool();
         List<Key> list = keyService.list();
         for (Key key : list) {
             key.setTaskStatus("停止检测");
@@ -159,6 +165,11 @@ public class KeyController {
         bucketQueryWrapper.eq("key_id", key.getId());
         bucketService.remove(bucketQueryWrapper);
         databasesInstanceService.delInstanceByKeyId(key.getId());
+    }
+
+    private void getNewThreadPool(){
+        executorService.shutdownNow();
+        executorService = Executors.newFixedThreadPool(10);
     }
 
 }

@@ -6,6 +6,7 @@ import com.common.LogAnnotation;
 import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.product.OSS;
+import com.common.huawei.OBS;
 import com.common.tencent.product.COS;
 import com.domain.Bucket;
 import com.domain.Key;
@@ -13,10 +14,13 @@ import com.domain.Task;
 import com.service.BucketService;
 import com.mapper.BucketMapper;
 import com.service.TaskService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -27,6 +31,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class BucketServiceImpl extends ServiceImpl<BucketMapper, Bucket>
     implements BucketService{
+
+    @Autowired
+    private ExecutorService executorService;
+
     @Resource
     private BucketMapper bucketMapper;
     @Resource
@@ -63,7 +71,7 @@ public class BucketServiceImpl extends ServiceImpl<BucketMapper, Bucket>
         task.setStatus("创建中");
         task.setBucket(bucket.getName() + "." + bucket.getEndPoint());
         taskService.save(task);
-        Tools.executorService.submit(() -> {
+        executorService.submit(() -> {
             Type type = Type.valueOf(key.getType());
             Task task1 = null;
             switch (type){
@@ -75,6 +83,14 @@ public class BucketServiceImpl extends ServiceImpl<BucketMapper, Bucket>
                     break;
                 case QINiu:
                     task1 = com.common.qiniu.Bucket.downAllFile(key, bucket, task);
+                    break;
+                case HUAWEI:
+                    try {
+                        task1 = OBS.downloadAllFile(key, bucket, task);
+                    } catch (IOException e) {
+                        task1 = task;
+                        task1.setStatus("失败");
+                    }
                     break;
             }
             taskService.updateById(task1);

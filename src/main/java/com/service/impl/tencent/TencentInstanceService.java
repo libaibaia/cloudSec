@@ -25,10 +25,12 @@ import com.tencentcloudapi.redis.v20180412.models.InstanceSet;
 import com.tencentcloudapi.tat.v20201028.models.InvocationTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.service.impl.DatabasesInstanceServiceImpl.*;
@@ -44,6 +46,10 @@ public class TencentInstanceService {
     @Resource
     @Lazy
     private DatabasesInstanceMapper databasesInstanceMapper;
+
+    @Autowired
+    private ExecutorService executorService;
+
 
     @LogAnnotation(title = "获取腾讯云服务器实例列表")
     public void getInstanceList(Key key, AtomicInteger status){
@@ -204,7 +210,7 @@ public class TencentInstanceService {
                 case mysql:
                     Mysql.openWan(key, databasesInstance.getRegion(), databasesInstance.getInstanceId());
                     //此处休眠是为了等待腾讯云更新状态
-                    Tools.executorService.submit(() -> {
+                    executorService.submit(() -> {
                         try {
                             Thread.sleep(1000 * 30);
                         } catch (InterruptedException e) {
@@ -221,7 +227,7 @@ public class TencentInstanceService {
                 case mariaDB:
                     MariaDB.openWan(key, databasesInstance.getRegion(), databasesInstance.getInstanceId());
                     //此处休眠是为了等待腾讯云更新状态
-                    Tools.executorService.submit(() -> {
+                    executorService.submit(() -> {
                         try {
                             Thread.sleep(1000 * 30);
                         } catch (InterruptedException e) {
@@ -243,7 +249,7 @@ public class TencentInstanceService {
                 case redis:
                     Redis.openWan(key,databasesInstance.getInstanceId(),databasesInstance.getRegion());
                     //此处休眠是为了等待腾讯云更新状态
-                    Tools.executorService.submit(() -> {
+                    executorService.submit(() -> {
                         try {
                             Thread.sleep(1000 * 30);
                         } catch (InterruptedException e) {
@@ -271,7 +277,7 @@ public class TencentInstanceService {
                 case postgres:
                     PostgreSQL.openWan(key,databasesInstance.getInstanceId(),databasesInstance.getRegion());
                     //此处休眠是为了等待腾讯云更新状态
-                    Tools.executorService.submit(() -> {
+                    executorService.submit(() -> {
                         try {
                             Thread.sleep(1000 * 30);
                         } catch (InterruptedException e) {

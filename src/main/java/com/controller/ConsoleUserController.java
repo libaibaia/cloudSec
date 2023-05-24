@@ -78,6 +78,8 @@ public class ConsoleUserController {
     @RequestMapping("/lists")
     public SaResult getConsoleUser(@RequestParam(required = false) String quick_search,@RequestParam(value = "page",defaultValue = "1",required = false)
     Integer page,@RequestParam(value = "limit",defaultValue = "10",required = false) Integer limit){
+        int i = Integer.parseInt(StpUtil.getLoginId().toString());
+        List<Key> keysByCreateId = keyService.getKeysByCreateId(i);
         List<ConsoleUser> consoleUsers = new ArrayList<>();
         Page<ConsoleUser> objects = PageHelper.startPage(page, limit);
         QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
@@ -88,11 +90,7 @@ public class ConsoleUserController {
             consoleUserQueryWrapper.eq("key_id",one.getId());
             consoleUsers = consoleUserService.list(consoleUserQueryWrapper);
         } else {
-            keyQueryWrapper.eq("create_by_id",Integer.parseInt(StpUtil.getLoginId().toString()));
-            List<Key> list = keyService.list(keyQueryWrapper);
-            for (Key key : list) {
-                consoleUsers.addAll(consoleUserService.getConsoleUser(key.getId()));
-            }
+            consoleUsers.addAll(consoleUserService.consoleUserListById(keysByCreateId));
         }
         return SaResult.ok().set("lists",consoleUsers).set("total",objects.getTotal());
     }
