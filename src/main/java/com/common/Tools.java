@@ -14,6 +14,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 
 public class Tools {
+    public static final Integer maxBucketNum = 1000;
     public static ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(5);
 
     public static void stopALLTask() {

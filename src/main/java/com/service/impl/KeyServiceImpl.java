@@ -8,8 +8,10 @@ import com.common.LogAnnotation;
 import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.Base;
+import com.common.huawei.Ecs;
 import com.common.huawei.OBS;
 import com.domain.Key;
+import com.huaweicloud.sdk.ecs.v2.model.ServerDetail;
 import com.service.KeyService;
 import com.mapper.KeyMapper;
 import com.service.impl.aliyun.AliYunInstanceService;
@@ -166,6 +168,10 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                 AtomicInteger detectProgress = new AtomicInteger(defaultValue);
                 executorService.execute(() -> {
                     haWeiService.getBucketLists(key,detectProgress);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
+                });
+                executorService.execute(() -> {
+                    haWeiService.getInstanceLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 break;

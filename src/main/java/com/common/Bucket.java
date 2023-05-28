@@ -33,7 +33,7 @@ public class Bucket {
         List<File> files = new ArrayList<>();
         switch (type){
             case Tencent:
-                List<COSObjectSummary> fileLists = COS.getFileLists(key, bucket);
+                List<COSObjectSummary> fileLists = COS.getFileLists(key, bucket,keyWord);
                 for (COSObjectSummary fileList : fileLists) {
                     files.add(new File(fileList.getKey(), fileList.getOwner().toString(),
                             "https://"  + bucket.getName() + "." + bucket.getEndPoint()
@@ -41,7 +41,7 @@ public class Bucket {
                 }
                 break;
             case AliYun:
-                List<OSSObjectSummary> lists = OSS.getFileLists(key, bucket);
+                List<OSSObjectSummary> lists = OSS.getFileLists(key, bucket,keyWord);
                 for (OSSObjectSummary list : lists) {
                     files.add(new File(list.getKey(), list.getOwner().toString(),
                             "https://" + bucket.getName() + "." + bucket.getEndPoint()
@@ -57,7 +57,7 @@ public class Bucket {
                 }
                 break;
             case HUAWEI:
-                List<ObsObject> fileLists2 = OBS.getFileLists(key, bucket);
+                List<ObsObject> fileLists2 = OBS.getFileLists(key, bucket,keyWord);
                 for (ObsObject obsObject : fileLists2) {
                     files.add(new File(obsObject.getObjectKey(),"","",bucket.getName(),bucket.getId()));
                 }

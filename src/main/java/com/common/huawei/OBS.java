@@ -42,7 +42,7 @@ public class OBS {
      * @param endpoint
      * @return
      */
-    public static List<ObsBucket> getBucketLists(Key key, String endpoint, HuaweiObsRegion[] region){
+    public static List<Bucket> getBucketLists(Key key, String endpoint, HuaweiObsRegion[] region){
         ObsClient obsClient = getObsClient(key, endpoint);
         ListBucketsRequest listBucketsRequest = new ListBucketsRequest();
         listBucketsRequest.setQueryLocation(true);
@@ -91,7 +91,20 @@ public class OBS {
             }
         }
 
-        return res;
+        List<Bucket> buckets = new ArrayList<>();
+        for (ObsBucket re : res) {
+            ObsClient obsClient1 = getObsClient(key, "obs." + re.getLocation() + ".myhuaweicloud.com");
+            BucketStorageInfo bucketStorageInfo = obsClient1.getBucketStorageInfo(re.getBucketName());
+            Bucket bucket = new Bucket();
+            bucket.setEndPoint("obs." + re.getLocation() + ".myhuaweicloud.com");
+            bucket.setName(re.getBucketName());
+            bucket.setOwner(bucket.getOwner());
+            bucket.setRegion("");
+            bucket.setKeyId(key.getId());
+            bucket.setCreateById(key.getCreateById());
+            buckets.add(bucket);
+        }
+        return buckets;
     }
 
 
@@ -118,11 +131,12 @@ public class OBS {
         return response.getSignedUrl();
     }
 
-    public static List<ObsObject> getFileLists(Key key, Bucket bucket){
+    public static List<ObsObject> getFileLists(Key key, Bucket bucket,String keyWord){
         ObsClient obsClient = getObsClient(key, bucket.getEndPoint());
         ObjectListing result;
         ListObjectsRequest request = new ListObjectsRequest(bucket.getName());
         List<ObsObject> res = new ArrayList<>();
+        request.setPrefix(keyWord);
         request.setMaxKeys(1000);
         try {
             do{
@@ -138,7 +152,7 @@ public class OBS {
     }
 
     public static Task downloadAllFile(Key key, Bucket bucket, Task task) throws IOException {
-        List<ObsObject> fileLists = getFileLists(key, bucket);
+        List<ObsObject> fileLists = getFileLists(key, bucket,null);
         ObsClient obsClient = getObsClient(key, bucket.getEndPoint());
         long current = DateUtil.current();
         String path = "../../" + current;

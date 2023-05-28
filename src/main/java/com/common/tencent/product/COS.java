@@ -144,7 +144,7 @@ public class COS {
     public static Task downloadAllFile(Key key, com.domain.Bucket bucket, Task task){
         ClientConfig clientConfig = new ClientConfig(new Region(bucket.getRegion()));
         COSClient cosclient = new COSClient(getCred(key), clientConfig);
-        List<COSObjectSummary> fileLists = getFileLists(key, bucket);
+        List<COSObjectSummary> fileLists = getFileLists(key, bucket,null);
         long current = DateUtil.current();
         String path = "../../" + current;
         File dir = FileUtil.mkdir(path);
@@ -180,13 +180,14 @@ public class COS {
     }
 
 
-    public static List<COSObjectSummary> getFileLists(Key key, com.domain.Bucket bucket){
+    public static List<COSObjectSummary> getFileLists(Key key, com.domain.Bucket bucket,String keyWord){
         List<COSObjectSummary> list = new ArrayList<>();
         ClientConfig clientConfig = new ClientConfig(new Region(bucket.getRegion()));
         COSClient cosclient = new COSClient(getCred(key), clientConfig);
         ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
+        if (!StrUtil.isBlank(keyWord)) listObjectsRequest.setPrefix(keyWord);
         listObjectsRequest.setBucketName(bucket.getName());
-        listObjectsRequest.setMaxKeys(100);
+        listObjectsRequest.setMaxKeys(Tools.maxBucketNum);
         ObjectListing objectListing = null;
         do {
             try {

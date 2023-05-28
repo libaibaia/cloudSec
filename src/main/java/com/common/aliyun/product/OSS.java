@@ -110,10 +110,19 @@ public class OSS {
         client.close();
         return resp;
     }
-    public static List<OSSObjectSummary> getFileLists(Key key, com.domain.Bucket bucket){
+    public static List<OSSObjectSummary> getFileLists(Key key, com.domain.Bucket bucket,String keyWord){
         com.aliyun.oss.OSS ossClient = getOssClient(key,bucket.getEndPoint());
-        ObjectListing objectListing = ossClient.listObjects(bucket.getName());
-        return objectListing.getObjectSummaries();
+        if (!StrUtil.isBlank(keyWord)) {
+            ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
+            listObjectsRequest.setBucketName(bucket.getName());
+            listObjectsRequest.setPrefix(keyWord);
+            listObjectsRequest.setMaxKeys(Tools.maxBucketNum);
+            ObjectListing objectListing = ossClient.listObjects(listObjectsRequest);
+            return objectListing.getObjectSummaries();
+        }else {
+            ObjectListing objectListing = ossClient.listObjects(bucket.getName());
+            return objectListing.getObjectSummaries();
+        }
     }
     private static com.aliyun.oss.OSS getOssClient(Key key,String endpoint){
         if (endpoint != null) OSS.endpoint = endpoint;
@@ -152,7 +161,7 @@ public class OSS {
 
     public static Task downloadALLFile(Key key, com.domain.Bucket bucket, Task task){
         com.aliyun.oss.OSS ossClient = getOssClient(key, bucket.getEndPoint());
-        List<OSSObjectSummary> lists = getFileLists(key, bucket);
+        List<OSSObjectSummary> lists = getFileLists(key, bucket,null);
         List<File> files = new ArrayList<>();
         long current = DateUtil.current();
         String path = "../../" + current;

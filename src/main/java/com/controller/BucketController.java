@@ -68,10 +68,10 @@ public class BucketController {
     }
 
     @RequestMapping("file/lists")
-    public SaResult fileLists(@RequestParam("id") Integer id,String keyWord ){
+    public SaResult fileLists(@RequestParam("id") Integer id,@RequestParam(required = false) String quick_search ){
         Bucket bucket = bucketService.getById(id);
         Key key = keyService.getById(bucket.getKeyId());
-        return SaResult.ok().set("lists", com.common.Bucket.geFileLists(key,bucket,keyWord));
+        return SaResult.ok().set("lists", com.common.Bucket.geFileLists(key,bucket,quick_search));
     }
 
     @RequestMapping("file/download")

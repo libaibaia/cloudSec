@@ -56,19 +56,13 @@ public class InstanceController {
         if (quick_search != null){
             QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
             keyQueryWrapper.like("name",quick_search);
-            Key one = keyService.getOne(keyQueryWrapper);
-            if (one != null){
-                ArrayList<Integer> list = new ArrayList<>();
-                list.add(one.getId());
+            List<Key> list = keyService.list(keyQueryWrapper);
+            if (list.size() >= 1){
                 instanceList = instanceService.getInstanceList(list);
             }
         }
         else {
-            List<Integer> list = new ArrayList<>();
-            for (Key key : keys) {
-                list.add(key.getId());
-            }
-            instanceList = instanceService.getInstanceList(list);
+            instanceList = instanceService.getInstanceList(keys);
         }
         return  SaResult.ok("获取成功").set("lists",instanceList).set("total",objects.getTotal());
     }

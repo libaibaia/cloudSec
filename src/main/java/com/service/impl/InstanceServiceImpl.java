@@ -61,11 +61,11 @@ public class InstanceServiceImpl extends ServiceImpl<InstanceMapper, Instance>
                 return SaResult.error("未知类型，绑定失败");
         }
     }
-    public List<Instance> getInstanceList(List<Integer> akId){
+    public List<Instance> getInstanceList(List<Key> akId){
         List<com.domain.Instance> list = new ArrayList<>();
-        for (Integer integer : akId) {
+        for (Key key : akId) {
             QueryWrapper<Instance> instanceQueryWrapper = new QueryWrapper<>();
-            instanceQueryWrapper.eq("key_id",integer);
+            instanceQueryWrapper.eq("key_id",key.getId());
             List<com.domain.Instance> instances = this.baseMapper.selectList(instanceQueryWrapper);
             if (instances != null) list.addAll(instances);
         }
