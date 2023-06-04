@@ -80,9 +80,8 @@ services:
 
 ```
 
-
-```
 ## 更新yaml，建议把之前的持久化数据删了， /home/cloud/data,因为改数据库字段了，会报错。。。
+
 ```yaml
 services:
   java-app:
