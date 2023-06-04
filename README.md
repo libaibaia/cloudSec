@@ -125,7 +125,7 @@ docker-compose up -d
 - node 16.16
 前端项目地址：[https://github.com/libaibaia/vue-web](https://github.com/libaibaia/web-vue)
 - 步骤：
-1. 编译后端项目（将application中的mysql改为本地mysql地址） mnv package
+1. 编译后端项目（将application中的mysql改为本地mysql地址） mvn package
 2. 前端项目打包,打包前更改.env.production文件中的VITE_AXIOS_BASE_URL为本机IP，然后，npm install --> npm run build
 3. 将编译后的dist文件复制到nginx目录下
 4. 启动后端java -jar cloudSec.jar
