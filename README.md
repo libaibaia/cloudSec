@@ -6,7 +6,7 @@
 ## 关于后续添加的厂商
 - 亚马逊云
 - 七牛云(已接入)
-- 华为云（已更新存储桶）
+- 华为云（已更新）
 - 微软云
 - 谷歌
 - 因为缺少好多资源，某些功能不能直接测试，如果有相关资源可以提供的师傅可以发给我测试一下
@@ -17,7 +17,7 @@
 - 腾讯云
 - 阿里云
 - 七牛
-- 华为云（当前仅存储桶支持）
+- 华为云
 - ***注：如果页面白屏刷新浏览器即可，因为热更新的原因导致，后期会解决。（已解决）***
 1. AK/SK管理
 ![image](https://user-images.githubusercontent.com/108923559/232522170-4e0bf7ee-067c-4401-9ed1-f7f51abfe5a5.png)
@@ -49,6 +49,37 @@
 $ sudo curl -L "https://github.com/docker/compose/releases/download/{version}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
 $ sudo chmod +x /usr/local/bin/docker-compose
+
+- 有两个yaml文件，任选一个即可，这个是后面加的，老版本可以使用下面的yaml，记得删除/home/cloud/data，如果需要保存原有的ak/sk，进容器导出即可，后期会做ak/sk导出导入功能，保证后面更新数据库镜像保存原有数据
+```yaml
+services:
+  java-app:
+    container_name: java-app
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-latest
+    environment:
+      DB_PASSWORD: 123456
+    depends_on:
+      - db
+  vue-web:
+    container_name: vue-web
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app-latest
+    ports:
+      - "80:80"
+    environment:
+      - API_IP=192.168.61.131
+    depends_on:
+      - java-app
+  db:
+    container_name: db
+    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:db-latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    volumes:
+      - /home/cloud/data:/var/lib/mysql
+
+```
+
 
 ```
 ## 更新yaml，建议把之前的持久化数据删了， /home/cloud/data,因为改数据库字段了，会报错。。。
