@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -65,7 +65,7 @@
 			<artifactId>sa-token-spring-boot-starter</artifactId>
 			<version>1.34.0</version>
 		</dependency>
-<!--	阿里云sdk	-->
+		<!--	阿里云sdk	-->
 		<dependency>
 			<groupId>com.aliyun</groupId>
 			<artifactId>ecs20140526</artifactId>
@@ -102,13 +102,35 @@
 			<version>3.16.1</version>
 		</dependency>
 
-<!--华为OBS依赖-->
+		<!--华为OBS依赖-->
 		<dependency>
 			<groupId>com.huaweicloud</groupId>
 			<artifactId>esdk-obs-java-bundle</artifactId>
 			<version>[3.21.11,)</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.huaweicloud.sdk</groupId>
+			<artifactId>huaweicloud-sdk-ecs</artifactId>
+			<version>[3.0.40-rc, 3.2.0)</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.huaweicloud.sdk/huaweicloud-sdk-rds -->
+		<dependency>
+			<groupId>com.huaweicloud.sdk</groupId>
+			<artifactId>huaweicloud-sdk-rds</artifactId>
+			<version>3.1.41</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.huaweicloud.sdk</groupId>
+			<artifactId>huaweicloud-sdk-vpc</artifactId>
+			<version>[3.0.40-rc, 3.2.0)</version>
+		</dependency>
+		<dependency>
+			<groupId>com.huaweicloud.sdk</groupId>
+			<artifactId>huaweicloud-sdk-iam</artifactId>
+			<version>3.1.32</version>
+		</dependency>
 		<dependency>
 			<groupId>com.aliyun</groupId>
 			<artifactId>alibabacloud-oss20190517</artifactId>
@@ -162,11 +184,11 @@
 			<artifactId>hutool-http</artifactId>
 			<version>5.8.18</version>
 		</dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2 -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2 -->
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2 -->
 	</dependencies>
 

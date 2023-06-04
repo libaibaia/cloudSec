@@ -5,6 +5,7 @@
 
 package com.service.impl;
 
+import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.Type;
@@ -15,6 +16,7 @@ import com.mapper.DatabasesInstanceMapper;
 import com.service.DatabasesInstanceService;
 import com.service.KeyService;
 import com.service.impl.aliyun.AliYunInstanceService;
+import com.service.impl.huawei.HuaWeiService;
 import com.service.impl.tencent.TencentInstanceService;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.postgres.v20170312.models.AccountInfo;
@@ -26,6 +28,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +48,8 @@ public class DatabasesInstanceServiceImpl extends ServiceImpl<DatabasesInstanceM
     private TencentInstanceService tencentInstanceService;
     @Resource
     private AliYunInstanceService aliYunInstanceService;
+    @Autowired
+    private HuaWeiService huaWeiService;
 
     public DatabasesInstanceServiceImpl() {
     }
@@ -80,11 +85,12 @@ public class DatabasesInstanceServiceImpl extends ServiceImpl<DatabasesInstanceM
                 message = e.getMessage();
             }
         }
-
         if (keyByID.getType().equals(Type.AliYun.toString())) {
             this.aliYunInstanceService.createUser(keyByID, databasesById, userName, password);
         }
-
+        if (keyByID.getType().equals(Type.HUAWEI.toString())){
+            message = huaWeiService.createDBUser(keyByID, databasesById, password, userName);
+        }
         return message;
     }
 

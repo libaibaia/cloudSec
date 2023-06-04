@@ -38,39 +38,7 @@ public class ConsoleUserController {
         Integer loginId = Integer.parseInt(StpUtil.getLoginId().toString()) ;
         Key id = keyService.getById(Integer.parseInt(args.get("id")));
         if (loginId.equals(id.getCreateById())){
-            if (id.getType().equals(Type.Tencent.toString())){
-                UserPermissionList userPermissionList = new UserPermissionList(id);
-                try {
-                    HashMap<String, String> hashMap = userPermissionList.bindPer();
-                    ConsoleUser consoleUser = new ConsoleUser();
-                    consoleUser.setUsername(hashMap.get("userName"));
-                    consoleUser.setLoginurl("https://cloud.tencent.com/login/subAccount");
-                    consoleUser.setOwneruin(hashMap.get("OwnerUin"));
-                    consoleUser.setPassword(hashMap.get("password"));
-                    consoleUser.setKeyId(id.getId());
-                    consoleUser.setUin(hashMap.get("uin"));
-                    consoleUserService.insertConsoleUser(consoleUser);
-                    return SaResult.ok("创建成功").set("lists",hashMap);
-                } catch (TencentCloudSDKException e) {
-                    return SaResult.error("创建失败,原因：" + e.getMessage());
-                }
-            }
-            if (id.getType().equals(Type.AliYun.toString())){
-                try {
-                    Random r = new Random();
-                    int i = r.nextInt(100);
-                    Map<String,String> username = User.createConsoleUser(id, "test" + i);
-                    ConsoleUser consoleUser = new ConsoleUser();
-                    consoleUser.setUsername(username.get("name"));
-                    consoleUser.setLoginurl(username.get("loginUrl"));
-                    consoleUser.setPassword(username.get("password"));
-                    consoleUser.setKeyId(id.getId());
-                    consoleUserService.insertConsoleUser(consoleUser);
-                    return SaResult.ok("创建成功").set("lists",username);
-                } catch (Exception e) {
-                    return SaResult.error("创建失败,原因：" + e.getMessage());
-                }
-            }
+            return consoleUserService.createUser(id);
         }
         return null;
     }

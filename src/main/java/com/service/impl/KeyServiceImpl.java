@@ -1,21 +1,15 @@
 package com.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.aliyun.ecs20140526.models.DescribeRegionsResponseBody;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.common.LogAnnotation;
-import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.Base;
-import com.common.huawei.Ecs;
-import com.common.huawei.OBS;
 import com.domain.Key;
-import com.huaweicloud.sdk.ecs.v2.model.ServerDetail;
 import com.service.KeyService;
 import com.mapper.KeyMapper;
 import com.service.impl.aliyun.AliYunInstanceService;
-import com.service.impl.huawei.HaWeiService;
+import com.service.impl.huawei.HuaWeiService;
 import com.service.impl.qiniu.QiNiuService;
 import com.service.impl.tencent.TencentInstanceService;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
@@ -29,8 +23,6 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.apache.coyote.http11.Constants.a;
 
 /**
  * @author Administrator
@@ -56,7 +48,7 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
     @Lazy
     private QiNiuService qiNiuService;
     @Resource
-    private HaWeiService haWeiService;
+    private HuaWeiService huaWeiService;
     @Resource
     @Lazy
     private BucketServiceImpl bucketService;
@@ -164,14 +156,18 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
             }
             case HUAWEI:
             {
-                Integer defaultValue = 1;
+                Integer defaultValue = 3;
                 AtomicInteger detectProgress = new AtomicInteger(defaultValue);
                 executorService.execute(() -> {
-                    haWeiService.getBucketLists(key,detectProgress);
+                    huaWeiService.getBucketLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 executorService.execute(() -> {
-                    haWeiService.getInstanceLists(key,detectProgress);
+                    huaWeiService.getInstanceLists(key,detectProgress);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
+                });
+                executorService.execute(() -> {
+                    huaWeiService.getRDSLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 break;

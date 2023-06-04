@@ -120,14 +120,16 @@ public class RDS {
      */
     public static DescribeDBInstanceNetInfoResponse descInstanceNetType(Key key, String instanceID) throws Exception {
         com.aliyun.rds20140815.Client client = getRdsClient(key);
-        com.aliyun.rds20140815.models.DescribeDBInstanceNetInfoRequest request = new com.aliyun.rds20140815.models.DescribeDBInstanceNetInfoRequest();
+        com.aliyun.rds20140815.models.DescribeDBInstanceNetInfoRequest request =
+                new com.aliyun.rds20140815.models.DescribeDBInstanceNetInfoRequest();
         request.setDBInstanceId(instanceID);
         return client.describeDBInstanceNetInfoWithOptions(request, runtime);
     }
 
     public static void createRDSUser(Key key,DatabasesInstance databasesInstance,String username,String password) throws Exception {
         Client rdsClient = getRdsClient(key);
-        com.aliyun.rds20140815.models.CreateAccountRequest request = new com.aliyun.rds20140815.models.CreateAccountRequest();
+        com.aliyun.rds20140815.models.CreateAccountRequest request =
+                new com.aliyun.rds20140815.models.CreateAccountRequest();
         request.setDBInstanceId(databasesInstance.getInstanceId());
         request.setAccountName(username);
         request.setAccountType("Super");
@@ -142,7 +144,8 @@ public class RDS {
 
     //获取白名单，存放在数据库，主要保证开启外网创建了数据库后能还原
     public static List<DescribeDBInstanceIPArrayListResponseBody.DescribeDBInstanceIPArrayListResponseBodyItemsDBInstanceIPArray> getRDSWhitelist(Key key, DatabasesInstance databasesInstance) throws Exception {
-        com.aliyun.rds20140815.models.DescribeDBInstanceIPArrayListRequest request = new com.aliyun.rds20140815.models.DescribeDBInstanceIPArrayListRequest();
+        com.aliyun.rds20140815.models.DescribeDBInstanceIPArrayListRequest request =
+                new com.aliyun.rds20140815.models.DescribeDBInstanceIPArrayListRequest();
         Client rdsClient = getRdsClient(key);
         request.setDBInstanceId(databasesInstance.getInstanceId());
         DescribeDBInstanceIPArrayListResponse response = rdsClient.describeDBInstanceIPArrayListWithOptions(request, runtime);

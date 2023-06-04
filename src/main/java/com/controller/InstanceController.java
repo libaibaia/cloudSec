@@ -67,7 +67,7 @@ public class InstanceController {
         return  SaResult.ok("获取成功").set("lists",instanceList).set("total",objects.getTotal());
     }
     @RequestMapping("/exec")
-    public SaResult execCommand(@RequestBody Map<String,String> info) throws UnsupportedEncodingException {
+    public SaResult execCommand(@RequestBody Map<String,String> info) {
         Instance instance = instanceService.getById(Integer.parseInt(info.get("id")));
         if (instance != null){
             Key key = keyService.getById(instance.getKeyId());

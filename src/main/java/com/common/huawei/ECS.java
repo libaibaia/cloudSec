@@ -1,27 +1,28 @@
 package com.common.huawei;
 
 import cn.hutool.core.util.StrUtil;
+import com.domain.Instance;
 import com.domain.Key;
 import com.huaweicloud.sdk.core.auth.BasicCredentials;
 import com.huaweicloud.sdk.core.auth.GlobalCredentials;
 import com.huaweicloud.sdk.core.auth.ICredential;
+import com.huaweicloud.sdk.core.region.Region;
 import com.huaweicloud.sdk.ecs.v2.EcsClient;
-import com.huaweicloud.sdk.ecs.v2.model.ListServersDetailsRequest;
-import com.huaweicloud.sdk.ecs.v2.model.ListServersDetailsResponse;
-import com.huaweicloud.sdk.ecs.v2.model.ServerAddress;
-import com.huaweicloud.sdk.ecs.v2.model.ServerDetail;
+import com.huaweicloud.sdk.ecs.v2.model.*;
 import com.huaweicloud.sdk.ecs.v2.region.EcsRegion;
 import com.huaweicloud.sdk.iam.v3.IamClient;
 import com.huaweicloud.sdk.iam.v3.model.AuthProjectResult;
 import com.huaweicloud.sdk.iam.v3.model.KeystoneListAuthProjectsRequest;
 import com.huaweicloud.sdk.iam.v3.model.KeystoneListAuthProjectsResponse;
 import com.huaweicloud.sdk.iam.v3.region.IamRegion;
+import com.huaweicloud.sdk.rds.v3.model.DatabaseForCreation;
+import com.huaweicloud.sdk.rds.v3.region.RdsRegion;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class Ecs {
+public class ECS {
     private static ICredential getICredential(Key key){
         ICredential auth;
         if (!StrUtil.isBlank(key.getToken())){
@@ -37,7 +38,7 @@ public class Ecs {
         return auth;
     }
 
-    private static ICredential getBaseICredential(Key key, String projectId){
+    public static ICredential getBaseICredential(Key key, String projectId){
         ICredential auth;
         if (!StrUtil.isBlank(key.getToken())){
             auth = new BasicCredentials()
@@ -82,6 +83,9 @@ public class Ecs {
                     request.setOffset(page);
                     ListServersDetailsResponse response = client.listServersDetails(request);
                     if (response.getServers().size() >= 1){
+                        for (ServerDetail server : response.getServers()) {
+                            server.setOsEXTAZAvailabilityZone(s);
+                        }
                         res.addAll(response.getServers());
                         page += 1;
                     }else break;
@@ -90,6 +94,72 @@ public class Ecs {
         }
 
         return res;
+    }
+
+    private static List<Region> getRegionLists(){
+        List<Region> regions = new ArrayList<>();
+        try {
+            Field[] fields = EcsRegion.class.getDeclaredFields();
+            for (Field field : fields) {
+                if (Region.class.isAssignableFrom(field.getType())) {
+                    regions.add((Region)field.get(null));
+                    System.out.println(field.getName());
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return regions;
+    }
+
+    public static String restartPassword(Key key, Instance instance, String password){
+        ICredential iCredential = getBaseICredential(key,instance.getPublicKey());
+        EcsClient client = EcsClient.newBuilder()
+                .withCredential(iCredential)
+                .withRegion(EcsRegion.valueOf(instance.getRegion()))
+                .build();
+        ResetServerPasswordRequest request = new ResetServerPasswordRequest();
+        request.withServerId(instance.getInstanceId());
+        ResetServerPasswordRequestBody body = new ResetServerPasswordRequestBody();
+        ResetServerPasswordOption resetpasswordbody = new ResetServerPasswordOption();
+        resetpasswordbody.withNewPassword(password)
+                .withIsCheckPassword(true);
+        body.withResetPassword(resetpasswordbody);
+        request.withBody(body);
+        try {
+            client.resetServerPassword(request);
+            rebootServer(key,instance);
+            return password;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+
+    public static void rebootServer(Key key, Instance instance){
+        EcsClient client = EcsClient.newBuilder()
+                .withCredential(getBaseICredential(key,instance.getPublicKey()))
+                .withRegion(EcsRegion.valueOf(instance.getRegion()))
+                .build();
+        BatchRebootServersRequest request = new BatchRebootServersRequest();
+        BatchRebootServersRequestBody body = new BatchRebootServersRequestBody();
+        List<ServerId> listRebootServers = new ArrayList<>();
+        listRebootServers.add(
+                new ServerId()
+                        .withId(instance.getInstanceId())
+        );
+        BatchRebootSeversOption rebootbody = new BatchRebootSeversOption();
+        rebootbody.withServers(listRebootServers)
+                .withType(BatchRebootSeversOption.TypeEnum.fromValue("SOFT"));
+        body.withReboot(rebootbody);
+        request.withBody(body);
+        try {
+            client.batchRebootServers(request);
+
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
 }

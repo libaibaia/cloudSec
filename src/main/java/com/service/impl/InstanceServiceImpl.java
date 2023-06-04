@@ -4,6 +4,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.common.PasswordGenerator;
+import com.common.RandomPwd;
 import com.common.Type;
 import com.common.aliyun.Base;
 import com.common.aliyun.product.ECS;
@@ -16,10 +18,12 @@ import com.domain.Key;
 import com.service.InstanceService;
 import com.mapper.InstanceMapper;
 import com.service.impl.aliyun.AliYunInstanceService;
+import com.service.impl.huawei.HuaWeiService;
 import com.service.impl.qiniu.QiNiuService;
 import com.service.impl.tencent.TencentInstanceService;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.cvm.v20170312.models.KeyPair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +46,9 @@ public class InstanceServiceImpl extends ServiceImpl<InstanceMapper, Instance>
 
     @Resource
     private QiNiuService qiNiuService;
+    @Autowired
+    @Lazy
+    private HuaWeiService huaWeiService;
     @Resource
     @Lazy
     private KeyServiceImpl keyService;
@@ -57,6 +64,8 @@ public class InstanceServiceImpl extends ServiceImpl<InstanceMapper, Instance>
                 return aliYunInstanceService.bindKeyPair(id,keyName,key);
             case QINiu:
                 return qiNiuService.bindKeyPair(keyService.getById(keyId),keyName,byId);
+            case HUAWEI:
+                return huaWeiService.restPassword(keyService.getById(keyId),byId, PasswordGenerator.generatePassword());
             default:
                 return SaResult.error("未知类型，绑定失败");
         }
