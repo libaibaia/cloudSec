@@ -68,8 +68,7 @@ public class OssFileLists {
 //        EasyExcel.write(fileName, OssFileLists.class).sheet("test").doWrite(objects);
     }
 
-    public static File createFile(List<OssFileLists> objects, File file){
+    public static void createFile(List<OssFileLists> objects, File file){
         EasyExcel.write(file, OssFileLists.class).sheet("文件列表").doWrite(objects);
-        return file;
     }
 }

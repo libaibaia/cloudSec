@@ -177,10 +177,11 @@ public class OBS {
                     bucket.getEndPoint() + "/" + fileList.getObjectKey(),
                     fileList.getMetadata().getContentLength() / 1024,fileList.getMetadata().getLastModified()));
         }
-        File file = OssFileLists.createFile(lists, new File("./" + System.currentTimeMillis() + ".xlsx"));
+        File tempFile = FileUtil.createTempFile(String.valueOf(System.currentTimeMillis()), ".xlsx", true);
+        OssFileLists.createFile(lists,tempFile);
         task.setStatus("成功");
-        task.setFilename(file.getName());
-        task.setFilePath(file.getAbsolutePath());
+        task.setFilename(tempFile.getName());
+        task.setFilePath(tempFile.getAbsolutePath());
         return task;
     }
 

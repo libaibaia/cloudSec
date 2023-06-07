@@ -1,5 +1,6 @@
 package com.common.tencent.product;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.common.Tools;
 import com.common.modle.OssFileLists;
@@ -153,10 +154,13 @@ public class COS {
                     allFileList.getLastModified())
             );
         }
-        File file = OssFileLists.createFile(ossFileLists, new File("./" + System.currentTimeMillis() + ".xlsx"));
-        task.setFilename(file.getName());
-        task.setFilePath(file.getAbsolutePath());
+
+        File tempFile = FileUtil.createTempFile(String.valueOf(System.currentTimeMillis()), ".xlsx", true);
+        OssFileLists.createFile(ossFileLists,tempFile);
+        System.out.println(tempFile.getAbsolutePath());
         task.setStatus("成功");
+        task.setFilename(tempFile.getName());
+        task.setFilePath(tempFile.getAbsolutePath());
         return task;
     }
 

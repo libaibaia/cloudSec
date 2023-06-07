@@ -115,11 +115,13 @@
 			<version>3.21.11</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.alibaba/easyexcel -->
+		<!-- https://mvnrepository.com/artifact/com.alibaba/easyexcel -->
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>easyexcel</artifactId>
-			<version>3.3.2</version>
+			<version>3.2.1</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>com.huaweicloud.sdk</groupId>
