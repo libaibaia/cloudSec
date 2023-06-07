@@ -57,7 +57,7 @@ public class ECS {
     public static List<AuthProjectResult> getProjectId(Key key){
         IamClient client = IamClient.newBuilder()
                 .withCredential(getICredential(key))
-                .withRegion(IamRegion.CN_EAST_3)
+                .withRegion(IamRegion.valueOf("cn-east-3"))
                 .build();
         KeystoneListAuthProjectsRequest request = new KeystoneListAuthProjectsRequest();
         KeystoneListAuthProjectsResponse response = client.keystoneListAuthProjects(request);

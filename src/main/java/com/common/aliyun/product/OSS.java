@@ -6,7 +6,6 @@ import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.util.StrUtil;
 import com.aliyun.auth.credentials.Credential;
 import com.aliyun.auth.credentials.provider.StaticCredentialProvider;
-import com.aliyun.ecs20140526.models.DescribeRegionsResponseBody;
 import com.aliyun.oss.HttpMethod;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.*;
@@ -15,7 +14,7 @@ import com.aliyun.sdk.service.oss20190517.models.DescribeRegionsRequest;
 import com.aliyun.sdk.service.oss20190517.models.DescribeRegionsResponse;
 import com.aliyun.sdk.service.oss20190517.models.RegionInfo;
 import com.common.Tools;
-import com.common.aliyun.Base;
+import com.common.modle.OssFileLists;
 import com.domain.Key;
 import com.domain.Task;
 import darabonba.core.client.ClientOverrideConfiguration;
@@ -110,6 +109,14 @@ public class OSS {
         client.close();
         return resp;
     }
+
+    /**
+     * 获取文件列表，此处限制为1000个文件
+     * @param key
+     * @param bucket
+     * @param keyWord
+     * @return
+     */
     public static List<OSSObjectSummary> getFileLists(Key key, com.domain.Bucket bucket,String keyWord){
         com.aliyun.oss.OSS ossClient = getOssClient(key,bucket.getEndPoint());
         if (!StrUtil.isBlank(keyWord)) {
@@ -123,6 +130,14 @@ public class OSS {
             ObjectListing objectListing = ossClient.listObjects(bucket.getName());
             return objectListing.getObjectSummaries();
         }
+    }
+
+    public static List<OSSObjectSummary> getAllFileLists(Key key, com.domain.Bucket bucket){
+        com.aliyun.oss.OSS ossClient = getOssClient(key,bucket.getEndPoint());
+        ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
+        listObjectsRequest.setBucketName(bucket.getName());
+        ObjectListing objectListing = ossClient.listObjects(listObjectsRequest);
+        return objectListing.getObjectSummaries();
     }
     private static com.aliyun.oss.OSS getOssClient(Key key,String endpoint){
         if (endpoint != null) OSS.endpoint = endpoint;
@@ -159,26 +174,19 @@ public class OSS {
         return signedUrl;
     }
 
-    public static Task downloadALLFile(Key key, com.domain.Bucket bucket, Task task){
-        com.aliyun.oss.OSS ossClient = getOssClient(key, bucket.getEndPoint());
-        List<OSSObjectSummary> lists = getFileLists(key, bucket,null);
-        List<File> files = new ArrayList<>();
-        long current = DateUtil.current();
-        String path = "../../" + current;
-        File dir = FileUtil.mkdir(path);
-        for (OSSObjectSummary list : lists) {
-            //取消key中的/转换为.，防止路径文件无法存储文件
-            File file = FileUtil.newFile(dir + "\\" + list.getKey().replace("/","."));
-            ossClient.getObject(new GetObjectRequest(bucket.getName(), list.getKey()), file);
-            files.add(file);
+    public static Task getALLFileByExcel(Key key, com.domain.Bucket bucket, Task task){
+        List<OSSObjectSummary> allFileLists = getAllFileLists(key, bucket);
+        List<OssFileLists> lists = new ArrayList<>();
+        for (OSSObjectSummary allFileList : allFileLists) {
+            OssFileLists ossFileLists = new OssFileLists(allFileList.getKey(),
+                    bucket.getEndPoint() + "/" + allFileList.getKey(),allFileList.getSize() / 1024,allFileList.getLastModified());
+            lists.add(ossFileLists);
         }
-        File zipFile = Tools.createZipFile(files, bucket.getName());
+        File file = OssFileLists.createFile(lists, new File("./" + System.currentTimeMillis() + ".xlsx"));
         task.setStatus("成功");
-        task.setFilename(zipFile.getName());
-        task.setFilePath(zipFile.getAbsolutePath());
-        FileUtil.del(dir);
+        task.setFilename(file.getName());
+        task.setFilePath(file.getAbsolutePath());
         return task;
-
     }
 
 }

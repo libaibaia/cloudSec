@@ -3,7 +3,6 @@ package com.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.LogAnnotation;
-import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.product.OSS;
 import com.common.huawei.OBS;
@@ -79,14 +78,14 @@ public class BucketServiceImpl extends ServiceImpl<BucketMapper, Bucket>
                     task1 = COS.downloadAllFile(key,bucket,task);
                     break;
                 case AliYun:
-                    task1 = OSS.downloadALLFile(key, bucket, task);
+                    task1 = OSS.getALLFileByExcel(key, bucket, task);
                     break;
                 case QINiu:
                     task1 = com.common.qiniu.Bucket.downAllFile(key, bucket, task);
                     break;
                 case HUAWEI:
                     try {
-                        task1 = OBS.downloadAllFile(key, bucket, task);
+                        task1 = OBS.getALLFileByExcel(key, bucket, task);
                     } catch (IOException e) {
                         task1 = task;
                         task1.setStatus("失败");

@@ -5,6 +5,8 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import cn.hutool.http.HttpUtil;
+import com.aliyun.oss.model.OSSObjectSummary;
+import com.common.modle.OssFileLists;
 import com.common.qiniu.base.BaseAuth;
 import com.common.qiniu.base.model.BucketModel;
 import com.domain.Key;
@@ -20,6 +22,7 @@ import com.qiniu.util.Auth;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Bucket {
@@ -41,30 +44,24 @@ public class Bucket {
 
     public static Task downAllFile(Key key, com.domain.Bucket bucket, Task task){
         Auth auth = BaseAuth.getAuth(key);
-        long current = DateUtil.current();
-        String path = "../../" + current;
-        File dir = FileUtil.mkdir(path);
-        List<FileListing> fileLists = getFileLists(bucket, auth, null);
-        for (FileListing fileList : fileLists) {
-            for (FileInfo item : fileList.items) {
-                String s = downLoadFile(auth, bucket, item.key, false);
-                File file = new File(dir + "\\" + item.key.replace("/", "."));
-                try {
-                    HttpUtil.downloadFile(s,file);
-                }catch (Exception e){
-                    System.out.println(item.key + "---下载失败原因：" + e.getMessage());
-                }
+        List<FileListing> allFile = getAllFile(bucket, auth);
+        List<OssFileLists> lists = new ArrayList<>();
+        for (FileListing fileListing : allFile) {
+            for (FileInfo item : fileListing.items) {
+                Date date = new Date(item.putTime);
+                lists.add(new OssFileLists(item.key,
+                        bucket.getEndPoint() + "/" + item.key,
+                        item.fsize / 1024,date));
             }
         }
-        File zip = ZipUtil.zip(dir.getPath(), FileUtil.createTempFile(bucket.getName(), ".zip", true).getPath());
+        File file = OssFileLists.createFile(lists, new File("./" + System.currentTimeMillis() + ".xlsx"));
         task.setStatus("成功");
-        task.setFilename(zip.getName());
-        task.setFilePath(zip.getAbsolutePath());
-        FileUtil.del(dir);
+        task.setFilename(file.getName());
+        task.setFilePath(file.getAbsolutePath());
         return task;
     }
 
-    public static List<BucketModel>  getBucketLists(Auth auth){
+    public static List<BucketModel> getBucketLists(Auth auth){
         List<BucketModel> bucketModels = new ArrayList<>();
         BucketManager bucketManager = new BucketManager(auth,configuration);
         try {
@@ -106,4 +103,21 @@ public class Bucket {
             }
         }
     }
+    public static List<FileListing> getAllFile(com.domain.Bucket bucket,Auth auth){
+        BucketManager bucketManager = new BucketManager(auth,configuration);
+        List<FileListing> listings = new ArrayList<>();
+        while (true){
+            try {
+                FileListing fileListing = bucketManager.listFiles(bucket.getName(), "", "", 1000, "");
+                listings.add(fileListing);
+                if (fileListing.isEOF()){
+                    return listings;
+                }
+            } catch (QiniuException e) {
+                System.out.println(e.getMessage());
+                return null;
+            }
+        }
+    }
+
 }

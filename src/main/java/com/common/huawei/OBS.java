@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.common.Tools;
+import com.common.modle.OssFileLists;
 import com.domain.Bucket;
 import com.domain.HuaweiObsRegion;
 import com.domain.Key;
@@ -18,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * 华为对象存储
  */
@@ -131,7 +131,7 @@ public class OBS {
         return response.getSignedUrl();
     }
 
-    public static List<ObsObject> getFileLists(Key key, Bucket bucket,String keyWord){
+    public static List<ObsObject> getFileLists(Key key, Bucket bucket, String keyWord){
         ObsClient obsClient = getObsClient(key, bucket.getEndPoint());
         ObjectListing result;
         ListObjectsRequest request = new ListObjectsRequest(bucket.getName());
@@ -150,34 +150,37 @@ public class OBS {
         }
         return res;
     }
-
-    public static Task downloadAllFile(Key key, Bucket bucket, Task task) throws IOException {
-        List<ObsObject> fileLists = getFileLists(key, bucket,null);
+    public static List<ObsObject> getAllFileLists(Key key, Bucket bucket){
         ObsClient obsClient = getObsClient(key, bucket.getEndPoint());
-        long current = DateUtil.current();
-        String path = "../../" + current;
-        List<File> files = new ArrayList<>();
-        ObsObject obsObject;
-        for (ObsObject fileList : fileLists) {
-            if (!fileList.getObjectKey().endsWith("/")){
-                obsObject = obsClient.getObject(bucket.getName(), fileList.getObjectKey());
-                InputStream input = obsObject.getObjectContent();
-                byte[] b = new byte[1024];
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                int len;
-                while ((len=input.read(b)) != -1){
-                    bos.write(b, 0, len);
-                }
-                bos.close();
-                input.close();
-                File file = FileUtil.writeBytes(bos.toByteArray(), path + "/" + fileList.getObjectKey());
-                files.add(file);
-            }
+        ObjectListing result;
+        ListObjectsRequest request = new ListObjectsRequest(bucket.getName());
+        List<ObsObject> res = new ArrayList<>();
+        try {
+            do{
+                result = obsClient.listObjects(request);
+                res.addAll(result.getObjects());
+                request.setMarker(result.getNextMarker());
+            }while(result.isTruncated());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return res;
         }
-        File zipFile = Tools.createZipFile(files, bucket.getName());
+        return res;
+    }
+
+
+    public static Task getALLFileByExcel(Key key, Bucket bucket, Task task) throws IOException {
+        List<ObsObject> fileLists = getAllFileLists(key, bucket);
+        List<OssFileLists> lists = new ArrayList<>();
+        for (ObsObject fileList : fileLists) {
+            lists.add(new OssFileLists(fileList.getObjectKey(),
+                    bucket.getEndPoint() + "/" + fileList.getObjectKey(),
+                    fileList.getMetadata().getContentLength() / 1024,fileList.getMetadata().getLastModified()));
+        }
+        File file = OssFileLists.createFile(lists, new File("./" + System.currentTimeMillis() + ".xlsx"));
         task.setStatus("成功");
-        task.setFilename(zipFile.getName());
-        task.setFilePath(zipFile.getAbsolutePath());
+        task.setFilename(file.getName());
+        task.setFilePath(file.getAbsolutePath());
         return task;
     }
 

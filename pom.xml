@@ -56,6 +56,12 @@
 			<artifactId>cos_api</artifactId>
 			<version>5.6.97</version>
 		</dependency>
+
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.16.87</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
@@ -106,13 +112,19 @@
 		<dependency>
 			<groupId>com.huaweicloud</groupId>
 			<artifactId>esdk-obs-java-bundle</artifactId>
-			<version>[3.21.11,)</version>
+			<version>3.21.11</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.alibaba/easyexcel -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>easyexcel</artifactId>
+			<version>3.3.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.huaweicloud.sdk</groupId>
 			<artifactId>huaweicloud-sdk-ecs</artifactId>
-			<version>[3.0.40-rc, 3.2.0)</version>
+			<version>3.1.41</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.huaweicloud.sdk/huaweicloud-sdk-rds -->
 		<dependency>
@@ -124,7 +136,7 @@
 		<dependency>
 			<groupId>com.huaweicloud.sdk</groupId>
 			<artifactId>huaweicloud-sdk-vpc</artifactId>
-			<version>[3.0.40-rc, 3.2.0)</version>
+			<version>3.1.41</version>
 		</dependency>
 		<dependency>
 			<groupId>com.huaweicloud.sdk</groupId>
@@ -187,6 +199,21 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.huaweicloud</groupId>
+			<artifactId>esdk-obs-java-bundle</artifactId>
+			<version>3.23.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.huaweicloud.sdk</groupId>
+			<artifactId>huaweicloud-sdk-mpc</artifactId>
+			<version>3.1.20</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-core</artifactId>
+			<version>1.12.83</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2 -->
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2 -->

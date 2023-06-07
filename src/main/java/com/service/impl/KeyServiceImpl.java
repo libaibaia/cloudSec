@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.Type;
 import com.common.aliyun.Base;
+import com.common.qiniu.base.BaseAuth;
+import com.common.qiniu.qvm.Qvm;
 import com.domain.Key;
 import com.service.KeyService;
 import com.mapper.KeyMapper;
@@ -142,6 +144,13 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                 break;
             }
             case QINiu:{
+                try {
+                    Qvm.getRegionList(BaseAuth.getAuth(key));
+                }catch (Exception e){
+                    key.setTaskStatus("检测失败原因：" + e.getMessage());
+                    this.updateById(key);
+                    return;
+                }
                 Integer defaultValue = 2;
                 AtomicInteger detectProgress = new AtomicInteger(defaultValue);
                 executorService.execute(() -> {
@@ -156,6 +165,7 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
             }
             case HUAWEI:
             {
+
                 Integer defaultValue = 3;
                 AtomicInteger detectProgress = new AtomicInteger(defaultValue);
                 executorService.execute(() -> {
@@ -184,13 +194,11 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
             log.info("检测key{}结束",key.getSecretid());
         }
         else {
-            String format = numberFormat.format((float)(3 - detectProgress.get()) / (float) defaultValue * 100);
+            String format = numberFormat.format((float)(defaultValue - detectProgress.get()) / (float) defaultValue * 100);
             key.setTaskStatus(format + "%");
         }
         keyService.updateById(key);
     }
-
-
 
 }
 

@@ -57,7 +57,7 @@ public class Bucket {
                 }
                 break;
             case HUAWEI:
-                List<ObsObject> fileLists2 = OBS.getFileLists(key, bucket,keyWord);
+                List<com.obs.services.model.ObsObject> fileLists2 = OBS.getFileLists(key, bucket,keyWord);
                 for (ObsObject obsObject : fileLists2) {
                     files.add(new File(obsObject.getObjectKey(),"","",bucket.getName(),bucket.getId()));
                 }

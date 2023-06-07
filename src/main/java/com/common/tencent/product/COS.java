@@ -1,10 +1,8 @@
 package com.common.tencent.product;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.ZipUtil;
 import com.common.Tools;
+import com.common.modle.OssFileLists;
 import com.domain.Key;
 import com.domain.Task;
 import com.qcloud.cos.COSClient;
@@ -145,37 +143,20 @@ public class COS {
         ClientConfig clientConfig = new ClientConfig(new Region(bucket.getRegion()));
         COSClient cosclient = new COSClient(getCred(key), clientConfig);
         List<COSObjectSummary> fileLists = getFileLists(key, bucket,null);
-        long current = DateUtil.current();
-        String path = "../../" + current;
-        File dir = FileUtil.mkdir(path);
-        for (COSObjectSummary fileList : fileLists) {
-            //取消key中的/转换为.，防止路径文件无法存储文件
-            COSObjectInputStream cosObjectInput = null;
-            GetObjectRequest getObjectRequest = new GetObjectRequest(bucket.getName(), fileList.getKey());
-            try {
-                COSObject cosObject = cosclient.getObject(getObjectRequest);
-                cosObjectInput = cosObject.getObjectContent();
-                File file = FileUtil.newFile(dir + "\\" + fileList.getKey().replace("/","."));
-                byte[] bytes = null;
-                try {
-                    bytes = IOUtils.toByteArray(cosObjectInput);
-                    FileUtil.writeBytes(bytes,file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    // 用完流之后一定要调用 close()
-                    cosObjectInput.close();
-                }
-            }catch (CosClientException | IOException e){
-                System.out.println(e.getMessage());
-                break;
-            }
+        List<OssFileLists> ossFileLists = new ArrayList<>();
+        List<COSObjectSummary> allFileLists = getAllFileLists(key, bucket);
+        for (COSObjectSummary allFileList : allFileLists) {
+            ossFileLists.add(
+                    new OssFileLists(allFileList.getKey(),
+                    bucket.getEndPoint() + "/" + allFileList.getKey(),
+                    allFileList.getSize() / 1024,
+                    allFileList.getLastModified())
+            );
         }
-        File zip = ZipUtil.zip(dir.getPath(), FileUtil.createTempFile(bucket.getName(),".zip", true).getPath());
+        File file = OssFileLists.createFile(ossFileLists, new File("./" + System.currentTimeMillis() + ".xlsx"));
+        task.setFilename(file.getName());
+        task.setFilePath(file.getAbsolutePath());
         task.setStatus("成功");
-        task.setFilename(zip.getName());
-        task.setFilePath(zip.getAbsolutePath());
-        FileUtil.del(dir);
         return task;
     }
 
@@ -188,6 +169,30 @@ public class COS {
         if (!StrUtil.isBlank(keyWord)) listObjectsRequest.setPrefix(keyWord);
         listObjectsRequest.setBucketName(bucket.getName());
         listObjectsRequest.setMaxKeys(Tools.maxBucketNum);
+        ObjectListing objectListing = null;
+        do {
+            try {
+                objectListing = cosclient.listObjects(listObjectsRequest);
+            } catch (CosClientException e) {
+                e.printStackTrace();
+                break;
+            }
+            // common prefix表示表示被delimiter截断的路径, 如delimter设置为/, common prefix则表示所有子目录的路径
+            List<String> commonPrefixs = objectListing.getCommonPrefixes();
+
+            // object summary表示所有列出的object列表
+            list.addAll(objectListing.getObjectSummaries());
+            String nextMarker = objectListing.getNextMarker();
+            listObjectsRequest.setMarker(nextMarker);
+        } while (objectListing.isTruncated());
+        return list;
+    }
+    public static List<COSObjectSummary> getAllFileLists(Key key, com.domain.Bucket bucket){
+        List<COSObjectSummary> list = new ArrayList<>();
+        ClientConfig clientConfig = new ClientConfig(new Region(bucket.getRegion()));
+        COSClient cosclient = new COSClient(getCred(key), clientConfig);
+        ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
+        listObjectsRequest.setBucketName(bucket.getName());
         ObjectListing objectListing = null;
         do {
             try {
