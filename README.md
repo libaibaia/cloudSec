@@ -50,7 +50,7 @@ $ sudo curl -L "https://github.com/docker/compose/releases/download/{version}/do
 
 $ sudo chmod +x /usr/local/bin/docker-compose
 ```
-- 有两个yaml文件，任选一个即可，这个是后面加的，老版本可以使用下面的yaml，记得删除/home/cloud/data，如果需要保存原有的ak/sk，进容器导出即可，后期会做ak/sk导出导入功能，保证后面更新数据库镜像保存原有数据
+- 有两个yaml文件，任选一个即可，这个是后面加的(最新版都在这里更新)，老版本可以使用下面的yaml，记得删除/home/cloud/data，如果需要保存原有的ak/sk，进容器导出即可，后期会做ak/sk导出导入功能，保证后面更新数据库镜像保存原有数据
 ```yaml
 services:
   java-app:
