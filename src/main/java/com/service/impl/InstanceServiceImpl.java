@@ -70,6 +70,7 @@ public class InstanceServiceImpl extends ServiceImpl<InstanceMapper, Instance>
                 return SaResult.error("未知类型，绑定失败");
         }
     }
+    @Override
     public List<Instance> getInstanceList(List<Key> akId){
         List<com.domain.Instance> list = new ArrayList<>();
         for (Key key : akId) {

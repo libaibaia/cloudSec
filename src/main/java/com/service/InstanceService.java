@@ -2,6 +2,9 @@ package com.service;
 
 import com.domain.Instance;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.domain.Key;
+
+import java.util.List;
 
 /**
 * @author Administrator
@@ -9,5 +12,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2023-05-17 23:14:12
 */
 public interface InstanceService extends IService<Instance> {
-
+    List<Instance> getInstanceList(List<Key> akId);
 }
