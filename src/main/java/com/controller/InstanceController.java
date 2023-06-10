@@ -15,6 +15,7 @@ import com.domain.Instance;
 import com.domain.Key;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.service.InstanceService;
 import com.service.impl.InstanceServiceImpl;
 import com.service.impl.KeyServiceImpl;
 import com.service.impl.tencent.TencentInstanceService;
@@ -23,6 +24,7 @@ import com.tencentcloudapi.tat.v20201028.models.DescribeInvocationTasksResponse;
 import com.tencentcloudapi.tat.v20201028.models.InvocationTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -39,7 +41,9 @@ public class InstanceController {
     @Resource
     private KeyServiceImpl keyService;
     @Resource
-    private InstanceServiceImpl instanceService;
+    private InstanceServiceImpl instanceServiceImpl;
+    @Autowired
+    private InstanceService instanceService;
 
 
 //    /**
@@ -50,8 +54,8 @@ public class InstanceController {
     public SaResult getInstanceLists(@RequestParam(required = false) String quick_search,
                                      @RequestParam(value = "page",defaultValue = "1",required = false) Integer page,
                                      @RequestParam(value = "limit",defaultValue = "10",required = false) Integer limit){
-        List<Key> keys = keyService.getKeysByCreateId(Integer.parseInt(StpUtil.getLoginId().toString()));
         Page<Instance> objects = PageHelper.startPage(page, limit);
+        List<Key> keys = keyService.getKeysByCreateId(Integer.parseInt(StpUtil.getLoginId().toString()));
         List<Instance> instanceList = new ArrayList<>();
         if (quick_search != null){
             QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
@@ -122,14 +126,14 @@ public class InstanceController {
         int id = Integer.parseInt(params.get("id"));
         String keyName = params.get("keyName");
         String key = params.get("key");
-        return instanceService.bindKeyPair(id,keyName,key);
+        return instanceServiceImpl.bindKeyPair(id,keyName,key);
     }
 
     @RequestMapping("/restoreKey")
     public SaResult originalKeyPair(@RequestParam("id") Integer id){
         Instance byId = instanceService.getById(id);
         try {
-            instanceService.restoreKey(byId);
+            instanceServiceImpl.restoreKey(byId);
         } catch (Exception e) {
             return SaResult.error(e.getMessage());
         }
