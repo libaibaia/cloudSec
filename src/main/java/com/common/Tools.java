@@ -1,11 +1,14 @@
 package com.common;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.read.listener.PageReadListener;
+import com.domain.Key;
 
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -33,6 +36,12 @@ public class Tools {
             FileUtil.del(file);
         }
         return zip;
+    }
+
+    public static List<Key> readExcel(File file){
+        List<Key> keys = new ArrayList<>();
+        EasyExcel.read(file, Key.class, new PageReadListener<Key>(keys::addAll)).sheet().doRead();
+        return keys;
     }
 
 }

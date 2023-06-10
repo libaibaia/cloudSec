@@ -1,5 +1,6 @@
 package com.domain;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
@@ -15,78 +16,93 @@ public class Key implements Serializable {
      * 
      */
     @TableId(type = IdType.AUTO)
+    @ExcelProperty("id")
     private Integer id;
 
     /**
      * 
      */
+    @ExcelProperty("secretid")
     private String secretid;
 
     /**
      * 
      */
+    @ExcelProperty("secretkey")
     private String secretkey;
 
     /**
      * 
      */
+    @ExcelProperty("createById")
     private Integer createById;
 
     /**
      * 
      */
+    @ExcelProperty("类型")
     private String type;
 
     /**
      * 
      */
+    @ExcelProperty("token")
     private String token;
 
     /**
      * 
      */
+    @ExcelProperty("isTemporary")
     private String isTemporary;
 
     /**
      * 
      */
+    @ExcelProperty("expirationTime")
     private Date expirationTime;
 
     /**
      * 
      */
+    @ExcelProperty("bucketName")
     private String bucketName;
 
     /**
      * 
      */
+    @ExcelProperty("taskStatus")
     private String taskStatus;
 
     /**
      * 
      */
+    @ExcelProperty("status")
     private String status;
 
     /**
      * 
      */
+    @ExcelProperty("remark")
     private String remark;
 
     /**
      * 
      */
     @TableField(fill = FieldFill.INSERT)
+    @ExcelProperty("createTime")
     private Date createTime;
 
     /**
      * 
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
+    @ExcelProperty("updateTime")
     private Date updateTime;
 
     /**
      * 
      */
+    @ExcelProperty("name")
     private String name;
 
     @TableField(exist = false)

@@ -60,13 +60,6 @@ public class OssFileLists {
         this.date = date;
     }
 
-    public static void main(String[] args) {
-//        OssFileLists ossFileLists = new OssFileLists("ces","t","d",new Date());
-//        List<OssFileLists> objects = new ArrayList<>();
-//        objects.add(ossFileLists);
-//        String fileName = "test.xlsx";
-//        EasyExcel.write(fileName, OssFileLists.class).sheet("test").doWrite(objects);
-    }
 
     public static void createFile(List<OssFileLists> objects, File file){
         EasyExcel.write(file, OssFileLists.class).sheet("文件列表").doWrite(objects);

@@ -1,10 +1,13 @@
 package com.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.Base;
+import com.common.modle.OssFileLists;
 import com.common.qiniu.base.BaseAuth;
 import com.common.qiniu.qvm.Qvm;
 import com.domain.Key;
@@ -21,6 +24,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -200,6 +204,13 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
         keyService.updateById(key);
     }
 
+    @Override
+    public File ExportKeyExcel() {
+        List<Key> list = list();
+        File file = new File("keyList.xlsx");
+        EasyExcel.write(file, Key.class).sheet("文件列表").doWrite(list);
+        return file;
+    }
 }
 
 

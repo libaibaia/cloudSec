@@ -1,9 +1,11 @@
 package com.controller;
 
 
+import ch.qos.logback.core.util.COWArrayList;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
+import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.common.Tools;
@@ -11,6 +13,7 @@ import com.common.Type;
 import com.domain.Bucket;
 import com.domain.Instance;
 import com.domain.Key;
+import com.domain.Task;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.service.BucketService;
@@ -23,18 +26,28 @@ import com.service.impl.tencent.PermissionService;
 import com.service.impl.tencent.TencentInstanceService;
 import com.tencentcloudapi.cam.v20190116.models.AttachPolicyInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
+import static sun.font.CreatedFontTracker.MAX_FILE_SIZE;
 
 @RestController
 @SaCheckLogin
@@ -157,6 +170,62 @@ public class KeyController {
         return SaResult.ok("停止成功");
     }
 
+    @GetMapping("/export")
+    public void export(HttpServletResponse response) throws IOException {
+        File file = keyService.ExportKeyExcel();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName());
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, headers.getFirst(HttpHeaders.CONTENT_DISPOSITION));
+        response.setHeader(HttpHeaders.CONTENT_TYPE, headers.getFirst(HttpHeaders.CONTENT_TYPE));
+        response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()));
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName());
+        response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
+        StreamingResponseBody responseBody = outputStream -> {
+            try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+        };
+        responseBody.writeTo(response.getOutputStream());
+        response.flushBuffer();
+    }
+
+    @PostMapping("/import")
+    public SaResult importExcel(@RequestParam("file") MultipartFile file){
+        if (file.isEmpty()) {
+            SaResult.error("文件不能为空");
+        }
+        if (file.getSize() > MAX_FILE_SIZE) {
+            SaResult.error("文件大小不允许");
+        }
+        String fileName = file.getOriginalFilename();
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String newFileName = UUID.randomUUID().toString() + "." + suffix;
+        String filePath = "/tmp/" + newFileName;
+        if (!"csv".equals(suffix) && !"xlsx".equals(suffix) && !"xls".equals(suffix)) {
+            SaResult.error("文件类型不允许");
+        }
+        File newFile = new File(filePath);
+        try {
+            file.transferTo(newFile);
+        } catch (IOException e) {
+            SaResult.error("上传失败");
+        }
+
+        try {
+            File excel = FileUtil.writeFromStream(file.getInputStream(), newFile);
+            List<Key> keys = Tools.readExcel(excel);
+            keyService.saveBatch(keys);
+        } catch (IOException e) {
+            return SaResult.error("解析失败");
+        }
+        return SaResult.ok("上传成功");
+    }
+
     private void cleanInstanceInfo(Key key) {
         QueryWrapper<Instance> instanceQueryWrapper = new QueryWrapper<>();
         instanceQueryWrapper.eq("key_id", key.getId());
@@ -166,6 +235,8 @@ public class KeyController {
         bucketService.remove(bucketQueryWrapper);
         databasesInstanceService.delInstanceByKeyId(key.getId());
     }
+
+
 
     private void getNewThreadPool(){
         executorService.shutdownNow();

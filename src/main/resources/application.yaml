@@ -7,9 +7,9 @@ spring:
       file-size-threshold: 20MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://db:3306/key
+    url: jdbc:mysql://127.0.0.1:3306/ak_sk
     username: root
-    password: ${DB_PASSWORD}
+    password: 123456
 server:
   port: 8000
   address: 0.0.0.0
