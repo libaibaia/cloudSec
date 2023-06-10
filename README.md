@@ -1,6 +1,6 @@
 # cloudSec
 # 云安全-AK/SK泄露利用工具
-- ***注意：部分代码中由于时间关系未做权限控制，存在越权，建议本地搭建使用即可***
+- ***注意：如果本地使用linux搭建，openjdk需要安装字体库，建议使用oraclejdk***
 - ***前端采用vue3,基于buildadmin模板，后端springboot，原接口调用厂商的SDK***
 ## 关于使用(目前接入了腾讯云的所以下述功能接口，阿里云已更新加入，其余厂商需要慢慢补充)
 ## 关于后续添加的厂商
@@ -50,7 +50,7 @@ $ sudo curl -L "https://github.com/docker/compose/releases/download/{version}/do
 
 $ sudo chmod +x /usr/local/bin/docker-compose
 ```
-- 有两个yaml文件，任选一个即可，这个是后面加的，老版本可以使用下面的yaml，记得删除/home/cloud/data，如果需要保存原有的ak/sk，进容器导出即可，后期会做ak/sk导出导入功能，保证后面更新数据库镜像保存原有数据
+- 有两个yaml文件，任选一个即可，这个是后面加的(最新版都在这里更新)，老版本可以使用下面的yaml，记得删除/home/cloud/data，如果需要保存原有的ak/sk，进容器导出即可，后期会做ak/sk导出导入功能，保证后面更新数据库镜像保存原有数据
 ```yaml
 services:
   java-app:
@@ -58,6 +58,8 @@ services:
     image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-latest
     environment:
       DB_PASSWORD: 123456
+    ports:
+      - "5005:5005"
     depends_on:
       - db
   vue-web:
