@@ -36,14 +36,9 @@ public class DatabasesController {
         List<DatabasesInstance> databasesList = new ArrayList<>();
         Page<DatabasesInstance> objects = PageHelper.startPage(page, limit);
         if (quick_search != null){
-            QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
-            keyQueryWrapper.like("name",quick_search);
-            Key one = keyService.getOne(keyQueryWrapper);
-            if (one != null){
-                QueryWrapper<DatabasesInstance> databasesInstanceQueryWrapper = new QueryWrapper<>();
-                databasesInstanceQueryWrapper.eq("key_id",one.getId());
-                databasesList = databasesInstanceService.list(databasesInstanceQueryWrapper);
-            }
+            QueryWrapper<DatabasesInstance> queryWrapper = new QueryWrapper<>();
+            queryWrapper.like("key_name",quick_search);
+            databasesList = databasesInstanceService.list(queryWrapper);
         }else{
             databasesList = databasesInstanceService.list();
         }
@@ -62,7 +57,8 @@ public class DatabasesController {
         }
         if (s != null){
             return SaResult.error(s);
-        }else {
+        }
+        else {
             return SaResult.ok("开启成功,预计30S后刷新数据库..");
         }
     }
@@ -70,45 +66,25 @@ public class DatabasesController {
     public SaResult closeWanService(@RequestBody Map<String,Integer> args){
         Integer id = args.get("id");
         String s = databasesInstanceService.closeWan(id);
-        if (s!=null) return SaResult.error(s);
+        if (s!=null) {
+            return SaResult.error(s);
+        }
         return SaResult.ok("关闭成功,请重新执行检测权限操作");
     }
 
     @RequestMapping("/user")
     public SaResult createUser(@RequestBody Map<String,String> args){
         String id = args.get("id");
-        DatabasesInstance mysqlById = databasesInstanceService.getInstanceById(Integer.valueOf(id));
         Random r = new Random();
         int i = r.nextInt(100);
+        String message;
         try {
-            databasesInstanceService.createDBUser(Integer.parseInt(id), "test" + i, RandomPwd.getRandomPwd(8));
-            return SaResult.ok("创建成功");
+            message = databasesInstanceService.createDBUser(Integer.parseInt(id), "test" + i, RandomPwd.getRandomPwd(8));
+            return SaResult.ok(message);
         } catch (Exception e) {
             return SaResult.error("创建失败，原因：" + e.getMessage());
         }
 
-//        if (mysqlById.getType().equals(DatabasesInstanceServiceImpl.postgres)){
-//
-//            try {
-//                String dbUser = databasesInstanceService.createDBUser(Integer.parseInt(id), username, RandomPwd.getRandomPwd(8));
-//                if (dbUser != null){
-//                    return SaResult.error(dbUser);
-//                }
-//                return SaResult.ok("创建成功");
-//            } catch (Exception e) {
-//                return SaResult.error("创建失败，原因：" + e.getMessage());
-//            }
-//        }
-//        try {
-//
-//            String dbUser = databasesInstanceService.createDBUser(Integer.parseInt(id), "test" + i, RandomPwd.getRandomPwd(8));
-//            if (dbUser != null){
-//                return SaResult.error(dbUser);
-//            }
-//            return SaResult.ok("创建成功");
-//        } catch (TencentCloudSDKException e) {
-//            return SaResult.error("创建失败，原因：" + e.getMessage());
-//        }
     }
 
     @RequestMapping("/userLists")

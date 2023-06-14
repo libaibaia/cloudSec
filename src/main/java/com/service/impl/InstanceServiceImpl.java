@@ -5,23 +5,20 @@ import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.PasswordGenerator;
-import com.common.RandomPwd;
 import com.common.Type;
 import com.common.aliyun.Base;
 import com.common.aliyun.product.ECS;
 import com.common.qiniu.base.BaseAuth;
 import com.common.qiniu.qvm.Qvm;
-import com.common.tencent.product.COS;
 import com.common.tencent.product.cvm.CVM;
 import com.domain.Instance;
 import com.domain.Key;
-import com.service.InstanceService;
 import com.mapper.InstanceMapper;
+import com.service.InstanceService;
 import com.service.impl.aliyun.AliYunInstanceService;
 import com.service.impl.huawei.HuaWeiService;
 import com.service.impl.qiniu.QiNiuService;
 import com.service.impl.tencent.TencentInstanceService;
-import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.cvm.v20170312.models.KeyPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -72,11 +69,11 @@ public class InstanceServiceImpl extends ServiceImpl<InstanceMapper, Instance>
     }
     @Override
     public List<Instance> getInstanceList(List<Key> akId){
-        List<com.domain.Instance> list = new ArrayList<>();
+        List<Instance> list = new ArrayList<>();
         for (Key key : akId) {
             QueryWrapper<Instance> instanceQueryWrapper = new QueryWrapper<>();
             instanceQueryWrapper.eq("key_id",key.getId());
-            List<com.domain.Instance> instances = this.baseMapper.selectList(instanceQueryWrapper);
+            List<Instance> instances = this.baseMapper.selectList(instanceQueryWrapper);
             if (instances != null) list.addAll(instances);
         }
         return list;

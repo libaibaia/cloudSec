@@ -1,7 +1,7 @@
 package com.service;
 
-import com.domain.ConsoleUser;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.domain.ConsoleUser;
 
 /**
 * @author Administrator

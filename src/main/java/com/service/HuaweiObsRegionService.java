@@ -1,7 +1,7 @@
 package com.service;
 
-import com.domain.HuaweiObsRegion;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.domain.HuaweiObsRegion;
 
 /**
 * @author Administrator

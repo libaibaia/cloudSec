@@ -48,6 +48,11 @@ public class Bucket implements Serializable {
      */
     private Integer createById;
 
+    /**
+     * 
+     */
+    private String keyName;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
@@ -149,6 +154,20 @@ public class Bucket implements Serializable {
         this.createById = createById;
     }
 
+    /**
+     * 
+     */
+    public String getKeyName() {
+        return keyName;
+    }
+
+    /**
+     * 
+     */
+    public void setKeyName(String keyName) {
+        this.keyName = keyName;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -167,7 +186,8 @@ public class Bucket implements Serializable {
             && (this.getOwner() == null ? other.getOwner() == null : this.getOwner().equals(other.getOwner()))
             && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
             && (this.getKeyId() == null ? other.getKeyId() == null : this.getKeyId().equals(other.getKeyId()))
-            && (this.getCreateById() == null ? other.getCreateById() == null : this.getCreateById().equals(other.getCreateById()));
+            && (this.getCreateById() == null ? other.getCreateById() == null : this.getCreateById().equals(other.getCreateById()))
+            && (this.getKeyName() == null ? other.getKeyName() == null : this.getKeyName().equals(other.getKeyName()));
     }
 
     @Override
@@ -181,6 +201,7 @@ public class Bucket implements Serializable {
         result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
         result = prime * result + ((getKeyId() == null) ? 0 : getKeyId().hashCode());
         result = prime * result + ((getCreateById() == null) ? 0 : getCreateById().hashCode());
+        result = prime * result + ((getKeyName() == null) ? 0 : getKeyName().hashCode());
         return result;
     }
 
@@ -197,6 +218,7 @@ public class Bucket implements Serializable {
         sb.append(", name=").append(name);
         sb.append(", keyId=").append(keyId);
         sb.append(", createById=").append(createById);
+        sb.append(", keyName=").append(keyName);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

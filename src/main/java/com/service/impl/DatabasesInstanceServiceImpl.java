@@ -5,7 +5,6 @@
 
 package com.service.impl;
 
-import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.Type;
@@ -20,17 +19,17 @@ import com.service.impl.huawei.HuaWeiService;
 import com.service.impl.tencent.TencentInstanceService;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.postgres.v20170312.models.AccountInfo;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class DatabasesInstanceServiceImpl extends ServiceImpl<DatabasesInstanceMapper, DatabasesInstance> implements DatabasesInstanceService {
@@ -91,6 +90,7 @@ public class DatabasesInstanceServiceImpl extends ServiceImpl<DatabasesInstanceM
         if (keyByID.getType().equals(Type.HUAWEI.toString())){
             message = huaWeiService.createDBUser(keyByID, databasesById, password, userName);
         }
+        else message = "不支持该类型的操作";
         return message;
     }
 
@@ -113,6 +113,7 @@ public class DatabasesInstanceServiceImpl extends ServiceImpl<DatabasesInstanceM
                 message = e.getMessage();
             }
         }
+        else message = "不支持该类型得操作";
 
         return message;
     }
@@ -135,6 +136,9 @@ public class DatabasesInstanceServiceImpl extends ServiceImpl<DatabasesInstanceM
             } catch (Exception e) {
                 message = e.getMessage();
             }
+        }
+        else {
+            message = "不支持该类型的操作";
         }
 
         return message;

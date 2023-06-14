@@ -5,13 +5,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.LogAnnotation;
 import com.common.Type;
 import com.common.aliyun.product.OSS;
+import com.common.aws.S3;
 import com.common.huawei.OBS;
 import com.common.tencent.product.COS;
 import com.domain.Bucket;
 import com.domain.Key;
 import com.domain.Task;
-import com.service.BucketService;
 import com.mapper.BucketMapper;
+import com.service.BucketService;
 import com.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ public class BucketServiceImpl extends ServiceImpl<BucketMapper, Bucket>
                 bucket1.setCreateById(key.getCreateById());
                 bucket1.setOwner(bucket.getOwner().toString());
                 bucket1.setKeyId(key.getId());
+                bucket1.setKeyName(key.getName());
                 bucket1.setRegion(bucket.getLocation());
                 bucketMapper.insert(bucket1);
             }
@@ -72,27 +74,47 @@ public class BucketServiceImpl extends ServiceImpl<BucketMapper, Bucket>
         taskService.save(task);
         executorService.submit(() -> {
             Type type = Type.valueOf(key.getType());
-            Task task1 = null;
+            Task taskResult = null;
             switch (type){
                 case Tencent:
-                    task1 = COS.downloadAllFile(key,bucket,task);
+                    taskResult = COS.downloadAllFile(key,bucket,task);
                     break;
                 case AliYun:
-                    task1 = OSS.getALLFileByExcel(key, bucket, task);
+                    try {
+                        taskResult = OSS.getALLFileByExcel(key, bucket, task);
+                    } catch (Exception e){
+                        taskResult = task;
+                        taskResult.setStatus("失败,原因：" + e.getMessage());
+                    }
                     break;
                 case QINiu:
-                    task1 = com.common.qiniu.Bucket.downAllFile(key, bucket, task);
+                    try {
+                        taskResult = com.common.qiniu.Bucket.downAllFile(key, bucket, task);
+                    }
+                    catch (Exception e){
+                        taskResult = task;
+                        taskResult.setStatus("失败,原因：" + e.getMessage());
+                    }
                     break;
                 case HUAWEI:
                     try {
-                        task1 = OBS.getALLFileByExcel(key, bucket, task);
+                        taskResult = OBS.getALLFileByExcel(key, bucket, task);
                     } catch (IOException e) {
-                        task1 = task;
-                        task1.setStatus("失败");
+                        taskResult = task;
+                        taskResult.setStatus("失败,原因：" + e.getMessage());
                     }
                     break;
+                case AWS:
+                    try {
+                        taskResult = S3.exportExcel(key, bucket, task);
+                    }catch (Exception e) {
+                        taskResult = task;
+                        taskResult.setStatus("失败,原因：" + e.getMessage());
+                    }
+                    break;
+
             }
-            taskService.updateById(task1);
+            taskService.updateById(taskResult);
         });
     }
 

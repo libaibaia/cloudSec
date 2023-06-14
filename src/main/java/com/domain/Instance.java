@@ -68,6 +68,11 @@ public class Instance implements Serializable {
      */
     private String osName;
 
+    /**
+     * 
+     */
+    private String keyName;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
@@ -225,6 +230,20 @@ public class Instance implements Serializable {
         this.osName = osName;
     }
 
+    /**
+     * 
+     */
+    public String getKeyName() {
+        return keyName;
+    }
+
+    /**
+     * 
+     */
+    public void setKeyName(String keyName) {
+        this.keyName = keyName;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -247,7 +266,8 @@ public class Instance implements Serializable {
             && (this.getIp() == null ? other.getIp() == null : this.getIp().equals(other.getIp()))
             && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
             && (this.getOriginalKeyPair() == null ? other.getOriginalKeyPair() == null : this.getOriginalKeyPair().equals(other.getOriginalKeyPair()))
-            && (this.getOsName() == null ? other.getOsName() == null : this.getOsName().equals(other.getOsName()));
+            && (this.getOsName() == null ? other.getOsName() == null : this.getOsName().equals(other.getOsName()))
+            && (this.getKeyName() == null ? other.getKeyName() == null : this.getKeyName().equals(other.getKeyName()));
     }
 
     @Override
@@ -265,6 +285,7 @@ public class Instance implements Serializable {
         result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
         result = prime * result + ((getOriginalKeyPair() == null) ? 0 : getOriginalKeyPair().hashCode());
         result = prime * result + ((getOsName() == null) ? 0 : getOsName().hashCode());
+        result = prime * result + ((getKeyName() == null) ? 0 : getKeyName().hashCode());
         return result;
     }
 
@@ -285,6 +306,7 @@ public class Instance implements Serializable {
         sb.append(", type=").append(type);
         sb.append(", originalKeyPair=").append(originalKeyPair);
         sb.append(", osName=").append(osName);
+        sb.append(", keyName=").append(keyName);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

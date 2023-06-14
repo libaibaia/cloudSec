@@ -50,17 +50,11 @@ public class BucketController {
     public SaResult getBucketList(@RequestParam(required = false) String quick_search,
                                   @RequestParam(value = "page",defaultValue = "1",required = false) Integer page,
                                   @RequestParam(value = "limit",defaultValue = "10",required = false) Integer limit){
-        List<Bucket> list = new ArrayList<>();
+        List<Bucket> list;
         Page<Bucket> objects = PageHelper.startPage(page, limit);
         if (quick_search != null){
-            QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
-            keyQueryWrapper.like("name",quick_search);
-            Key one = keyService.getOne(keyQueryWrapper);
-            if (one != null){
-                QueryWrapper<Bucket> bucketQueryWrapper = new QueryWrapper<>();
-                bucketQueryWrapper.eq("key_id",one.getId());
-                list = bucketService.list(bucketQueryWrapper);
-            }
+            QueryWrapper<Bucket> keyQueryWrapper = new QueryWrapper<>();
+            list = bucketService.list(keyQueryWrapper);
         } else {
             list = bucketService.list();
         }

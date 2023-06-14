@@ -2,8 +2,8 @@ package com.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.domain.Menu2;
-import com.service.Menu2Service;
 import com.mapper.Menu2Mapper;
+import com.service.Menu2Service;
 import org.springframework.stereotype.Service;
 
 /**

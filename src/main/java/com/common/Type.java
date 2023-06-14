@@ -4,5 +4,6 @@ public enum Type {
     Tencent,
     AliYun,
     QINiu,
-    HUAWEI
+    HUAWEI,
+    AWS
 }

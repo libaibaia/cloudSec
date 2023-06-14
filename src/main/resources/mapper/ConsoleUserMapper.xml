@@ -12,11 +12,12 @@
             <result property="uin" column="uin" jdbcType="VARCHAR"/>
             <result property="keyId" column="key_id" jdbcType="INTEGER"/>
             <result property="loginurl" column="loginurl" jdbcType="VARCHAR"/>
+            <result property="keyName" column="key_name" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,username,password,
         ownerUin,uin,key_id,
-        loginurl
+        loginurl,key_name
     </sql>
 </mapper>

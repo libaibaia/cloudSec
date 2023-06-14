@@ -11,10 +11,12 @@
             <result property="filename" column="filename" jdbcType="VARCHAR"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
             <result property="bucket" column="bucket" jdbcType="VARCHAR"/>
+            <result property="keyName" column="key_name" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,file_path,status,
-        filename,user_id,bucket
+        filename,user_id,bucket,
+        key_name
     </sql>
 </mapper>

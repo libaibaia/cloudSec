@@ -4,14 +4,14 @@ import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.PasswordGenerator;
-import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.User;
+import com.common.aws.Iam;
 import com.common.tencent.user.UserPermissionList;
 import com.domain.ConsoleUser;
 import com.domain.Key;
-import com.service.ConsoleUserService;
 import com.mapper.ConsoleUserMapper;
+import com.service.ConsoleUserService;
 import com.service.impl.huawei.HuaWeiService;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +104,18 @@ public class ConsoleUserServiceImpl extends ServiceImpl<ConsoleUserMapper, Conso
                 } catch (Exception e) {
                     return SaResult.error("创建失败,原因：" + e.getMessage());
                 }
-
+            case AWS:
+                try {
+                    Map<String, String> user = Iam.createUser(key, "test" + i, PasswordGenerator.generatePassword());
+                    ConsoleUser consoleUser = new ConsoleUser();
+                    consoleUser.setKeyId(key.getId());
+                    consoleUser.setPassword(user.get("password"));
+                    consoleUser.setUsername(user.get("username"));
+                    consoleUser.setUin(user.get("id"));
+                    insertConsoleUser(consoleUser);
+                }catch (Exception e){
+                    return SaResult.error("创建失败,原因：" + e.getMessage());
+                }
         }
         return null;
     }

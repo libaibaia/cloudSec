@@ -6,6 +6,7 @@ import cn.hutool.core.io.FileUtil;
 import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.PutObjectResult;
 import com.common.aliyun.product.OSS;
+import com.common.aws.S3;
 import com.common.huawei.OBS;
 import com.common.modle.File;
 import com.common.qiniu.base.BaseAuth;
@@ -17,6 +18,7 @@ import com.qcloud.cos.model.COSObjectSummary;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -62,6 +64,12 @@ public class Bucket {
                     files.add(new File(obsObject.getObjectKey(),"","",bucket.getName(),bucket.getId()));
                 }
                 break;
+            case AWS:
+                List<S3Object> fileLists3 = S3.getFileLists(key, bucket,keyWord);
+                for (S3Object s3Object : fileLists3) {
+                    files.add(new File(s3Object.key(),"", "",bucket.getName(),bucket.getId()));
+                }
+                break;
         }
         return files;
     }
@@ -81,6 +89,9 @@ public class Bucket {
                 break;
             case HUAWEI:
                 url = new URL(OBS.getFileUrl(key,bucket,keyName));
+                break;
+            case AWS:
+                url = S3.createUrl(key,bucket,keyName);
                 break;
         }
         return url;
@@ -122,9 +133,15 @@ public class Bucket {
                 case QINiu:
                     com.common.qiniu.Bucket.uploadFile(BaseAuth.getAuth(key),bucket,file1.getName(),file1);
                     f.setFilePath("https://" + bucket.getName() + "." + bucket.getEndPoint() + "." + "/" + f.getOriginalFileName());
+                    break;
                 case HUAWEI:
                     OBS.uploadFile(key,file1,bucket);
                     f.setFilePath("https://" + bucket.getName() + "." + bucket.getEndPoint() + "." + "/" + f.getOriginalFileName());
+                    break;
+                case AWS:
+                    S3.uploadFile(key, bucket, file1.getName(), file1);
+                    f.setFilePath("https://" + bucket.getName() + "." + bucket.getEndPoint() + "." + "/" + f.getOriginalFileName());
+                    break;
             }
             list.add(f);
         }

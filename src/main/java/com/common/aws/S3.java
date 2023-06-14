@@ -1,24 +1,27 @@
 package com.common.aws;
 
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.common.modle.OssFileLists;
 import com.domain.Bucket;
 import com.domain.Key;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import com.domain.Task;
+import software.amazon.awssdk.auth.credentials.*;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
-import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
-import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.File;
+import java.net.URL;
+import java.time.Duration;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class S3 {
 
@@ -42,54 +45,178 @@ public class S3 {
         return credentialsProvider;
     }
 
-    public static Set<Bucket> getBucketList(Key key){
-        Set<Bucket> list = new HashSet<>();
-        for (Region region : regions) {
+    public static List<Bucket> getBucketList(Key key){
+        List<Region> all_regions = Region.regions();
+        List<Bucket> list = new ArrayList<>();
+
+        for (Region region : all_regions) {
             S3Client s3Client = S3Client.builder()
                     .credentialsProvider(getBaseAuth(key))
                     .region(region)
                     .build();
             try {
                 ListBucketsResponse listBucketsResponse = s3Client.listBuckets();
-                if (!listBucketsResponse.buckets().isEmpty()){
+                if (!listBucketsResponse.buckets().isEmpty()) {
                     for (software.amazon.awssdk.services.s3.model.Bucket bucket : listBucketsResponse.buckets()) {
-                        Bucket bucket1 = new Bucket();
-                        bucket1.setName(bucket.name());
-                        bucket1.setRegion(region.id());
-                        list.add(bucket1);
+                        Bucket b = new Bucket();
+                        b.setName(bucket.name());
+                        //获取存储桶区域
+                        GetBucketLocationRequest request = GetBucketLocationRequest
+                                .builder()
+                                .bucket(bucket.name())
+                                .build();
+                        String regionStr = s3Client.getBucketLocation(request).locationConstraintAsString();
+                        String s = StrUtil.isBlank(regionStr) ? Region.US_EAST_1.id() : regionStr;
+                        b.setKeyId(key.getId());
+                        b.setCreateById(key.getCreateById());
+                        b.setRegion(s);
+                        b.setKeyName(key.getName());
+                        b.setEndPoint(String.format("%s.s3-%s.amazonaws.com", bucket.name(),s));
+                        list.add(b);
                     }
                 }
-            }catch (Exception e){
-                System.out.println("当前不存在存储桶，区域：" + region.id());
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         }
-        return list;
-    }
 
-    public static void getFileLists(Key key, Bucket bucket){
-        S3Client s3Client = S3Client.builder()
-                .credentialsProvider(getBaseAuth(key))
-                .region(Region.of(bucket.getRegion()))
-                .build();
-        ListObjectsRequest listObjects = ListObjectsRequest
-                .builder()
-                .bucket(bucket.getName())
-                .build();
-        ListObjectsResponse res = s3Client.listObjects(listObjects);
-        List<S3Object> objects = res.contents();
-        for (S3Object object : objects) {
-            System.out.println("文件名---：" + object.key());
-            System.out.println("文件名---：" + object.size() / 1024);
+        //去重
+        return list.stream()
+                .map(Bucket::getName)
+                .distinct()
+                .map(
+                        name -> list.stream()
+                        .filter(item -> item.getName().equals(name))
+                        .findFirst()
+                        .orElse(null)
+                )
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+    /*
+    获取文件列表
+     */
+
+    public static List<S3Object> getFileLists(Key key, Bucket bucket,String keyWord){
+        try {
+            S3Client s3Client = S3Client.builder()
+                    .credentialsProvider(getBaseAuth(key))
+                    .region(Region.of(bucket.getRegion()))
+                    .build();
+            ListObjectsRequest listObjects;
+            if (StrUtil.isBlank(keyWord)){
+                 listObjects = ListObjectsRequest
+                        .builder()
+                        .bucket(bucket.getName())
+                        .build();
+            }
+            else {
+                listObjects = ListObjectsRequest
+                        .builder()
+                        .prefix(keyWord)
+                        .bucket(bucket.getName())
+                        .build();
+            }
+
+            ListObjectsResponse res = s3Client.listObjects(listObjects);
+            List<S3Object> objects = res.contents();
+            return objects;
+        }catch (Exception e){
+            return null;
         }
     }
 
-    public static void main(String[] args) {
-        Key key = new Key();
-//        key.setSecretid("AKIAVERX2TF6ZHGPJV5S1");
-//        key.setSecretkey("MLZyis4pnGF35/E2osdAv1eGcbsZiMHMyHAmDdtk1");
-        key.setSecretid("AKIAJMHS2B77BWZWWPQMQ1");
-        key.setSecretkey("hbYXf4JC2PbDf4akPKkPsllQYJHMrYbkqZBPbH7dt");
-        Set<Bucket> bucketList = getBucketList(key);
-        System.out.println(bucketList);
+    public static List<S3Object> getAllFileLists(Key key, Bucket bucket){
+        try {
+            S3Client s3Client = S3Client.builder()
+                    .credentialsProvider(getBaseAuth(key))
+                    .region(Region.of(bucket.getRegion()))
+                    .build();
+            List<S3Object> res = new ArrayList<>();
+
+            ListObjectsV2Request listObjectsReqManual = ListObjectsV2Request.builder()
+                    .bucket(bucket.getName())
+                    .maxKeys(1000)
+                    .build();
+            ListObjectsV2Response listObjectsResp = s3Client.listObjectsV2(listObjectsReqManual);
+
+            boolean done = false;
+            while (!done) {
+
+                res.addAll(listObjectsResp.contents());
+
+                if (listObjectsResp.nextContinuationToken() == null) {
+                    done = true;
+                }
+
+                listObjectsReqManual = listObjectsReqManual.toBuilder()
+                        .continuationToken(listObjectsResp.nextContinuationToken())
+                        .build();
+                listObjectsResp = s3Client.listObjectsV2(listObjectsReqManual);
+            }
+            return res;
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
+
+    public static Task exportExcel(Key key, Bucket bucket, Task task){
+        List<S3Object> allFileLists = getAllFileLists(key, bucket);
+        List<OssFileLists> lists = new ArrayList<>();
+        for (S3Object f : allFileLists) {
+            lists.add(new OssFileLists(f.key(),
+                    bucket.getEndPoint() + "/" + f.key(),
+                    f.size() / 1024,new Date(f.lastModified().getEpochSecond() * 1000)));
+        }
+        File tempFile = FileUtil.createTempFile(String.valueOf(System.currentTimeMillis()), ".xlsx", true);
+        OssFileLists.createFile(lists,tempFile);
+        task.setStatus("成功");
+        task.setFilename(tempFile.getName());
+        task.setFilePath(tempFile.getAbsolutePath());
+        return task;
+    }
+
+
+    public static void uploadFile(Key key, Bucket bucket, String keyName, File file){
+
+        // 创建 S3Client 对象
+        S3Client s3 = S3Client.builder()
+                .region(Region.of(bucket.getRegion()))
+                .credentialsProvider(getBaseAuth(key))
+                .build();
+
+        // 读取文件创建requestBody
+        RequestBody requestBody = RequestBody.fromFile(file);
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucket.getName())
+                .key(keyName)
+                .build();
+        s3.putObject(request, requestBody);
+    }
+
+
+    public static URL createUrl(Key key, Bucket bucket, String keyName){
+        try {
+            S3Presigner presigner = S3Presigner.builder()
+                    .credentialsProvider(getBaseAuth(key))
+                    .region(Region.of(bucket.getRegion()))
+                    .build();
+            Duration expiration = Duration.ofMinutes(10);
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                    .signatureDuration(expiration)
+                    .getObjectRequest(builder -> builder
+                            .bucket(bucket.getName())
+                            .key(keyName))
+                    .build();
+
+            PresignedGetObjectRequest presignedGetObjectRequest = presigner.presignGetObject(presignRequest);
+            URL url = presignedGetObjectRequest.url();
+            presigner.close();
+            return url;
+        }catch (Exception e){
+            return null;
+        }
+    }
+
 }

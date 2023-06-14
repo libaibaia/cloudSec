@@ -12,15 +12,12 @@
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="keyId" column="key_id" jdbcType="INTEGER"/>
             <result property="createById" column="create_by_id" jdbcType="INTEGER"/>
-            <result property="usAge" column="us_age" jdbcType="VARCHAR"/>
-            <result property="size" column="size" jdbcType="DOUBLE"/>
-            <result property="filenum" column="fileNum" jdbcType="INTEGER"/>
+            <result property="keyName" column="key_name" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,region,end_point,
         owner,name,key_id,
-        create_by_id,us_age,size,
-        fileNum
+        create_by_id,key_name
     </sql>
 </mapper>

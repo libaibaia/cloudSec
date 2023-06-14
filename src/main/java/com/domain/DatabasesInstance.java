@@ -12,7 +12,6 @@ import java.io.Serializable;
  */
 @TableName(value ="databases_instance")
 public class DatabasesInstance implements Serializable {
-
     /**
      * 
      */
@@ -69,17 +68,25 @@ public class DatabasesInstance implements Serializable {
      */
     private String whitelist;
 
+    /**
+     * 
+     */
+    private String keyName;
+
     public DatabasesInstance() {
     }
 
-    public DatabasesInstance(String instanceId, String instanceName, String domain, String region, String port, Integer keyId, String type) {
+    public DatabasesInstance(String instanceId, String instanceName, String domain, String region, String port, Integer keyId, String user, String password, String type, String keyName) {
         this.instanceId = instanceId;
         this.instanceName = instanceName;
         this.domain = domain;
         this.region = region;
         this.port = port;
         this.keyId = keyId;
+        this.user = user;
+        this.password = password;
         this.type = type;
+        this.keyName = keyName;
     }
 
     @TableField(exist = false)
@@ -239,6 +246,20 @@ public class DatabasesInstance implements Serializable {
         this.whitelist = whitelist;
     }
 
+    /**
+     * 
+     */
+    public String getKeyName() {
+        return keyName;
+    }
+
+    /**
+     * 
+     */
+    public void setKeyName(String keyName) {
+        this.keyName = keyName;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -261,7 +282,8 @@ public class DatabasesInstance implements Serializable {
             && (this.getUser() == null ? other.getUser() == null : this.getUser().equals(other.getUser()))
             && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
             && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
-            && (this.getWhitelist() == null ? other.getWhitelist() == null : this.getWhitelist().equals(other.getWhitelist()));
+            && (this.getWhitelist() == null ? other.getWhitelist() == null : this.getWhitelist().equals(other.getWhitelist()))
+            && (this.getKeyName() == null ? other.getKeyName() == null : this.getKeyName().equals(other.getKeyName()));
     }
 
     @Override
@@ -279,6 +301,7 @@ public class DatabasesInstance implements Serializable {
         result = prime * result + ((getPassword() == null) ? 0 : getPassword().hashCode());
         result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
         result = prime * result + ((getWhitelist() == null) ? 0 : getWhitelist().hashCode());
+        result = prime * result + ((getKeyName() == null) ? 0 : getKeyName().hashCode());
         return result;
     }
 
@@ -299,6 +322,7 @@ public class DatabasesInstance implements Serializable {
         sb.append(", password=").append(password);
         sb.append(", type=").append(type);
         sb.append(", whitelist=").append(whitelist);
+        sb.append(", keyName=").append(keyName);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

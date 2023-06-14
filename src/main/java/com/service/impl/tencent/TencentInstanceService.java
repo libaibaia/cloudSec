@@ -2,9 +2,7 @@ package com.service.impl.tencent;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.common.LogAnnotation;
-import com.common.Tools;
 import com.common.Type;
 import com.common.tencent.product.cvm.CVM;
 import com.common.tencent.product.databases.*;
@@ -28,8 +26,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,6 +69,7 @@ public class TencentInstanceService {
                     instance.setIp(Arrays.toString(instance1.getPublicIpAddresses()));
                     instance.setType(instance1.getOsName());
                     instance.setKeyId(key.getId());
+                    instance.setKeyName(key.getName());
                     instance.setRegion(instance1.any().get("region").toString());
                     instance.setIsCommand((invocationTask.getCommandId().equals("null"))?"null":"true");
                     instance.setOriginalKeyPair(Arrays.toString(instance1.getLoginSettings().getKeyIds()));
@@ -147,10 +150,16 @@ public class TencentInstanceService {
         try {
             dbLists = SqlServer.getDBLists(key);
             for (com.tencentcloudapi.sqlserver.v20180328.models.DBInstance dbList : dbLists) {
-                DatabasesInstance databases = new DatabasesInstance(dbList.getInstanceId(),dbList.getName(),dbList.getDnsPodDomain(),
-                        dbList.getRegion(),dbList.getTgwWanVPort().toString(),key.getId(), sqlServer);
-
-                databasesInstanceMapper.insert(databases);
+                DatabasesInstance databasesInstance = new DatabasesInstance();
+                databasesInstance.setKeyName(key.getName());
+                databasesInstance.setInstanceId(dbList.getInstanceId());
+                databasesInstance.setType(sqlServer);
+                databasesInstance.setRegion(dbList.getRegion());
+                databasesInstance.setInstanceName(dbList.getName());
+                databasesInstance.setDomain(dbList.getDnsPodDomain());
+                databasesInstance.setKeyId(key.getId());
+                databasesInstance.setPort(dbList.getTgwWanVPort().toString());
+                databasesInstanceMapper.insert(databasesInstance);
             }
         } catch (TencentCloudSDKException e) {
             throw new RuntimeException(e);
@@ -333,9 +342,16 @@ public class TencentInstanceService {
                 address = split[0];
                 port = Long.parseLong(split[1]);
             }
-            DatabasesInstance databases = new DatabasesInstance(redisList.getInstanceId(),redisList.getInstanceName(),
-                    address,redisList.getRegion(), String.valueOf(port),key.getId(),redis);
-            databasesInstanceMapper.insert(databases);
+            DatabasesInstance databasesInstance = new DatabasesInstance();
+            databasesInstance.setKeyName(key.getName());
+            databasesInstance.setInstanceId(redisList.getInstanceId());
+            databasesInstance.setType(redis);
+            databasesInstance.setRegion(redisList.getRegion());
+            databasesInstance.setInstanceName(redisList.getInstanceName());
+            databasesInstance.setDomain(address);
+            databasesInstance.setKeyId(key.getId());
+            databasesInstance.setPort(String.valueOf(port));
+            databasesInstanceMapper.insert(databasesInstance);
         }
     }
 
@@ -343,9 +359,16 @@ public class TencentInstanceService {
     private void getMongoDbList(Key key) throws TencentCloudSDKException {
         List<InstanceDetail> dbList = MongoDb.getDBList(key);
         for (InstanceDetail instanceDetail : dbList) {
-            DatabasesInstance databases = new DatabasesInstance(instanceDetail.getInstanceId(),instanceDetail.getInstanceName(),null,instanceDetail.getRegion(),
-                    "0",key.getId(),mongoDb);
-            databasesInstanceMapper.insert(databases);
+            DatabasesInstance databasesInstance = new DatabasesInstance();
+            databasesInstance.setKeyName(key.getName());
+            databasesInstance.setInstanceId(instanceDetail.getInstanceId());
+            databasesInstance.setType(mongoDb);
+            databasesInstance.setRegion(instanceDetail.getRegion());
+            databasesInstance.setInstanceName(instanceDetail.getInstanceName());
+            databasesInstance.setDomain(null);
+            databasesInstance.setKeyId(key.getId());
+            databasesInstance.setPort("0");
+            databasesInstanceMapper.insert(databasesInstance);
         }
 
     }
@@ -355,9 +378,16 @@ public class TencentInstanceService {
         try {
             List<DBInstance> mariaDBLists = MariaDB.getMariaDBLists(key);
             for (DBInstance mariaDBList : mariaDBLists) {
-                DatabasesInstance mariadb = new DatabasesInstance(mariaDBList.getInstanceId(), mariaDBList.getInstanceName(), mariaDBList.getWanDomain(),
-                        mariaDBList.getRegion(), mariaDBList.getWanPort().toString(), key.getId(), mariaDB);
-                databasesInstanceMapper.insert(mariadb);
+                DatabasesInstance databasesInstance = new DatabasesInstance();
+                databasesInstance.setKeyName(key.getName());
+                databasesInstance.setInstanceId(mariaDBList.getInstanceId());
+                databasesInstance.setType(mariaDB);
+                databasesInstance.setRegion(mariaDBList.getRegion());
+                databasesInstance.setInstanceName(mariaDBList.getInstanceName());
+                databasesInstance.setDomain(mariaDBList.getWanDomain());
+                databasesInstance.setKeyId(key.getId());
+                databasesInstance.setPort(mariaDBList.getWanPort().toString());
+                databasesInstanceMapper.insert(databasesInstance);
             }
         } catch (TencentCloudSDKException e) {
             throw new RuntimeException(e);
@@ -376,9 +406,16 @@ public class TencentInstanceService {
                     port = instanceNetInfo.getPort();
                 }
             }
-            DatabasesInstance databases = new DatabasesInstance(dbInstance.getDBInstanceId(),dbInstance.getDBInstanceName(),address,dbInstance.getRegion(),String.valueOf(port),
-                    key.getId(),postgres);
-            databasesInstanceMapper.insert(databases);
+            DatabasesInstance databasesInstance = new DatabasesInstance();
+            databasesInstance.setKeyName(key.getName());
+            databasesInstance.setInstanceId(dbInstance.getDBInstanceId());
+            databasesInstance.setType(postgres);
+            databasesInstance.setRegion(dbInstance.getRegion());
+            databasesInstance.setInstanceName(dbInstance.getDBInstanceName());
+            databasesInstance.setDomain(address);
+            databasesInstance.setKeyId(key.getId());
+            databasesInstance.setPort(String.valueOf(port));
+            databasesInstanceMapper.insert(databasesInstance);
         }
     }
     @LogAnnotation(title = "获取mysql")
@@ -386,10 +423,17 @@ public class TencentInstanceService {
         Mysql mysql = new Mysql();
         List<InstanceInfo> mysqlLists = mysql.getMysqlLists(key);
         for (InstanceInfo mysqlList : mysqlLists) {
-            DatabasesInstance databases = new DatabasesInstance(mysqlList.getInstanceId(),mysqlList.getInstanceName(),mysqlList.getWanDomain(),
-                    mysqlList.getRegion(),mysqlList.getWanPort().toString(),key.getId(),DatabasesInstanceServiceImpl.mysql);
-            databasesInstanceMapper.insert(databases);
-            logger.info("添加mysql实例" + databases.getInstanceId());
+            DatabasesInstance databasesInstance = new DatabasesInstance();
+            databasesInstance.setKeyName(key.getName());
+            databasesInstance.setInstanceId(mysqlList.getInstanceId());
+            databasesInstance.setType(DatabasesInstanceServiceImpl.mysql);
+            databasesInstance.setRegion(mysqlList.getRegion());
+            databasesInstance.setInstanceName(mysqlList.getInstanceName());
+            databasesInstance.setDomain(mysqlList.getWanDomain());
+            databasesInstance.setKeyId(key.getId());
+            databasesInstance.setPort(mysqlList.getWanPort().toString());
+            databasesInstanceMapper.insert(databasesInstance);
+            logger.info("添加mysql实例" + databasesInstance.getInstanceId());
         }
     }
 

@@ -53,6 +53,7 @@ public class HuaWeiService {
             instance.setOriginalKeyPair(ecsList.getKeyName());
             instance.setIp(getIp(ecsList));
             instance.setIsCommand("null");
+            instance.setKeyName(key.getName());
             instance.setKeyId(key.getId());
             instance.setPublicKey(ecsList.getTenantId());
             instance.setPrivateKey("华为云不支持密钥对绑定，点击密钥对将重置密码");
@@ -70,6 +71,7 @@ public class HuaWeiService {
             databasesInstance.setInstanceName(rdsList.getName());
             databasesInstance.setType(rdsList.getDatastore().getType().getValue());
             databasesInstance.setKeyId(key.getId());
+            databasesInstance.setKeyName(key.getName());
             databasesInstance.setRegion(rdsList.getRegion());
             databasesInstance.setInstanceId(rdsList.getId());
             databasesInstance.setDomain(getIp(rdsList.getPublicIps()));

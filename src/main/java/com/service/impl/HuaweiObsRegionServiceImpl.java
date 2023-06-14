@@ -2,8 +2,8 @@ package com.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.domain.HuaweiObsRegion;
-import com.service.HuaweiObsRegionService;
 import com.mapper.HuaweiObsRegionMapper;
+import com.service.HuaweiObsRegionService;
 import org.springframework.stereotype.Service;
 
 /**

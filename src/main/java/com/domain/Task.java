@@ -4,9 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
 /**
@@ -24,7 +21,6 @@ public class Task implements Serializable {
     /**
      * 
      */
-    @JsonIgnore
     private String filePath;
 
     /**
@@ -46,6 +42,11 @@ public class Task implements Serializable {
      * 
      */
     private String bucket;
+
+    /**
+     * 
+     */
+    private String keyName;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -134,6 +135,20 @@ public class Task implements Serializable {
         this.bucket = bucket;
     }
 
+    /**
+     * 
+     */
+    public String getKeyName() {
+        return keyName;
+    }
+
+    /**
+     * 
+     */
+    public void setKeyName(String keyName) {
+        this.keyName = keyName;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -151,7 +166,8 @@ public class Task implements Serializable {
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
             && (this.getFilename() == null ? other.getFilename() == null : this.getFilename().equals(other.getFilename()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-            && (this.getBucket() == null ? other.getBucket() == null : this.getBucket().equals(other.getBucket()));
+            && (this.getBucket() == null ? other.getBucket() == null : this.getBucket().equals(other.getBucket()))
+            && (this.getKeyName() == null ? other.getKeyName() == null : this.getKeyName().equals(other.getKeyName()));
     }
 
     @Override
@@ -164,6 +180,7 @@ public class Task implements Serializable {
         result = prime * result + ((getFilename() == null) ? 0 : getFilename().hashCode());
         result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
         result = prime * result + ((getBucket() == null) ? 0 : getBucket().hashCode());
+        result = prime * result + ((getKeyName() == null) ? 0 : getKeyName().hashCode());
         return result;
     }
 
@@ -179,6 +196,7 @@ public class Task implements Serializable {
         sb.append(", filename=").append(filename);
         sb.append(", userId=").append(userId);
         sb.append(", bucket=").append(bucket);
+        sb.append(", keyName=").append(keyName);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

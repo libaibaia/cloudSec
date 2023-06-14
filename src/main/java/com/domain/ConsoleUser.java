@@ -48,6 +48,11 @@ public class ConsoleUser implements Serializable {
      */
     private String loginurl;
 
+    /**
+     * 
+     */
+    private String keyName;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
@@ -149,6 +154,20 @@ public class ConsoleUser implements Serializable {
         this.loginurl = loginurl;
     }
 
+    /**
+     * 
+     */
+    public String getKeyName() {
+        return keyName;
+    }
+
+    /**
+     * 
+     */
+    public void setKeyName(String keyName) {
+        this.keyName = keyName;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -167,7 +186,8 @@ public class ConsoleUser implements Serializable {
             && (this.getOwneruin() == null ? other.getOwneruin() == null : this.getOwneruin().equals(other.getOwneruin()))
             && (this.getUin() == null ? other.getUin() == null : this.getUin().equals(other.getUin()))
             && (this.getKeyId() == null ? other.getKeyId() == null : this.getKeyId().equals(other.getKeyId()))
-            && (this.getLoginurl() == null ? other.getLoginurl() == null : this.getLoginurl().equals(other.getLoginurl()));
+            && (this.getLoginurl() == null ? other.getLoginurl() == null : this.getLoginurl().equals(other.getLoginurl()))
+            && (this.getKeyName() == null ? other.getKeyName() == null : this.getKeyName().equals(other.getKeyName()));
     }
 
     @Override
@@ -181,6 +201,7 @@ public class ConsoleUser implements Serializable {
         result = prime * result + ((getUin() == null) ? 0 : getUin().hashCode());
         result = prime * result + ((getKeyId() == null) ? 0 : getKeyId().hashCode());
         result = prime * result + ((getLoginurl() == null) ? 0 : getLoginurl().hashCode());
+        result = prime * result + ((getKeyName() == null) ? 0 : getKeyName().hashCode());
         return result;
     }
 
@@ -197,6 +218,7 @@ public class ConsoleUser implements Serializable {
         sb.append(", uin=").append(uin);
         sb.append(", keyId=").append(keyId);
         sb.append(", loginurl=").append(loginurl);
+        sb.append(", keyName=").append(keyName);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

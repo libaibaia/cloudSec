@@ -4,16 +4,15 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.Base;
-import com.common.modle.OssFileLists;
 import com.common.qiniu.base.BaseAuth;
 import com.common.qiniu.qvm.Qvm;
 import com.domain.Key;
-import com.service.KeyService;
 import com.mapper.KeyMapper;
+import com.service.KeyService;
 import com.service.impl.aliyun.AliYunInstanceService;
+import com.service.impl.aws.AWService;
 import com.service.impl.huawei.HuaWeiService;
 import com.service.impl.qiniu.QiNiuService;
 import com.service.impl.tencent.TencentInstanceService;
@@ -53,6 +52,8 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
     @Resource
     @Lazy
     private QiNiuService qiNiuService;
+    @Autowired
+    private AWService awService;
     @Resource
     private HuaWeiService huaWeiService;
     @Resource
@@ -182,6 +183,24 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                 });
                 executorService.execute(() -> {
                     huaWeiService.getRDSLists(key,detectProgress);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
+                });
+                break;
+            }
+            case AWS:
+            {
+                Integer defaultValue = 3;
+                AtomicInteger detectProgress = new AtomicInteger(defaultValue);
+                executorService.execute(() -> {
+                    awService.getBucketLists(key,detectProgress);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
+                });
+                executorService.execute(() -> {
+                    awService.getRdsLists(key,detectProgress);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
+                });
+                executorService.execute(() -> {
+                    awService.getInstanceLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 break;

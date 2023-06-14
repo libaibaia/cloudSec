@@ -131,3 +131,8 @@ docker-compose up -d
 3. 将编译后的dist文件复制到nginx目录下
 4. 启动后端java -jar cloudSec.jar
 5. 访问nginx80端口登录，默认账号密码admin/admin123。
+## 本地构建docker
+1. 编译项目放在java-app/target目录下
+2. 下载jdk8，需要oracle版本
+3. 解压WEB.ZIP文件到当前目录
+4. 执行docker-compose -f docker-compose-build.yaml up -d --build 构建镜像并启动

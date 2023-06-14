@@ -1,26 +1,35 @@
+version: '3.8'
+
 services:
   java-app:
+    build:
+      context: ./java-app
+    image: java-app
     container_name: java-app
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-1.2
     environment:
-      DB_PASSWORD: 111111
+      DB_PASSWORD: 123456
     depends_on:
       - db
   vue-web:
+    build:
+      context: ./vue-app
+      args:
+        API_IP: "192.168.61.131" #修改本机IP
+    image: vue-app
     container_name: vue-web
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app-1.2
     ports:
       - "80:80"
     environment:
-      - API_IP=192.168.61.131
+      - API_IP=192.168.61.131 #修改本机IP
     depends_on:
       - java-app
   db:
+    build:
+      context: ./mysql
+    image: db
     container_name: db
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:db-1.2
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 111111
+      MYSQL_ROOT_PASSWORD: 123456
     volumes:
       - /home/cloud/data:/var/lib/mysql
-

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.HuaweiEcsRegionMapper">
+
+    <resultMap id="BaseResultMap" type="com.domain.HuaweiEcsRegion">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="regionName" column="region_name" jdbcType="VARCHAR"/>
+            <result property="regionId" column="region_id" jdbcType="VARCHAR"/>
+            <result property="endpoint" column="endpoint" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,region_name,region_id,
+        endpoint
+    </sql>
+</mapper>

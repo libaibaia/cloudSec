@@ -65,6 +65,7 @@ public class AliYunInstanceService {
                 instance1.setKeyId(key.getId());
                 instance1.setOriginalKeyPair(instance.getKeyPairName());
                 instance1.setOsName(instance.getOSName());
+                instance1.setKeyName(key.getName());
                 if (command.getBody().invocation.invocationResults.invocationResult.size() >= 1){
                     instance1.setIsCommand("true");
                     instanceMapper.insert(instance1);
@@ -126,6 +127,7 @@ public class AliYunInstanceService {
             databasesInstance.setKeyId(key.getId());
             databasesInstance.setInstanceName(rds.getDBInstanceId());
             databasesInstance.setType(rds.getEngine());
+            databasesInstance.setKeyName(key.getName());
             for (DescribeDBInstanceNetInfoResponseBody.DescribeDBInstanceNetInfoResponseBodyDBInstanceNetInfosDBInstanceNetInfo res :
                     describeDBInstanceNetInfoResponse.body.DBInstanceNetInfos.DBInstanceNetInfo) {
                 if (res.IPType.equals(RDS.publicType)){
@@ -147,6 +149,7 @@ public class AliYunInstanceService {
                 bucket.setName(bucketList.getName());
                 bucket.setCreateById(key.getCreateById());
                 bucket.setKeyId(key.getId());
+                bucket.setKeyName(key.getName());
                 bucket.setEndPoint(bucketList.getExtranetEndpoint());
                 bucket.setOwner(bucketList.getOwner().toString());
                 bucketService.save(bucket);

@@ -7,6 +7,7 @@ import cn.dev33.satoken.util.SaResult;
 import com.aliyun.ecs20140526.models.DescribeInvocationResultsResponse;
 import com.aliyun.ecs20140526.models.DescribeInvocationResultsResponseBody;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.common.Type;
 import com.common.aliyun.Base;
 import com.common.aliyun.product.ECS;
@@ -55,18 +56,14 @@ public class InstanceController {
                                      @RequestParam(value = "page",defaultValue = "1",required = false) Integer page,
                                      @RequestParam(value = "limit",defaultValue = "10",required = false) Integer limit){
         Page<Instance> objects = PageHelper.startPage(page, limit);
-        List<Key> keys = keyService.getKeysByCreateId(Integer.parseInt(StpUtil.getLoginId().toString()));
         List<Instance> instanceList = new ArrayList<>();
-        if (quick_search != null){
-            QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
-            keyQueryWrapper.like("name",quick_search);
-            List<Key> list = keyService.list(keyQueryWrapper);
-            if (list.size() >= 1){
-                instanceList = instanceService.getInstanceList(list);
-            }
+        if (!StringUtils.isEmpty(quick_search)){
+            QueryWrapper<Instance> queryWrapper = new QueryWrapper<>();
+            queryWrapper.like("key_name",quick_search);
+            instanceList = instanceService.list(queryWrapper);
         }
         else {
-            instanceList = instanceService.getInstanceList(keys);
+            instanceList = instanceService.list();
         }
         return  SaResult.ok("获取成功").set("lists",instanceList).set("total",objects.getTotal());
     }
@@ -103,7 +100,10 @@ public class InstanceController {
                             "test", ECS.getType(instance.getType()), info.get("execArgs"), instance.getInstanceId());
                     for (DescribeInvocationResultsResponseBody.DescribeInvocationResultsResponseBodyInvocationInvocationResultsInvocationResult result : command.getBody().invocation.invocationResults.invocationResult) {
                         byte[] decode = Base64.getDecoder().decode(result.output.getBytes());
+                        builder.append("\n");
+                        builder.append("-------------------------");
                         builder.append(new String(decode));
+                        builder.append("-------------------------");
                         builder.append("\n");
                     }
                 } catch (Exception e) {

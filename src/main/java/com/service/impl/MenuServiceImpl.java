@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.Node;
 import com.domain.Menu;
-import com.service.MenuService;
 import com.mapper.MenuMapper;
+import com.service.MenuService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

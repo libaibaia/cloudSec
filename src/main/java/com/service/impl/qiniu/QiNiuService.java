@@ -51,6 +51,7 @@ public class QiNiuService {
                     instance.setOriginalKeyPair(datum.getKey_pair_name());
                     instance.setIsCommand("七牛暂不支持执行命令");
                     instance.setKeyId(key.getId());
+                    instance.setKeyName(key.getName());
                     instance.setOsName(datum.getOs_name());
                     instanceService.getBaseMapper().insert(instance);
                 }
@@ -83,6 +84,7 @@ public class QiNiuService {
             StrUtil.trim(domain);
             bucket.setEndPoint(Arrays.toString(domain));
             bucket.setName(bucketList.getName());
+            bucket.setKeyName(key.getName());
             bucket.setRegion(bucketList.getRegion());
             bucket.setKeyId(key.getId());
             bucket.setCreateById(key.getCreateById());
