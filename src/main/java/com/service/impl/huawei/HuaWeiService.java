@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,7 +45,12 @@ public class HuaWeiService {
         status.decrementAndGet();
     }
     public void getInstanceLists(Key key, AtomicInteger status){
-        List<ServerDetail> ecsLists = ECS.getEcsLists(key);
+        List<ServerDetail> ecsLists = new ArrayList<>();
+        try {
+            ecsLists = ECS.getEcsLists(key);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         for (ServerDetail ecsList : ecsLists) {
             Instance instance = new Instance();
             instance.setInstanceId(ecsList.getId());
@@ -64,7 +70,12 @@ public class HuaWeiService {
     }
 
     public void getRDSLists(Key key, AtomicInteger status){
-        List<InstanceResponse> rdsLists = RDS.getRDSLists(key);
+        List<InstanceResponse> rdsLists = new ArrayList<>();
+        try {
+            rdsLists = RDS.getRDSLists(key);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         for (InstanceResponse rdsList : rdsLists) {
             DatabasesInstance databasesInstance = new DatabasesInstance();
             databasesInstance.setPort(rdsList.getPort().toString());
