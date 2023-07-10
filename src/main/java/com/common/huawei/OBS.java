@@ -100,6 +100,7 @@ public class OBS {
             bucket.setName(re.getBucketName());
             bucket.setOwner(bucket.getOwner());
             bucket.setRegion("");
+            bucket.setKeyName(key.getName());
             bucket.setKeyId(key.getId());
             bucket.setCreateById(key.getCreateById());
             buckets.add(bucket);

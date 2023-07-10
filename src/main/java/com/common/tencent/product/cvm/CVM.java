@@ -173,11 +173,7 @@ public class CVM {
         }
         return describeInvocationTasksResponse;
     }
-
-    //测试
-    public static void main(String[] args) throws TencentCloudSDKException {
-    }
-
+    
     /*
     初始添加凭证会执行这个方法，用于检测那些区域的服务器可以执行命令
      */

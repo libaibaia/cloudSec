@@ -236,8 +236,6 @@ public class KeyController {
         databasesInstanceService.delInstanceByKeyId(key.getId());
     }
 
-
-
     private void getNewThreadPool(){
         executorService.shutdownNow();
         executorService = Executors.newFixedThreadPool(10);

@@ -54,6 +54,7 @@ public class BucketController {
         Page<Bucket> objects = PageHelper.startPage(page, limit);
         if (quick_search != null){
             QueryWrapper<Bucket> keyQueryWrapper = new QueryWrapper<>();
+            keyQueryWrapper.like("key_name",quick_search);
             list = bucketService.list(keyQueryWrapper);
         } else {
             list = bucketService.list();

@@ -6,9 +6,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.Type;
 import com.common.aliyun.Base;
+import com.common.aws.EC2;
+import com.common.huawei.ECS;
+import com.common.huawei.IAM;
+import com.common.huawei.OBS;
+import com.common.huawei.RDS;
 import com.common.qiniu.base.BaseAuth;
 import com.common.qiniu.qvm.Qvm;
 import com.domain.Key;
+import com.huaweicloud.sdk.iam.v3.model.KeystoneGroupResult;
 import com.mapper.KeyMapper;
 import com.service.KeyService;
 import com.service.impl.aliyun.AliYunInstanceService;
@@ -64,6 +70,8 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
         keyQueryWrapper.eq("create_by_id",id);
         return list(keyQueryWrapper);
     }
+    
+
     public Boolean saveKey(Key key){
         QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
         keyQueryWrapper.eq("secretId",key.getSecretid());
@@ -170,7 +178,15 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
             }
             case HUAWEI:
             {
-
+                try {
+                    IAM.checkIsExist(key);
+                }catch (com.huaweicloud.sdk.core.exception.SdkException e){
+                    if (e.getMessage().contains("not exist")){
+                        key.setTaskStatus("检测失败原因：" + "key不存在");
+                        this.updateById(key);
+                        return;
+                    }
+                }
                 Integer defaultValue = 3;
                 AtomicInteger detectProgress = new AtomicInteger(defaultValue);
                 executorService.execute(() -> {
@@ -189,6 +205,15 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
             }
             case AWS:
             {
+                try {
+                    EC2.checkExist(key);
+                }catch (Exception e){
+                    if (e.getMessage().contains("AWS was not able to validate the provided access credentials")){
+                        key.setTaskStatus("检测失败原因：" + "key有误");
+                        this.updateById(key);
+                        return;
+                    }
+                }
                 Integer defaultValue = 3;
                 AtomicInteger detectProgress = new AtomicInteger(defaultValue);
                 executorService.execute(() -> {

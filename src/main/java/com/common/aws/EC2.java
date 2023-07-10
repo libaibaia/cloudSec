@@ -40,6 +40,14 @@ public class EC2 {
         return availabilityZones;
     }
 
+    public static void checkExist(Key key){
+        DescribeAvailabilityZonesResponse zonesResponse =
+                getEc2Client(key, region.get(0)).describeAvailabilityZones();
+    }
+
+
+
+
     public static List<Instance> getInstanceLists(Key key){
         boolean done = false;
         String nextToken = null;

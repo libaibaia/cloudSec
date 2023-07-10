@@ -59,6 +59,16 @@ public class IAM {
         }
     }
 
+    public static void checkIsExist(Key key){
+        IamClient client = IamClient.newBuilder()
+                .withCredential(getBaseAuth(key))
+                .withRegion(IamRegion.valueOf("ap-southeast-1"))
+                .build();
+        KeystoneListGroupsRequest request = new KeystoneListGroupsRequest();
+        client.keystoneListGroups(request).getGroups();
+    }
+
+
     public static Map<String, String> createIamUser(Key key, String username, String password){
         IamClient client = IamClient.newBuilder()
                 .withCredential(getBaseAuth(key))
