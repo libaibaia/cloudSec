@@ -1,7 +1,7 @@
 package com.controller;
 
 
-import ch.qos.logback.core.util.COWArrayList;
+import java.util.concurrent.TimeUnit;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
@@ -160,14 +160,16 @@ public class KeyController {
 
     @GetMapping("/stop")
     public SaResult stopTask(){
-        getNewThreadPool();
-        List<Key> list = keyService.list();
-        for (Key key : list) {
-            key.setTaskStatus("停止检测");
-            keyService.updateById(key);
-            cleanInstanceInfo(key);
-        }
-        return SaResult.ok("停止成功");
+        new Thread(() -> {
+            getNewThreadPool();
+            List<Key> list = keyService.list();
+            for (Key key : list) {
+                key.setTaskStatus("停止检测");
+                keyService.updateById(key);
+                cleanInstanceInfo(key);
+            }
+        });
+        return SaResult.ok("正在停止中");
     }
 
     @GetMapping("/export")
@@ -237,7 +239,18 @@ public class KeyController {
     }
 
     private void getNewThreadPool(){
-        executorService.shutdownNow();
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    System.err.println("无法终止执行的任务");
+                }
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
         executorService = Executors.newFixedThreadPool(10);
     }
 

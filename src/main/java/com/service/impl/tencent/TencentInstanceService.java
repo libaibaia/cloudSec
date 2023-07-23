@@ -442,13 +442,13 @@ public class TencentInstanceService {
         try {
             getRedisLists(key);
             getMongoDbList(key);
+            getMysqlList(key);
+            getMariadbList(key);
+            getSqlServerList(key);
+            getPostgresList(key);
         } catch (TencentCloudSDKException e) {
             logger.info(e.getMessage());
         }
-        getMysqlList(key);
-        getMariadbList(key);
-        getSqlServerList(key);
-        getPostgresList(key);
         status.decrementAndGet();
     }
 }

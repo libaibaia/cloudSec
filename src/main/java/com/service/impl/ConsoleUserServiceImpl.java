@@ -70,6 +70,7 @@ public class ConsoleUserServiceImpl extends ServiceImpl<ConsoleUserMapper, Conso
                     huaweiConsoleUser.setOwneruin(huaWeiServiceConsoleUser.get("ownerUin"));
                     huaweiConsoleUser.setPassword(huaWeiServiceConsoleUser.get("password"));
                     huaweiConsoleUser.setKeyId(key.getId());
+                    huaweiConsoleUser.setKeyName(key.getName());
                     huaweiConsoleUser.setUin("");
                     insertConsoleUser(huaweiConsoleUser);
                     return SaResult.ok("创建成功");
@@ -85,6 +86,7 @@ public class ConsoleUserServiceImpl extends ServiceImpl<ConsoleUserMapper, Conso
                     tencentConsoleUser.setOwneruin(hashMap.get("OwnerUin"));
                     tencentConsoleUser.setPassword(hashMap.get("password"));
                     tencentConsoleUser.setKeyId(key.getId());
+                    tencentConsoleUser.setKeyName(key.getName());
                     tencentConsoleUser.setUin(hashMap.get("uin"));
                     insertConsoleUser(tencentConsoleUser);
                     return SaResult.ok("创建成功").set("lists",hashMap);
@@ -97,6 +99,7 @@ public class ConsoleUserServiceImpl extends ServiceImpl<ConsoleUserMapper, Conso
                     ConsoleUser ailiYunConsoleUser = new ConsoleUser();
                     ailiYunConsoleUser.setUsername(username.get("name"));
                     ailiYunConsoleUser.setLoginurl(username.get("loginUrl"));
+                    ailiYunConsoleUser.setKeyName(key.getName());
                     ailiYunConsoleUser.setPassword(username.get("password"));
                     ailiYunConsoleUser.setKeyId(key.getId());
                     insertConsoleUser(ailiYunConsoleUser);
