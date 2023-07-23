@@ -11,7 +11,7 @@
  Target Server Version : 50726
  File Encoding         : 65001
 
- Date: 14/06/2023 21:57:54
+ Date: 23/07/2023 22:59:20
 */
 
 SET NAMES utf8mb4;
@@ -81,6 +81,7 @@ CREATE TABLE `databases_instance`  (
 -- ----------------------------
 -- Records of databases_instance
 -- ----------------------------
+
 -- ----------------------------
 -- Table structure for files
 -- ----------------------------
@@ -220,12 +221,12 @@ CREATE TABLE `key`  (
                         `task_status` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                         `status` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                         `remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
-                        `create_time` datetime NULL DEFAULT NULL,
-                        `update_time` datetime NULL DEFAULT NULL,
+                        `create_time` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                        `update_time` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
                         `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                         PRIMARY KEY (`id`) USING BTREE,
                         UNIQUE INDEX `keyName`(`name`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 179 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = MyISAM AUTO_INCREMENT = 180 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of key

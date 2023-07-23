@@ -1,14 +1,19 @@
 package com.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import com.github.pagehelper.PageHelper;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 
 
@@ -20,8 +25,8 @@ public class MpConfig implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
-        this.setFieldValByName("createTime", new Date(), metaObject);
-        this.setFieldValByName("updateTime", new Date(), metaObject);
+        this.setFieldValByName("createTime", getTimeStr(), metaObject);
+        this.setFieldValByName("updateTime", getTimeStr(), metaObject);
     }
 
     /**
@@ -30,7 +35,7 @@ public class MpConfig implements MetaObjectHandler {
      */
     @Override
     public void updateFill(MetaObject metaObject) {
-        this.setFieldValByName("updateTime", new Date(), metaObject);
+        this.setFieldValByName("updateTime", getTimeStr(), metaObject);
     }
 
     @Bean
@@ -42,5 +47,17 @@ public class MpConfig implements MetaObjectHandler {
         p.setProperty("rowBoundsWithCount", "true");
         pageHelper.setProperties(p);
         return pageHelper;
+    }
+
+    public static String getTimeStr() {
+        String string = new Date().toString();
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(string, inputFormatter);
+            return dateTime.format(outputFormatter);
+        } catch (DateTimeParseException e) {
+            return string;
+        }
     }
 }
