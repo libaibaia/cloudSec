@@ -76,37 +76,6 @@ services:
 
 ```
 
-## 更新yaml，建议把之前的持久化数据删了， /home/cloud/data,因为改数据库字段了，会报错。。。
-
-```yaml
-services:
-  java-app:
-    container_name: java-app
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-1.2
-    environment:
-      DB_PASSWORD: 111111
-    depends_on:
-      - db
-  vue-web:
-    container_name: vue-web
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:vue-app-1.2
-    ports:
-      - "80:80"
-    environment:
-      - API_IP=192.168.61.131
-    depends_on:
-      - java-app
-  db:
-    container_name: db
-    image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:mysql-1.2
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 111111
-    volumes:
-      - /home/cloud/data:/var/lib/mysql
-
-```
-
 启动脚本
 ```bash
 docker-compose up -d
