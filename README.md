@@ -123,6 +123,8 @@
 - 可选择更新时导出key
 - 一键停止/启动所有任务
 ![image](https://github.com/libaibaia/cloudSec/assets/108923559/da0d8ac3-9219-43bc-aec8-c847abde3a3e)
+- 权限信息
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/80bec687-1c0c-408d-b32c-cd69311d12f6)
 ### 云服务器
 - 对应命令执行，密钥对操作
 ![image](https://github.com/libaibaia/cloudSec/assets/108923559/4bc30291-77c4-49e8-856a-814d3ab270df)
