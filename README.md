@@ -160,8 +160,6 @@ services:
     image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-latest
     environment:
       DB_PASSWORD: 123456
-    ports:
-      - "5005:5005"
     depends_on:
       - db
   vue-web:
