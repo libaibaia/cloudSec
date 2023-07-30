@@ -175,7 +175,8 @@
 export KUBECONFIG=$(pwd)/kubeconfig
 ```
 ![image](https://github.com/libaibaia/cloudSec/assets/108923559/f881098e-01be-44a8-83ee-930fd88afdec)
-
+### 成功后即可接管K8S
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/4643ddc4-40b7-471f-8866-3693f7bfaff3)
 
 ### 控制台用户
 - 创建的控制台用户将在这里显示
