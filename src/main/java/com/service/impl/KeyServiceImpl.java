@@ -144,9 +144,13 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                     this.updateById(key);
                     return;
                 }
-                AtomicInteger detectProgress = new AtomicInteger(3);
+                AtomicInteger detectProgress = new AtomicInteger(4);
                 executorService.submit(() -> {
                     tencentInstanceService.getInstanceList(key,detectProgress);
+                    updateStatus(detectProgress,key,keyService,defaultValue);
+                });
+                executorService.submit(() -> {
+                    tencentInstanceService.getClusterLists(key,detectProgress);
                     updateStatus(detectProgress,key,keyService,defaultValue);
                 });
                 executorService.submit(() -> {

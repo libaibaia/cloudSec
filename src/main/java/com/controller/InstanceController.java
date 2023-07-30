@@ -81,13 +81,13 @@ public class InstanceController {
                     RegionInfo regionInfo = new RegionInfo();
                     regionInfo.setRegion(instance.getRegion());
                     Map<com.tencentcloudapi.cvm.v20170312.models.Instance, DescribeInvocationTasksResponse> execArgs =
-                            cvm.getOutCommandPut(info.get("execArgs"), new com.tencentcloudapi.cvm.v20170312.models.Instance[]{current_instance}, regionInfo);
+                            cvm.getOutCommandPut(info.get("execArgs"), new com.tencentcloudapi.cvm.v20170312.models.Instance[]{current_instance}, regionInfo,true);
                     for (com.tencentcloudapi.cvm.v20170312.models.Instance instance1 : execArgs.keySet()) {
                         for (InvocationTask invocationTask : execArgs.get(instance1).getInvocationTaskSet()) {
-                            String taskStatus;
+                            String taskRes;
                             if (invocationTask.getTaskResult() != null){
-                                taskStatus = invocationTask.getTaskResult().getOutput();
-                                byte[] decode = Base64.getDecoder().decode(taskStatus);
+                                taskRes = invocationTask.getTaskResult().getOutput();
+                                byte[] decode = Base64.getDecoder().decode(taskRes);
                                 builder.append(new String(decode)).append('\n');
                             }
                         }
@@ -97,7 +97,7 @@ public class InstanceController {
             if (key.getType().equals(Type.AliYun.toString())){
                 try {
                     DescribeInvocationResultsResponse command = ECS.createCommand(Base.createClient(key, "ecs-cn-hangzhou.aliyuncs.com"), instance.getRegion(),
-                            "test", ECS.getType(instance.getType()), info.get("execArgs"), instance.getInstanceId());
+                            "test", ECS.getType(instance.getType()), info.get("execArgs"), instance.getInstanceId(),true);
                     for (DescribeInvocationResultsResponseBody.DescribeInvocationResultsResponseBodyInvocationInvocationResultsInvocationResult result : command.getBody().invocation.invocationResults.invocationResult) {
                         byte[] decode = Base64.getDecoder().decode(result.output.getBytes());
                         builder.append("\n");

@@ -6,10 +6,13 @@ import com.common.LogAnnotation;
 import com.common.Type;
 import com.common.tencent.product.cvm.CVM;
 import com.common.tencent.product.databases.*;
+import com.common.tencent.product.tke.TKE;
+import com.domain.Cluster;
 import com.domain.DatabasesInstance;
 import com.domain.Key;
 import com.mapper.DatabasesInstanceMapper;
 import com.mapper.InstanceMapper;
+import com.service.ClusterService;
 import com.service.impl.DatabasesInstanceServiceImpl;
 import com.service.impl.KeyServiceImpl;
 import com.tencentcloudapi.cdb.v20170320.models.InstanceInfo;
@@ -51,6 +54,13 @@ public class TencentInstanceService {
 
     @Autowired
     private ExecutorService executorService;
+    @Autowired
+    private ClusterService clusterService;
+    public void getClusterLists(Key key,AtomicInteger status){
+        List<Cluster> eksClustersLists = TKE.getEKSClustersLists(key);
+        clusterService.saveBatch(eksClustersLists);
+        status.decrementAndGet();
+    }
 
 
     @LogAnnotation(title = "获取腾讯云服务器实例列表")

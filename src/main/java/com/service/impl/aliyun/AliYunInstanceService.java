@@ -53,7 +53,7 @@ public class AliYunInstanceService {
                 DescribeInvocationResultsResponse command = null;
                 try {
                     command = ECS.createCommand(Base.createClient(key, res.getKey().regionEndpoint),
-                            res.getKey().regionId,"test",ECS.getType(instance.OSType),"whoami",instance.instanceId);
+                            res.getKey().regionId,"test",ECS.getType(instance.OSType),"whoami",instance.instanceId,false);
                 } catch (Exception e) {
                     break;
                 }

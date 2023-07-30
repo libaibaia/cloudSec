@@ -64,17 +64,17 @@ public class ECS {
     }
 
     //创建云助手命令并获取执行结果
-    public static DescribeInvocationResultsResponse createCommand(Client client, String regionID, String name, String type, String command, String instanceId) throws Exception {
+    public static DescribeInvocationResultsResponse createCommand(Client client, String regionID, String name, String type, String command, String instanceId,boolean isWait) throws Exception {
         CreateCommandRequest createCommandRequest = new CreateCommandRequest();
-        createCommandRequest.setName(name);
+        Random random = new Random();
+        //随机名称，防止重复
+        createCommandRequest.setName(name + random.nextInt(10));
         createCommandRequest.setCommandContent(Base64.getEncoder().encodeToString(command.getBytes()));
         createCommandRequest.setType(type);
         createCommandRequest.setRegionId(regionID);
         CreateCommandResponse commandWithOptions = client.createCommandWithOptions(createCommandRequest, runtime);
         String s = execCommand(client, regionID, commandWithOptions.getBody().commandId, instanceId);
-        //此处因为阿里云原因，执行后结果输出比较慢，需要sleep十秒
-        Thread.sleep(10000);
-        return getExecResult(client,s,regionID,instanceId);
+        return getExecResult(client,s,regionID,instanceId,isWait);
     }
     //执行命令
     private static String execCommand(Client client,String regionId,String commandId,String instanceID) throws Exception {
@@ -86,12 +86,32 @@ public class ECS {
         return invokeCommandResponse.getBody().getInvokeId();
     }
     //获取执行结果
-    private static DescribeInvocationResultsResponse getExecResult(Client client, String command,String regionId,String instanceId) throws Exception {
+    private static DescribeInvocationResultsResponse getExecResult(Client client, String command,String regionId,String instanceId,boolean isWaitOotPut) throws Exception {
         DescribeInvocationResultsRequest request = new DescribeInvocationResultsRequest();
         request.setInvokeId(command);
         request.setRegionId(regionId);
         request.setInstanceId(instanceId);
         request.setIncludeHistory(true);
+
+        if (isWaitOotPut){
+            DescribeInvocationResultsResponse describeInvocationResultsResponse = client.describeInvocationResultsWithOptions(request, runtime);
+            for (DescribeInvocationResultsResponseBody.DescribeInvocationResultsResponseBodyInvocationInvocationResultsInvocationResult result : describeInvocationResultsResponse.getBody().getInvocation().getInvocationResults().getInvocationResult()) {
+                if (result.getCommandId().equals(command)){
+                    while (true){
+                        if(result.getInvocationStatus().equals("Timeout") || result.getInvocationStatus().equals("Error")
+                        || result.getInvocationStatus().equals("Failed") || result.getInvocationStatus().equals("Failed")){
+                            result.setOutput(Base64.getEncoder().encodeToString("执行失败".getBytes()));
+                            return describeInvocationResultsResponse;
+                        }
+                        if (result.getInvocationStatus().equals("Running")){
+                            continue;
+                        }
+                        if (result.getInvocationStatus().equals("Success")) return describeInvocationResultsResponse;
+                        else break;
+                    }
+                }
+            }
+        }
         return client.describeInvocationResultsWithOptions(request, runtime);
     }
 

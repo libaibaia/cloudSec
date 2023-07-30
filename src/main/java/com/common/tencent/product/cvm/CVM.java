@@ -121,7 +121,7 @@ public class CVM {
         }
     }
 
-    public Map<Instance, DescribeInvocationTasksResponse> getOutCommandPut(String command, Instance[] instanceId, RegionInfo regionInfo){
+    public Map<Instance, DescribeInvocationTasksResponse> getOutCommandPut(String command, Instance[] instanceId, RegionInfo regionInfo,boolean isWaitOutPut){
         //用于接受执行命令后的响应对象，为了方便判断是否执行成功，然后获取命令id，获取输出
         Map<Instance,RunCommandResponse> runCommandResponseMap = new HashMap<>();
         //用于遍历上面命令id存放获取的执行结果。为了方便获取结果，此处将实例id传入单个参数，不直接执行所有的实例
@@ -159,7 +159,35 @@ public class CVM {
                 req.setFilters(new Filter[]{filter});
                 req.setHideOutput(false);
                 try {
-                    describeInvocationTasksResponse.put(instance,client.DescribeInvocationTasks(req));
+                    //判断是否为手动执行命令需要回显
+                    if (isWaitOutPut){
+                        while (true){
+                            //等待命令执行结果
+                            DescribeInvocationTasksResponse response = client.DescribeInvocationTasks(req);
+                            for (InvocationTask invocationTask : response.getInvocationTaskSet()) {
+                                //判断命令ID是否与单独执行的id对应
+                                if (invocationTask.getCommandId().equals(commandId)){
+                                    if (invocationTask.getTaskStatus().equals("RUNNING")){
+                                        continue;
+                                    }
+                                    //执行成功返回
+                                    if(invocationTask.getTaskStatus().equals("SUCCESS")){
+                                        describeInvocationTasksResponse.put(instance,response);
+                                        return describeInvocationTasksResponse;
+                                    }
+                                    if (invocationTask.getTaskStatus().equals("TIMEOUT") || invocationTask.getTaskStatus().equals("TASK_TIMEOUT")){
+                                        invocationTask.getTaskResult().setOutput(Arrays.toString(Base64.getEncoder().encode("failed".getBytes())));
+                                    }
+                                    describeInvocationTasksResponse.put(instance,response);
+                                    return describeInvocationTasksResponse;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        DescribeInvocationTasksResponse response = client.DescribeInvocationTasks(req);
+                        describeInvocationTasksResponse.put(instance,response);
+                    }
                 } catch (TencentCloudSDKException e) {
                     logger.error(e.getMessage());
                 }
@@ -175,7 +203,8 @@ public class CVM {
     }
     
     /*
-    初始添加凭证会执行这个方法，用于检测那些区域的服务器可以执行命令
+    初始添加凭证会执行这个方法，用于检测那些区域的服务器可以执行命令,本来可以使用agent判断，但是如果不具备tat权限，但是有agent，
+    也无法执行命令，因此只能遍历
      */
     public Map<Instance, List<InvocationTask>> getResult() throws TencentCloudSDKException {
         Map<RegionInfo, Map<String, Instance[]>> cvmList1 = getCvmList();
@@ -187,11 +216,11 @@ public class CVM {
                     List<Instance> list = new ArrayList<>();
                     Instance[] instances = stringMap.get(region);
                     list.addAll(Arrays.asList(instances));
-                    Map<Instance, DescribeInvocationTasksResponse> whoami = getOutCommandPut("whoami", list.toArray(new Instance[list.size()]), regionInfo);
-                    for (Map.Entry<Instance, DescribeInvocationTasksResponse> execRes : whoami.entrySet()) {
-                        for (InvocationTask invocationTask : whoami.get(execRes.getKey()).getInvocationTaskSet()) {
+                    Map<Instance, DescribeInvocationTasksResponse> responseMap = getOutCommandPut("whoami", list.toArray(new Instance[list.size()]), regionInfo,false);
+                    for (Map.Entry<Instance, DescribeInvocationTasksResponse> execRes : responseMap.entrySet()) {
+                        for (InvocationTask invocationTask : responseMap.get(execRes.getKey()).getInvocationTaskSet()) {
                             execRes.getKey().set("region",regionInfo.getRegion());
-                            re.put(execRes.getKey(),Arrays.asList(whoami.get(execRes.getKey()).getInvocationTaskSet()));
+                            re.put(execRes.getKey(),Arrays.asList(responseMap.get(execRes.getKey()).getInvocationTaskSet()));
                         }
                     }
                 }
