@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.ClusterMapper">
+
+    <resultMap id="BaseResultMap" type="com.domain.Cluster">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="clusterId" column="cluster_id" jdbcType="VARCHAR"/>
+            <result property="clusterName" column="cluster_name" jdbcType="VARCHAR"/>
+            <result property="clusterDescription" column="cluster_description" jdbcType="VARCHAR"/>
+            <result property="clusterOs" column="cluster_os" jdbcType="VARCHAR"/>
+            <result property="clusterType" column="cluster_type" jdbcType="VARCHAR"/>
+            <result property="clusterVersion" column="cluster_version" jdbcType="VARCHAR"/>
+            <result property="networkInfo" column="network_info" jdbcType="VARCHAR"/>
+            <result property="containerRuntime" column="container_runtime" jdbcType="VARCHAR"/>
+            <result property="region" column="region" jdbcType="VARCHAR"/>
+            <result property="keyId" column="key_id" jdbcType="INTEGER"/>
+            <result property="keyName" column="key_name" jdbcType="VARCHAR"/>
+            <result property="endpointInfo" column="endpoint_info" jdbcType="VARCHAR"/>
+            <result property="endpointSecurityGroup" column="endpoint_security_group" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,cluster_id,cluster_name,
+        cluster_description,cluster_os,cluster_type,
+        cluster_version,network_info,container_runtime,
+        region,key_id,key_name,
+        endpoint_info,endpoint_security_group
+    </sql>
+</mapper>
