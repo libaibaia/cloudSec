@@ -1,40 +1,174 @@
 # cloudSec
 # 云安全-AK/SK泄露利用工具
-- ***注意：如果本地使用linux搭建，openjdk需要安装字体库，建议使用oraclejdk***
-- ***前端采用vue3,基于buildadmin模板，后端springboot，原接口调用厂商的SDK***
+- 注意：如果本地使用linux搭建，openjdk需要安装字体库，建议使用oraclejdk
+- 前端采用vue3,基于buildadmin模板，后端springboot，原接口调用厂商的SDK
 - 如果有BUG请提交issue
-# 提示：某些功能会对目标产品造成影响，如密钥对绑定，会导致重启，请慎重使用！！！
-# 另外目前不支持权限检测，主要是各平台权限划分很细，还有就是如果你有iam权限，无法访问各类资源，但是可以创建一个管理员账号登录控制台访问资源。
-# 目前支持除了七牛以外的四个厂商的控制台用户创建，如果有创建用户权限，那么创建的默认就是管理员用户，可以访问平台所有资源。
-### 目前支持的厂商
-- 腾讯云
-- 阿里云
-- 七牛
-- 华为云
-- AWS
-- ***注：如果页面白屏刷新浏览器即可，因为热更新的原因导致，后期会解决。（已解决）***
-1. AK/SK管理
-![image](https://user-images.githubusercontent.com/108923559/232522170-4e0bf7ee-067c-4401-9ed1-f7f51abfe5a5.png)
-***右边图标对应-->重新检测资源及权限（也就是重新遍历资源信息）-->添加控制台用户（通过控制台登录）-->获取策略列表（需要当前账号绑定了策略）***
-![image](https://user-images.githubusercontent.com/108923559/232522409-0f63dac0-949f-4c62-9813-8fea0e1f4461.png)
-2. 云服务器相关
-- 对应图标-->执行命令-->绑定密钥对（由于某些secret不支持运维助手或tat助手权限，但是拥有服务器完全的操作权限，因此可以通过绑定密钥的方式来获取目标主机权限，阿里云需要提供本地客户端的私钥，腾讯创建完毕将私钥导入本地即可）
-![image](https://user-images.githubusercontent.com/108923559/232520276-bd9e23fc-eab2-4af1-ad99-ecb5d3bb834c.png)
-![image](https://user-images.githubusercontent.com/108923559/232520972-8deed19a-f5b2-4fdd-b5fd-156ea933ded7.png)
-![image](https://user-images.githubusercontent.com/108923559/232521203-c0320ef8-0df3-4f3a-b9fe-c3afe8aaf5f7.png)
-3. 存储桶，文件操作，打包下载所有文件及单独文件url生成
-- 预览文件列表
-![image](https://user-images.githubusercontent.com/108923559/232521771-cfb4230c-231f-4093-b433-e819eb7b5230.png)
-![image](https://github.com/libaibaia/cloudSec/assets/108923559/ca40b9f8-b1be-4dd9-8720-abe35ce8d687)
-- 上传
-![image](https://github.com/libaibaia/cloudSec/assets/108923559/12981dbb-d4c3-4646-87ff-bbdc81d1e3a1)
-4. 控制台用户，需要在ak/sk管理处添加控制台用户
-![image](https://user-images.githubusercontent.com/108923559/232523622-87daeb12-21dc-49f6-a604-d02b41f0bc64.png)
-5. 数据库
-- 主要是对数据库的操作，如开通外网访问，创建用户。
-- 右边按钮对应-->打开外网访问-->关闭外网访问-->创建数据库用户
-![image](https://user-images.githubusercontent.com/108923559/232523914-4d6da393-e83c-46f2-8acf-48bc3cc2f4c6.png)
-![image](https://user-images.githubusercontent.com/108923559/232524570-d9e42b57-edea-4031-b0a1-eadf1184daf2.png)
+- ***提示：某些功能会对目标产品造成影响，如密钥对绑定，会导致重启，请慎重使用！！！***
+- 另外权限信息获取目前只支持阿里云腾讯与
+## 功能概览
+<table>
+  <tr>
+    <th>厂商</th>
+    <th>产品</th>
+    <th>功能</th>
+    <th>备注</th>
+  </tr>
+  
+  <tr>
+    <td rowspan="4">七牛云</td>
+    <td>云服务器</td>
+    <td>列出云服务器/绑定密钥对</td>
+    <td>/</td>
+  </tr>
+  
+  <tr>
+    <td>云数据库</td>
+    <td>/</td>
+    <td>/</td>
+  </tr>
+  
+  <tr>
+    <td>存储桶</td>
+    <td>列出文件/单文件下载链接生成/上传文件/导出存储桶所有文件列表</td>
+    <td>因为下载文件过多收费问题，所以改成了导出所有文件列表，然后通过文件名自己筛选即可，界面支持前缀搜索，支持1000条数据实时预览</td>
+  </tr>
+  
+  <tr>
+    <td>控制台用户</td>
+    <td>/</td>
+    <td>/</td>
+  </tr>
+   <tr>
+    <td rowspan="4">华为云</td>
+    <td>列出云服务器</td>
+    <td>列出云服务器/绑定密钥对</td>
+    <td>密钥对操作需要重启服务器</td>
+  </tr>
+  
+  <tr>
+    <td>云数据库</td>
+    <td>获取数据库资源/创建用户</td>
+    <td>不支持开通关闭外网访问，华为云数据库需要单独购买IP</td>
+  </tr>
+  
+  <tr>
+    <td>存储桶</td>
+    <td>列出文件/单文件下载链接生成/上传文件/导出存储桶所有文件列表</td>
+    <td>因为下载文件过多收费问题，所以改成了导出所有文件列表，然后通过文件名自己筛选即可，界面支持前缀搜索，支持1000条数据实时预览</td>
+  </tr>
+  
+  <tr>
+    <td>控制台用户</td>
+    <td>创建控制台用户</td>
+    <td>默认继承父账号权限</td>
+  </tr>
+  
+  <tr>
+    <td rowspan="4">阿里云</td>
+    <td>云服务器</td>
+    <td>列出云服务器/执行命令/绑定(还原)密钥对</td>
+    <td>密钥对操作需要重启服务器</td>
+  </tr>
+  
+  <tr>
+    <td>云数据库</td>
+    <td>获取数据库资源/创建用户/开通或关闭外网访问</td>
+    <td>账号继承父账号权限</td>
+  </tr>
+  
+  <tr>
+    <td>存储桶</td>
+    <td>列出文件/单文件下载链接生成/上传文件/导出存储桶所有文件列表</td>
+    <td>因为下载文件过多收费问题，所以改成了导出所有文件列表，然后通过文件名自己筛选即可，界面支持前缀搜索，支持1000条数据实时预览</td>
+  </tr>
+  
+  <tr>
+    <td>控制台用户</td>
+    <td>创建控制台用户</td>
+    <td>默认管理员权限</td>
+  </tr>
+  
+  <tr>
+    <td rowspan="4">腾讯云</td>
+    <td>云服务器</td>
+    <td>列出云服务器/执行命令/绑定(还原)密钥对</td>
+    <td>密钥对操作需要重启服务器</td>
+  </tr>
+  
+  <tr>
+    <td>云数据库</td>
+    <td>获取数据库资源/创建用户/开通或关闭外网访问</td>
+    <td>账号继承父账号权限</td>
+  </tr>
+  
+  <tr>
+    <td>存储桶</td>
+    <td>列出文件/单文件下载链接生成/上传文件/导出存储桶所有文件列表</td>
+    <td>因为下载文件过多收费问题，所以改成了导出所有文件列表，然后通过文件名自己筛选即可，界面支持前缀搜索，支持1000条数据实时预览</td>
+  </tr>
+  
+  <tr>
+    <td>控制台用户</td>
+    <td>创建控制台用户</td>
+    <td>默认父账号权限</td>
+  </tr>
+  
+  <tr>
+    <td rowspan="4">亚马逊云</td>
+    <td>云服务器</td>
+    <td>列出云服务器</td>
+    <td>/</td>
+  </tr>
+  
+  <tr>
+    <td>云数据库</td>
+    <td>列出数据库资源</td>
+    <td>/</td>
+  </tr>
+  
+  <tr>
+    <td>存储桶</td>
+    <td>列出文件/单文件下载链接生成/上传文件/导出存储桶所有文件列表</td>
+    <td>因为下载文件过多收费问题，所以改成了导出所有文件列表，然后通过文件名自己筛选即可，界面支持前缀搜索，支持1000条数据实时预览</td>
+  </tr>
+  
+  <tr>
+    <td>控制台用户</td>
+    <td>创建控制台用户</td>
+    <td>默认最高权限</td>
+  </tr>
+</table>
+
+## 使用方式
+- 默认检测是10个线程
+### 添加AK/SK
+- 右边按钮对应key更新编辑，任务启动，控制台用户创建
+- 添加后选择立即检测或手动执行任务
+- 可选择更新时导出key
+- 一键停止/启动所有任务
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/da0d8ac3-9219-43bc-aec8-c847abde3a3e)
+- 权限信息
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/80bec687-1c0c-408d-b32c-cd69311d12f6)
+### 云服务器
+- 对应命令执行，密钥对操作
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/4bc30291-77c4-49e8-856a-814d3ab270df)
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/d61b4c05-4135-4674-822a-b27d7bba7652)
+### 存储桶
+- 对应文件上传，导出文件列表（excel格式）
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/0a6a4762-7170-4db4-aa6b-6fa3a114e05e)
+- 点击上传然后选择文件列表，可预览1000条数据，点击下载可单独下载文件
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/238b5274-5992-48f3-95b3-c0cfbd15a4ff)
+### 控制台用户
+- 创建的控制台用户将在这里显示
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/c1ad8360-702d-4b19-92b0-89b1d734891d)
+### 数据库
+- 按钮对应打开/关闭外网，创建数据库账号
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/1b12e232-b3b9-45f6-a3c2-50973ef45a47)
+### 文件下载列表
+- 此处对应导出存储桶的文件列表表格，状态成功后可下载
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/028e6c9c-3163-4d03-8e2d-7ca041ff507e)
+### 导入key列表，为了更新不丢失key
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/1a078f96-27e5-421b-bba7-dd2df8b84e48)
 
 ## docker-compose部署
 - 注意：如果出现 ***ERROR: The Compose file './docker-compose.yaml' is invalid because:Unsupported config option for services: 'db'*** 类似错误请升级docker-compose版本，我本地使用的是1.29+版本。
@@ -44,7 +178,7 @@ $ sudo curl -L "https://github.com/docker/compose/releases/download/{version}/do
 
 $ sudo chmod +x /usr/local/bin/docker-compose
 ```
-- 有两个yaml文件，任选一个即可，这个是后面加的(最新版都在这里更新)，老版本可以使用下面的yaml，记得删除/home/cloud/data，如果需要保存原有的ak/sk，进容器导出即可，后期会做ak/sk导出导入功能，保证后面更新数据库镜像保存原有数据
+- 如果更新需要删除原有镜像，密钥可以导出，然后再导入
 ```yaml
 services:
   java-app:
@@ -52,8 +186,6 @@ services:
     image: registry.cn-hangzhou.aliyuncs.com/lx_project/cloud:java-app-latest
     environment:
       DB_PASSWORD: 123456
-    ports:
-      - "5005:5005"
     depends_on:
       - db
   vue-web:
@@ -73,7 +205,6 @@ services:
       MYSQL_ROOT_PASSWORD: 123456
     volumes:
       - /home/cloud/data:/var/lib/mysql
-
 ```
 
 启动脚本
