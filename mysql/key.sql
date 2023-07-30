@@ -18,6 +18,11 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 CREATE database `key`;
 use `key`;
+
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
 -- ----------------------------
 -- Table structure for bucket
 -- ----------------------------
@@ -32,12 +37,37 @@ CREATE TABLE `bucket`  (
                            `create_by_id` int(11) NOT NULL,
                            `key_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
                            PRIMARY KEY (`id`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 2442 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = MyISAM AUTO_INCREMENT = 2450 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of bucket
 -- ----------------------------
 
+-- ----------------------------
+-- Table structure for cluster
+-- ----------------------------
+DROP TABLE IF EXISTS `cluster`;
+CREATE TABLE `cluster`  (
+                            `id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+                            `cluster_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+                            `cluster_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+                            `cluster_description` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+                            `cluster_os` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+                            `cluster_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+                            `cluster_version` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+                            `network_info` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL,
+                            `container_runtime` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+                            `region` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+                            `key_id` int(11) NOT NULL,
+                            `key_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+                            `endpoint_info` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+                            `endpoint_security_group` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+                            PRIMARY KEY (`id`) USING BTREE
+) ENGINE = MyISAM AUTO_INCREMENT = 7 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of cluster
+-- ----------------------------
 -- ----------------------------
 -- Table structure for console_user
 -- ----------------------------
@@ -198,11 +228,7 @@ CREATE TABLE `instance`  (
                              `os_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
                              `key_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
                              PRIMARY KEY (`id`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 2634 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
-
--- ----------------------------
--- Records of instance
--- ----------------------------
+) ENGINE = MyISAM AUTO_INCREMENT = 2640 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for key
@@ -226,12 +252,11 @@ CREATE TABLE `key`  (
                         `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
                         PRIMARY KEY (`id`) USING BTREE,
                         UNIQUE INDEX `keyName`(`name`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 180 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = MyISAM AUTO_INCREMENT = 182 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of key
 -- ----------------------------
-
 -- ----------------------------
 -- Table structure for menu
 -- ----------------------------
@@ -257,7 +282,7 @@ CREATE TABLE `menu`  (
                          PRIMARY KEY (`id`) USING BTREE,
                          INDEX `pid`(`pid`) USING BTREE,
                          INDEX `weigh`(`weigh`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 93 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '菜单和权限规则表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 94 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '菜单和权限规则表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of menu
@@ -267,6 +292,7 @@ INSERT INTO `menu` VALUES (8, 0, 'menu', '账号管理', 'auth/admin', 'user', '
 INSERT INTO `menu` VALUES (22, 0, 'menu', '实例列表', 'instance', 'instance', 'fa fa-th-list', 'tab', '', '/src/views/backend/instance/index.vue', 0, 'none', '', 94, '1', 1648255019, 1648049712);
 INSERT INTO `menu` VALUES (27, 0, 'menu', '存储桶列表', 'bucket', 'bucket', 'fa fa-group', 'tab', '', '/src/views/backend/bucket/index.vue', 1, 'none', '', 93, '1', 1648067248, 1648051141);
 INSERT INTO `menu` VALUES (52, 44, 'menu', '个人资料', 'routine/adminInfo', 'routine/adminInfo', 'fa fa-user', 'tab', '', '/src/views/backend/routine/adminInfo.vue', 1, 'none', '', 86, '1', 1648067229, 1645876529);
+INSERT INTO `menu` VALUES (87, 0, 'menu', '集群', 'cluster', 'cluster', 'el-icon-Film', 'tab', '', '/src/views/backend/cluster/index.vue', 1, 'none', '', 0, '1', NULL, NULL);
 INSERT INTO `menu` VALUES (88, 0, 'menu', '控制台用户', 'consoleUser', 'console', 'fa fa-expeditedssl', 'tab', '', '/src/views/backend/consoleUser/index.vue', 1, 'none', '', 0, '1', NULL, NULL);
 INSERT INTO `menu` VALUES (89, 0, 'menu', '数据库列表', 'mysql', 'databases', 'fa fa-th-list', 'tab', '', '/src/views/backend/mysql/index.vue', 1, 'none', '', 94, '1', 1648255019, 1648049712);
 INSERT INTO `menu` VALUES (90, 0, 'menu', '文件下载列表', 'files', 'files', 'fa fa-th-list', 'tab', '', '/src/views/backend/file/index.vue', 1, 'none', '', 93, '1', 1648255019, 1648049712);
