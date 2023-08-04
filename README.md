@@ -4,7 +4,7 @@
 - 前端采用vue3,基于buildadmin模板，后端springboot，原接口调用厂商的SDK
 - 如果有BUG请提交issue
 - ***提示：某些功能会对目标产品造成影响，如密钥对绑定，会导致重启，请慎重使用！！！***
-- 另外权限信息获取目前只支持阿里云腾讯与
+- 另外权限信息获取目前只支持阿里云腾讯与,云服务器执行命令是通过agent来执行的，这个过程中还需要agent权限，光凭agent是否安装无法判断是否可以执行命令，因此为了保证命令执行准确性，扫描时会默认执行一次whoami
 ## 功能概览
 <table>
   <tr>
@@ -163,6 +163,21 @@
 ![image](https://github.com/libaibaia/cloudSec/assets/108923559/0a6a4762-7170-4db4-aa6b-6fa3a114e05e)
 - 点击上传然后选择文件列表，可预览1000条数据，点击下载可单独下载文件
 ![image](https://github.com/libaibaia/cloudSec/assets/108923559/238b5274-5992-48f3-95b3-c0cfbd15a4ff)
+### 集群相关
+- 对应的是获取kubeconfig，打开公网apiserver权限，更新信息（主要是开启外网访问后存在一定延迟，需要隔一段时间手动获取外网端点信息）
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/a0eb6f44-ed37-4adc-84fd-7d9a1ca9421f)
+### 最后则是一键获取k8s权限，需要开通外网访问，点击后将会下载一个sh脚本，linux下执行后将本地安装kubectl连接该集群
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/8f4b1b8b-c51e-4398-a7b1-5632b3700975)
+### 连接成功后将会执行kubectl get node，显示下面结果则代表成功
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/6ccddef1-91b9-405a-b0d7-c4b1c1558692)
+### 如果显示下面报错，请在sh脚本所在目录下执行
+```sh
+export KUBECONFIG=$(pwd)/kubeconfig
+```
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/f881098e-01be-44a8-83ee-930fd88afdec)
+### 成功后即可接管K8S
+![image](https://github.com/libaibaia/cloudSec/assets/108923559/4643ddc4-40b7-471f-8866-3693f7bfaff3)
+
 ### 控制台用户
 - 创建的控制台用户将在这里显示
 ![image](https://github.com/libaibaia/cloudSec/assets/108923559/c1ad8360-702d-4b19-92b0-89b1d734891d)
