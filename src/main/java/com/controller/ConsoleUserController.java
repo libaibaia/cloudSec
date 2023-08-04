@@ -70,6 +70,7 @@ public class ConsoleUserController {
                 UserPermissionList userPermissionList = new UserPermissionList(key);
                 try {
                     userPermissionList.delUser(consoleUser.getUsername());
+                    consoleUserService.removeById(consoleUser.getId());
                     return SaResult.ok();
                 } catch (TencentCloudSDKException e) {
                     return SaResult.error(e.getMessage());
@@ -77,6 +78,7 @@ public class ConsoleUserController {
             case AliYun:
                 try {
                     User.deleteUser(key,consoleUser.getUsername());
+                    consoleUserService.removeById(consoleUser.getId());
                     return SaResult.ok();
                 } catch (Exception e) {
                     return SaResult.error(e.getMessage());
@@ -84,6 +86,7 @@ public class ConsoleUserController {
             case AWS:
                 try {
                     Iam.delUser(consoleUser.getUsername(),key);
+                    consoleUserService.removeById(consoleUser.getId());
                     return SaResult.ok();
                 } catch (Exception e) {
                     return SaResult.error(e.getMessage());
