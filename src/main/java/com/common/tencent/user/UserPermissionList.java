@@ -222,4 +222,13 @@ public class UserPermissionList{
         this.key = key;
     }
 
+    public void delUser(String username) throws TencentCloudSDKException {
+        DeleteUserRequest request = new DeleteUserRequest();
+        request.setName(username);
+        request.setForce(1L);
+        CamClient camClient = getCamClient("ap-chongqing");
+        camClient.DeleteUser(request);
+    }
+
+
 }

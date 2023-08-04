@@ -10,13 +10,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.common.Tools;
 import com.common.Type;
-import com.domain.Bucket;
-import com.domain.Instance;
-import com.domain.Key;
-import com.domain.Task;
+import com.domain.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.service.BucketService;
+import com.service.ClusterService;
 import com.service.InstanceService;
 import com.service.impl.BucketServiceImpl;
 import com.service.impl.ConsoleUserServiceImpl;
@@ -26,6 +24,7 @@ import com.service.impl.tencent.PermissionService;
 import com.service.impl.tencent.TencentInstanceService;
 import com.tencentcloudapi.cam.v20190116.models.AttachPolicyInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
@@ -69,6 +68,9 @@ public class KeyController {
     private BucketServiceImpl bucketService;
     @Resource
     private ConsoleUserServiceImpl consoleUserService;
+    @Autowired
+    @Lazy
+    private ClusterService clusterService;
 
     @RequestMapping(value = "/lists",method = {RequestMethod.GET,RequestMethod.OPTIONS})
     public SaResult getSecretList(@RequestParam(value = "page",defaultValue = "1",required = false) Integer page,
@@ -236,6 +238,8 @@ public class KeyController {
         bucketQueryWrapper.eq("key_id", key.getId());
         bucketService.remove(bucketQueryWrapper);
         databasesInstanceService.delInstanceByKeyId(key.getId());
+        consoleUserService.remove(new QueryWrapper<ConsoleUser>().eq("key_id", key.getId()));
+        clusterService.remove(new QueryWrapper<Cluster>().eq("key_id", key.getId()));
     }
 
     private void getNewThreadPool(){

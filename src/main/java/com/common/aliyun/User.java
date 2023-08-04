@@ -1,9 +1,8 @@
 package com.common.aliyun;
 
 import com.aliyun.ims20190815.Client;
-import com.aliyun.ims20190815.models.CreateLoginProfileRequest;
-import com.aliyun.ims20190815.models.CreateUserRequest;
-import com.aliyun.ims20190815.models.GetUserResponse;
+import com.aliyun.ims20190815.models.*;
+import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.ram20150501.models.ListPoliciesForUserResponse;
 import com.aliyun.ram20150501.models.ListPoliciesForUserResponseBody;
 import com.aliyun.teaopenapi.models.Config;
@@ -112,6 +111,23 @@ public class User {
         com.aliyun.ram20150501.Client ram = new com.aliyun.ram20150501.Client(getIamClient(key, "ram"));
         ListPoliciesForUserResponse listPoliciesForUserResponse = ram.listPoliciesForUserWithOptions(request, runtime);
         return listPoliciesForUserResponse.body.policies;
+    }
+
+    public static void deleteUser(Key key,String userName) throws Exception {
+        Client client = new Client(getIamClient(key, null));
+        ListAccessKeysRequest keysRequest = new ListAccessKeysRequest();
+        keysRequest.setUserPrincipalName(userName);
+        ListAccessKeysResponse listAccessKeysResponse = client.listAccessKeys(keysRequest);
+        DeleteAccessKeyRequest deleteAccessKeyRequest = new DeleteAccessKeyRequest();
+
+        //删除用户密钥，否则无法删除用户
+        for (ListAccessKeysResponseBody.ListAccessKeysResponseBodyAccessKeysAccessKey keysAccessKey : listAccessKeysResponse.getBody().accessKeys.accessKey) {
+            deleteAccessKeyRequest.setUserAccessKeyId(keysAccessKey.accessKeyId);
+            deleteAccessKeyRequest.setUserPrincipalName(userName);
+            client.deleteAccessKey(deleteAccessKeyRequest);
+        }
+        DeleteUserRequest deleteUserRequest = new DeleteUserRequest();
+        client.deleteUser(deleteUserRequest.setUserPrincipalName(userName));
     }
 
 }

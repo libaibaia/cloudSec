@@ -103,4 +103,21 @@ public class Iam {
                 .build();
         return build.getUser();
     }
+
+    public static void delUser(String userName,Key key){
+        IamClient iamClient = IamClient
+                .builder()
+                .region(Region.AWS_GLOBAL)
+                .credentialsProvider(S3.getBaseAuth(key))
+                .build();
+        ListAccessKeysRequest build = ListAccessKeysRequest.builder().userName(userName).build();
+        ListAccessKeysResponse listAccessKeysResponse = iamClient.listAccessKeys(build);
+        for (AccessKeyMetadata accessKey : listAccessKeysResponse.accessKeyMetadata()) {
+            DeleteAccessKeyRequest request1 =
+                    DeleteAccessKeyRequest.builder().accessKeyId(accessKey.accessKeyId()).userName(userName).build();
+            iamClient.deleteAccessKey(request1);
+        }
+        DeleteUserRequest request = DeleteUserRequest.builder().userName(userName).build();
+        iamClient.deleteUser(request);
+    }
 }

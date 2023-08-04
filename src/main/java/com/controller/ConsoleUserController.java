@@ -7,6 +7,7 @@ import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.common.Type;
 import com.common.aliyun.User;
+import com.common.aws.Iam;
 import com.common.tencent.user.UserPermissionList;
 import com.domain.ConsoleUser;
 import com.domain.DatabasesInstance;
@@ -57,6 +58,41 @@ public class ConsoleUserController {
         }
         return SaResult.ok().set("lists",consoleUsers).set("total",objects.getTotal());
     }
+
+    @RequestMapping("/del")
+    public SaResult del(@RequestParam(value = "ids",required = true) String id){
+        ConsoleUser consoleUser = consoleUserService.getById(id);
+        Key key = keyService.getById(consoleUser.getKeyId());
+        String type = key.getType();
+        switch (Type.valueOf(type))
+        {
+            case Tencent:
+                UserPermissionList userPermissionList = new UserPermissionList(key);
+                try {
+                    userPermissionList.delUser(consoleUser.getUsername());
+                    return SaResult.ok();
+                } catch (TencentCloudSDKException e) {
+                    return SaResult.error(e.getMessage());
+                }
+            case AliYun:
+                try {
+                    User.deleteUser(key,consoleUser.getUsername());
+                    return SaResult.ok();
+                } catch (Exception e) {
+                    return SaResult.error(e.getMessage());
+                }
+            case AWS:
+                try {
+                    Iam.delUser(consoleUser.getUsername(),key);
+                    return SaResult.ok();
+                } catch (Exception e) {
+                    return SaResult.error(e.getMessage());
+                }
+            default:
+                return SaResult.error("当前不支持");
+        }
+    }
+
 
 
 }
