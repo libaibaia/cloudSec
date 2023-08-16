@@ -20,7 +20,7 @@ import java.util.Map;
 public class Qvm {
     public static final String BaseUrl = "https://api-qvm.qiniu.com";
 
-    public static RegionInfo getRegionList(Auth auth) throws JsonProcessingException {
+    public static RegionInfo getRegionList(Auth auth) throws Exception {
         String s = auth.signQiniuAuthorization(BaseUrl + QvmBaseUrl.QvmRegionListUrl.getUrl(),
                 QvmBaseUrl.QvmRegionListUrl.getMethod(),null,"");
         HttpRequest request = HttpRequest.get(BaseUrl +
@@ -51,7 +51,7 @@ public class Qvm {
                     .form(args);
             String s = auth.signQiniuAuthorization(request.getUrl() + "?" + "size=" + args.get("size") + "&" + "page=" + args.get("page"),
                     QvmBaseUrl.QvmRegionListUrl.getMethod(),null,"");
-                    request.auth("Qiniu " + s).setHttpProxy("127.0.0.1",8080);
+                    request.auth("Qiniu " + s);
             HttpResponse execute = request.execute();
             ObjectMapper objectMapper = new ObjectMapper();
             //如果响应不为200则代表失败，失败抛出异常，其中包含错误信息

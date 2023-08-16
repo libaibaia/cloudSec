@@ -43,6 +43,7 @@ public class EC2 {
     public static void checkExist(Key key){
         DescribeAvailabilityZonesResponse zonesResponse =
                 getEc2Client(key, region.get(0)).describeAvailabilityZones();
+        System.out.println(zonesResponse.availabilityZones());
     }
 
 

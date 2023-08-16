@@ -79,6 +79,13 @@ public class InstanceServiceImpl extends ServiceImpl<InstanceMapper, Instance>
         return list;
     }
 
+    @Override
+    public void removeByKeyId(Integer id) {
+        QueryWrapper<Instance> instanceQueryWrapper = new QueryWrapper<>();
+        instanceQueryWrapper.eq("key_id",id);
+        this.baseMapper.delete(instanceQueryWrapper);
+    }
+
     public void restoreKey(Instance instance) throws Exception {
         Key byId = keyService.getById(instance.getKeyId());
         Type type = Type.valueOf(byId.getType());

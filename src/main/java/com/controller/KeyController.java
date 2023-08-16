@@ -108,6 +108,7 @@ public class KeyController {
             keyService.removeById(integer);
             databasesInstanceService.delInstanceByKeyId(integer);
             bucketService.removeByKeyId(integer);
+            instanceService.removeByKeyId(integer);
             consoleUserService.removeByKeyId(integer);
         }
         return SaResult.ok("删除成功");

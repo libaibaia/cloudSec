@@ -164,13 +164,13 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
                 break;
             }
             case QINiu:{
-                try {
-                    Qvm.getRegionList(BaseAuth.getAuth(key));
-                }catch (Exception e){
-                    key.setTaskStatus("检测失败原因：" + e.getMessage());
-                    this.updateById(key);
-                    return;
-                }
+//                try {
+//                    Qvm.getRegionList(BaseAuth.getAuth(key));
+//                }catch (Exception e){
+//                    key.setTaskStatus("检测失败原因：" + e.getMessage());
+//                    this.updateById(key);
+//                    return;
+//                }
                 Integer defaultValue = 2;
                 AtomicInteger detectProgress = new AtomicInteger(defaultValue);
                 executorService.execute(() -> {

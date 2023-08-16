@@ -18,6 +18,7 @@ import com.qiniu.storage.model.BucketInfo;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 import com.qiniu.util.Auth;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -25,6 +26,8 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+
+@Slf4j
 public class Bucket {
     private static final Configuration configuration = new Configuration();
 
@@ -67,14 +70,16 @@ public class Bucket {
         BucketManager bucketManager = new BucketManager(auth,configuration);
         try {
             String[] buckets = bucketManager.buckets();
-            for (String bucket : buckets) {
-                BucketInfo bucketInfo = bucketManager.getBucketInfo(bucket);
-                String[] domainList = bucketManager.domainList(bucket);
-                BucketModel bucketModel = new BucketModel(bucket, bucketInfo.getRegion(), domainList);
-                bucketModels.add(bucketModel);
+            if (!Objects.isNull(buckets)){
+                for (String bucket : buckets) {
+                    BucketInfo bucketInfo = bucketManager.getBucketInfo(bucket);
+                    String[] domainList = bucketManager.domainList(bucket);
+                    BucketModel bucketModel = new BucketModel(bucket, bucketInfo.getRegion(), domainList);
+                    bucketModels.add(bucketModel);
+                }
             }
         } catch (QiniuException e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
         }
         return bucketModels;
     }

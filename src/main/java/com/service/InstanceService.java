@@ -13,4 +13,5 @@ import java.util.List;
 */
 public interface InstanceService extends IService<Instance> {
     List<Instance> getInstanceList(List<Key> akId);
+    void removeByKeyId(Integer id);
 }

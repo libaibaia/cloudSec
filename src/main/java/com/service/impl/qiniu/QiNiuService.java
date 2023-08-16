@@ -12,6 +12,7 @@ import com.common.qiniu.base.model.qvm.KeyResponse;
 import com.common.qiniu.qvm.Qvm;
 import com.domain.Instance;
 import com.domain.Key;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mapper.BucketMapper;
 import com.qiniu.util.Auth;
 import com.service.impl.InstanceServiceImpl;
@@ -93,4 +94,5 @@ public class QiNiuService {
         }
         status.decrementAndGet();
     }
+
 }
