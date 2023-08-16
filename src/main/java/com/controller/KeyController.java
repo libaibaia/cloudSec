@@ -110,6 +110,7 @@ public class KeyController {
             bucketService.removeByKeyId(integer);
             instanceService.removeByKeyId(integer);
             consoleUserService.removeByKeyId(integer);
+            clusterService.removeByKeyID(integer);
         }
         return SaResult.ok("删除成功");
     }

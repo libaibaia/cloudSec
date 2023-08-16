@@ -3,6 +3,7 @@ package com.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.tencent.product.VPC;
 import com.common.tencent.product.tke.TKE;
@@ -123,6 +124,14 @@ public class ClusterServiceImpl extends ServiceImpl<ClusterMapper, Cluster>
                 "export KUBECONFIG=$(pwd)/kubeconfig\n\n" +
                 "kubectl get nodes\n";
     }
+
+    @Override
+    public void removeByKeyID(Integer id) {
+        QueryWrapper<Cluster> queryWrapper = new
+                QueryWrapper<Cluster>().eq("key_id", id);
+        this.getBaseMapper().delete(queryWrapper);
+    }
+
 
 }
 

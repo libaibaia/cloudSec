@@ -13,4 +13,5 @@ public interface ClusterService extends IService<Cluster> {
     String openEndpoint(Integer clusterId);
     void updateStatus(Integer clusterId);
     String createCmd(Integer id);
+    void removeByKeyID(Integer id);
 }
