@@ -1,7 +1,9 @@
 package com.service.impl.qiniu;
 
 import cn.dev33.satoken.util.SaResult;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.common.LogAnnotation;
 import com.common.qiniu.Bucket;
 import com.common.qiniu.base.BaseAuth;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -79,8 +82,9 @@ public class QiNiuService {
     @LogAnnotation(title = "检测七牛存储桶")
     public void getBucketList(Key key,AtomicInteger status){
         List<BucketModel> bucketLists = Bucket.getBucketLists(BaseAuth.getAuth(key));
-        com.domain.Bucket bucket = new com.domain.Bucket();
+        com.domain.Bucket bucket;
         for (BucketModel bucketList : bucketLists) {
+            bucket = new com.domain.Bucket();
             String[] domain = bucketList.getDomain();
             StrUtil.trim(domain);
             bucket.setEndPoint(Arrays.toString(domain));

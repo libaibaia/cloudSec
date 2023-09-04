@@ -81,7 +81,7 @@ public class Bucket {
         } catch (QiniuException e) {
             log.error(e.getMessage());
         }
-        return bucketModels;
+        return getUnion(bucketModels);
     }
     public static boolean uploadFile(Auth auth, com.domain.Bucket bucket, String fileName, File file) throws QiniuException {
         String token = auth.uploadToken(bucket.getName());
@@ -101,9 +101,7 @@ public class Bucket {
             try {
                 FileListing fileListing = bucketManager.listFiles(bucket.getName(), StrUtil.isBlankIfStr(prefix) ? "" : prefix, "", 1000, "");
                 listings.add(fileListing);
-                if (fileListing.isEOF()){
-                    return listings;
-                }
+                return listings;
             } catch (QiniuException e) {
                 System.out.println(e.getMessage());
             }
@@ -126,4 +124,31 @@ public class Bucket {
         }
     }
 
+    /**
+     * 去重
+     * @param models
+     * @return
+     */
+
+    private static List<BucketModel> getUnion(List<BucketModel> models){
+        List<BucketModel> uniqueList = new ArrayList<>();
+        for (BucketModel obj : models) {
+            // 标记是否已经存在相同name和region的对象
+            boolean isDuplicate = false;
+
+            // 检查新List中是否已经存在具有相同name和region属性的对象
+            for (BucketModel uniqueObj : uniqueList) {
+                if (obj.getName().equals(uniqueObj.getName()) && obj.getRegion().equals(uniqueObj.getRegion())) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            // 如果新List中不存在具有相同name和region属性的对象，则将该对象添加到新List中
+            if (!isDuplicate) {
+                uniqueList.add(obj);
+            }
+        }
+        return uniqueList;
+    }
 }
