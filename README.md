@@ -1,5 +1,5 @@
 # cloudSec
-- **更新为了单体jar包应用之间下载发布版本运行即可**
+- **更新为了单体jar包应用直接下载发布版本运行即可**
 # 云安全-AK/SK泄露利用工具
 - 注意：如果本地使用linux搭建，openjdk需要安装字体库，建议使用oraclejdk
 - 前端采用vue3,基于buildadmin模板，后端springboot，原接口调用厂商的SDK
