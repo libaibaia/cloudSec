@@ -33,12 +33,12 @@ public class IAM {
         ICredential auth;
         if (StrUtil.isBlank(key.getToken())){
             auth = new GlobalCredentials()
-                    .withAk(key.getSecretid())
-                    .withSk(key.getSecretkey());
+                    .withAk(key.getSecretId())
+                    .withSk(key.getSecretKey());
         }else {
             auth = new GlobalCredentials()
-                    .withAk(key.getSecretid())
-                    .withSk(key.getSecretkey())
+                    .withAk(key.getSecretId())
+                    .withSk(key.getSecretKey())
                     .withSecurityToken(key.getToken());
         }
         return auth;

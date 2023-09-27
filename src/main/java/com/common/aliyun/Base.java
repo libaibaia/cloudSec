@@ -23,9 +23,9 @@ public class Base {
     public static Client createClient(Key key, String endPoint) throws Exception {
         Config config;
         if (!StrUtil.isBlank(key.getToken())){
-            config = new Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretid()).setSecurityToken(key.getToken());
+            config = new Config().setAccessKeyId(key.getSecretId()).setAccessKeySecret(key.getSecretId()).setSecurityToken(key.getToken());
         }else {
-            config = new Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretkey());
+            config = new Config().setAccessKeyId(key.getSecretId()).setAccessKeySecret(key.getSecretKey());
         }
         config.endpoint = endPoint;
         return new Client(config);

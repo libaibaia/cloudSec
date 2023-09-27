@@ -1,6 +1,5 @@
 package com.common.aliyun.product;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.util.StrUtil;
@@ -80,14 +79,14 @@ public class OSS {
         StaticCredentialProvider provider;
         if (!StrUtil.isBlank(key.getToken())){
             provider = StaticCredentialProvider.create(Credential.builder()
-                    .accessKeyId(key.getSecretid())
-                    .accessKeySecret(key.getSecretkey())
+                    .accessKeyId(key.getSecretId())
+                    .accessKeySecret(key.getSecretKey())
                     .securityToken(key.getToken()) // use STS token
                     .build());
         }else {
             provider = StaticCredentialProvider.create(Credential.builder()
-                    .accessKeyId(key.getSecretid())
-                    .accessKeySecret(key.getSecretkey())
+                    .accessKeyId(key.getSecretId())
+                    .accessKeySecret(key.getSecretKey())
                     .build());
         }
 
@@ -143,9 +142,9 @@ public class OSS {
         if (endpoint != null) OSS.endpoint = endpoint;
         com.aliyun.oss.OSS ossClient;
         if (key.getToken() != null && !key.getToken().equals("")){
-            ossClient = new OSSClientBuilder().build(OSS.endpoint, key.getSecretid(), key.getSecretkey(),key.getToken());
+            ossClient = new OSSClientBuilder().build(OSS.endpoint, key.getSecretId(), key.getSecretKey(),key.getToken());
         }else {
-            ossClient = new OSSClientBuilder().build(OSS.endpoint, key.getSecretid(), key.getSecretkey());
+            ossClient = new OSSClientBuilder().build(OSS.endpoint, key.getSecretId(), key.getSecretKey());
         }
          return ossClient;
     }

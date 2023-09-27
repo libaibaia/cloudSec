@@ -1,6 +1,5 @@
 package com.common.tencent.product;
 
-import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.domain.Key;
 import com.tencentcloudapi.common.Credential;
@@ -38,10 +37,10 @@ public class Base {
     public static Credential createCredential(Key key){
         Credential credential = null;
         if (!StrUtil.isBlank(key.getToken())){
-            credential = new Credential(key.getSecretid(),key.getSecretkey(),key.getToken());
+            credential = new Credential(key.getSecretId(),key.getSecretKey(),key.getToken());
         }
         else {
-            credential = new Credential(key.getSecretid(),key.getSecretkey());
+            credential = new Credential(key.getSecretId(),key.getSecretKey());
         }
         return credential;
     }

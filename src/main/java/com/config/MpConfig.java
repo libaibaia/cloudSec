@@ -42,8 +42,8 @@ public class MpConfig implements MetaObjectHandler {
     public PageHelper pageHelper() {
         PageHelper pageHelper = new PageHelper();
         Properties p = new Properties();
-        p.setProperty("dialect", "Mysql");
-        p.setProperty("offsetAsPageNum", "true");
+        p.setProperty("dialect", "sqlite");
+        p.setProperty("offsetAsPageNum", "false");
         p.setProperty("rowBoundsWithCount", "true");
         pageHelper.setProperties(p);
         return pageHelper;

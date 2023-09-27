@@ -1,7 +1,6 @@
 package com.common.huawei;
 
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.common.Tools;
@@ -13,10 +12,8 @@ import com.domain.Task;
 import com.obs.services.ObsClient;
 import com.obs.services.model.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -32,9 +29,9 @@ public class OBS {
      */
     private static ObsClient getObsClient(Key key,String endpoint){
         if (StrUtil.isBlank(key.getToken()))
-            return new ObsClient(key.getSecretid(), key.getSecretkey(), endpoint);
+            return new ObsClient(key.getSecretId(), key.getSecretKey(), endpoint);
         else
-            return new ObsClient(key.getSecretid(), key.getSecretkey(),key.getToken(), endpoint);
+            return new ObsClient(key.getSecretId(), key.getSecretKey(),key.getToken(), endpoint);
     }
 
     /*

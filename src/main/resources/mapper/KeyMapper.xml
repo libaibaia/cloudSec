@@ -6,8 +6,8 @@
 
     <resultMap id="BaseResultMap" type="com.domain.Key">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="secretid" column="secretId" jdbcType="VARCHAR"/>
-            <result property="secretkey" column="secretKey" jdbcType="VARCHAR"/>
+            <result property="secretId" column="secret_id" jdbcType="VARCHAR"/>
+            <result property="secretKey" column="secret_key" jdbcType="VARCHAR"/>
             <result property="createById" column="create_by_id" jdbcType="INTEGER"/>
             <result property="type" column="type" jdbcType="VARCHAR"/>
             <result property="token" column="token" jdbcType="VARCHAR"/>

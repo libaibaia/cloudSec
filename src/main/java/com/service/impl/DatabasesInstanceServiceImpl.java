@@ -65,7 +65,7 @@ public class DatabasesInstanceServiceImpl extends ServiceImpl<DatabasesInstanceM
 
     public List<DatabasesInstance> getInstanceList(String key) {
         QueryWrapper<DatabasesInstance> databasesQueryWrapper = new QueryWrapper();
-        databasesQueryWrapper.eq("secretId", key);
+        databasesQueryWrapper.eq("secret_id", key);
         return this.getBaseMapper().selectList(databasesQueryWrapper);
     }
 

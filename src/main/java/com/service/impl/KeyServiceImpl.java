@@ -1,23 +1,14 @@
 package com.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
-import cn.dev33.satoken.util.SaResult;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.common.Tools;
 import com.common.Type;
 import com.common.aliyun.Base;
 import com.common.aws.EC2;
-import com.common.huawei.ECS;
 import com.common.huawei.IAM;
-import com.common.huawei.OBS;
-import com.common.huawei.RDS;
-import com.common.qiniu.base.BaseAuth;
-import com.common.qiniu.qvm.Qvm;
 import com.domain.Key;
-import com.huaweicloud.sdk.iam.v3.model.KeystoneGroupResult;
 import com.mapper.KeyMapper;
 import com.service.KeyService;
 import com.service.impl.aliyun.AliYunInstanceService;
@@ -77,13 +68,13 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
 
     public Boolean saveKey(Key key){
         QueryWrapper<Key> keyQueryWrapper = new QueryWrapper<>();
-        keyQueryWrapper.eq("secretId",key.getSecretid());
+        keyQueryWrapper.eq("secret_id",key.getSecretId());
         Key one = getOne(keyQueryWrapper);
         Boolean b;
         key.setTaskStatus("未检测");
         if (one != null){
-            one.setSecretid(key.getSecretid());
-            one.setSecretkey(key.getSecretkey());
+            one.setSecretId(key.getSecretId());
+            one.setSecretKey(key.getSecretKey());
             one.setToken(StrUtil.isBlank(key.getToken()) ? "" : key.getToken());
             one.setTaskStatus("");
             b = updateById(one);
@@ -246,7 +237,7 @@ public class KeyServiceImpl extends ServiceImpl<KeyMapper, Key>
         numberFormat.setMaximumFractionDigits(2);
         if (detectProgress.get() <= 0) {
             key.setTaskStatus("检测完成");
-            log.info("检测key{}结束",key.getSecretid());
+            log.info("检测key{}结束",key.getSecretId());
         }
         else {
             String format = numberFormat.format((float)(defaultValue - detectProgress.get()) / (float) defaultValue * 100);

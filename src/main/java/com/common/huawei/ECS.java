@@ -15,8 +15,6 @@ import com.huaweicloud.sdk.iam.v3.model.AuthProjectResult;
 import com.huaweicloud.sdk.iam.v3.model.KeystoneListAuthProjectsRequest;
 import com.huaweicloud.sdk.iam.v3.model.KeystoneListAuthProjectsResponse;
 import com.huaweicloud.sdk.iam.v3.region.IamRegion;
-import com.huaweicloud.sdk.rds.v3.model.DatabaseForCreation;
-import com.huaweicloud.sdk.rds.v3.region.RdsRegion;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -27,13 +25,13 @@ public class ECS {
         ICredential auth;
         if (!StrUtil.isBlank(key.getToken())){
             auth = new GlobalCredentials()
-                    .withAk(key.getSecretid())
-                    .withSk(key.getSecretkey())
+                    .withAk(key.getSecretId())
+                    .withSk(key.getSecretKey())
                     .withSecurityToken(key.getToken());
         }else {
             auth = new GlobalCredentials()
-                    .withAk(key.getSecretid())
-                    .withSk(key.getSecretkey());
+                    .withAk(key.getSecretId())
+                    .withSk(key.getSecretKey());
         }
         return auth;
     }
@@ -42,14 +40,14 @@ public class ECS {
         ICredential auth;
         if (!StrUtil.isBlank(key.getToken())){
             auth = new BasicCredentials()
-                    .withAk(key.getSecretid())
-                    .withSk(key.getSecretkey())
+                    .withAk(key.getSecretId())
+                    .withSk(key.getSecretKey())
                     .withProjectId(projectId)
                     .withSecurityToken(key.getToken());
         }else {
             auth = new BasicCredentials()
-                    .withAk(key.getSecretid())
-                    .withSk(key.getSecretkey())
+                    .withAk(key.getSecretId())
+                    .withSk(key.getSecretKey())
                     .withProjectId(projectId);
         }
         return auth;

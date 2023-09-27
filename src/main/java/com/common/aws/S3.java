@@ -33,12 +33,12 @@ public class S3 {
         AwsCredentialsProvider credentialsProvider;
         if (StrUtil.isBlank(key.getToken())){
             credentialsProvider = StaticCredentialsProvider
-                    .create(AwsBasicCredentials.create(key.getSecretid(), key.getSecretkey()));
+                    .create(AwsBasicCredentials.create(key.getSecretId(), key.getSecretKey()));
         }else {
             credentialsProvider = StaticCredentialsProvider.create(
                             AwsSessionCredentials.create(
-                                    key.getSecretid(),
-                                    key.getSecretkey(),
+                                    key.getSecretId(),
+                                    key.getSecretKey(),
                                     key.getToken()));
 
         }

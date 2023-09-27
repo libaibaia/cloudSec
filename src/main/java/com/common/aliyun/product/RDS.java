@@ -38,12 +38,12 @@ public class RDS {
         com.aliyun.teaopenapi.models.Config config = null;
         if (key.getToken() != null){
             config = new com.aliyun.teaopenapi.models.Config()
-                    .setAccessKeyId(key.getSecretid())
-                    .setAccessKeySecret(key.getSecretkey()).setSecurityToken(key.getToken());
+                    .setAccessKeyId(key.getSecretId())
+                    .setAccessKeySecret(key.getSecretKey()).setSecurityToken(key.getToken());
         } else {
             config = new com.aliyun.teaopenapi.models.Config()
-                    .setAccessKeyId(key.getSecretid())
-                    .setAccessKeySecret(key.getSecretkey());
+                    .setAccessKeyId(key.getSecretId())
+                    .setAccessKeySecret(key.getSecretKey());
         }
         config.endpoint = "rds.aliyuncs.com";
         return new Client(config);

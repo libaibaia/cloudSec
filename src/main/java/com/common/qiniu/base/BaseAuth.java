@@ -5,6 +5,6 @@ import com.qiniu.util.Auth;
 
 public class BaseAuth {
     public static Auth getAuth(Key key){
-        return Auth.create(key.getSecretid(),key.getSecretkey());
+        return Auth.create(key.getSecretId(),key.getSecretKey());
     }
 }

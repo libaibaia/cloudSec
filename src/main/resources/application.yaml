@@ -1,4 +1,6 @@
 spring:
+  resources:
+    static-locations: classpath:/static/
   servlet:
     multipart:
       enabled: true
@@ -6,10 +8,8 @@ spring:
       maxFileSize: 20MB
       file-size-threshold: 20MB
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://db:3306/key
-    username: root
-    password: ${DB_PASSWORD}
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:DB.db
 server:
   port: 8000
   address: 0.0.0.0

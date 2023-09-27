@@ -2,7 +2,6 @@ package com.common.aliyun;
 
 import com.aliyun.ims20190815.Client;
 import com.aliyun.ims20190815.models.*;
-import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.ram20150501.models.ListPoliciesForUserResponse;
 import com.aliyun.ram20150501.models.ListPoliciesForUserResponseBody;
 import com.aliyun.teaopenapi.models.Config;
@@ -36,8 +35,8 @@ public class User {
     }
     public static String getDefaultDomain(Key key) throws Exception {
         Config config;
-        if (key.getToken() != null) config = new Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretkey()).setSecurityToken(key.getToken());
-        else config = new Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretkey());
+        if (key.getToken() != null) config = new Config().setAccessKeyId(key.getSecretId()).setAccessKeySecret(key.getSecretKey()).setSecurityToken(key.getToken());
+        else config = new Config().setAccessKeyId(key.getSecretId()).setAccessKeySecret(key.getSecretKey());
         config.endpoint = "ims.aliyuncs.com";
         Client client = new Client(config);
         Params params = new com.aliyun.teaopenapi.models.Params()
@@ -75,9 +74,9 @@ public class User {
 
     public static Config getIamClient(Key key,String endPoint){
         com.aliyun.teaopenapi.models.Config config;
-        if (key.getToken() != null) config = new com.aliyun.teaopenapi.models.Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretkey()).setSecurityToken(key.getToken());
+        if (key.getToken() != null) config = new com.aliyun.teaopenapi.models.Config().setAccessKeyId(key.getSecretId()).setAccessKeySecret(key.getSecretKey()).setSecurityToken(key.getToken());
         else {
-            config = new com.aliyun.teaopenapi.models.Config().setAccessKeyId(key.getSecretid()).setAccessKeySecret(key.getSecretkey());
+            config = new com.aliyun.teaopenapi.models.Config().setAccessKeyId(key.getSecretId()).setAccessKeySecret(key.getSecretKey());
         }
         // 访问的域名
         if (endPoint == null)config.endpoint = "ims.aliyuncs.com";
@@ -101,7 +100,7 @@ public class User {
     //获取用户信息
     public static ListPoliciesForUserResponseBody.ListPoliciesForUserResponseBodyPolicies ListPoliciesForUser(Key key) throws Exception {
         com.aliyun.ims20190815.models.GetUserRequest getUserRequest = new com.aliyun.ims20190815.models.GetUserRequest()
-                .setUserAccessKeyId(key.getSecretid());
+                .setUserAccessKeyId(key.getSecretId());
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
         Client client = new Client(getIamClient(key, null));
         GetUserResponse userWithOptions = client.getUserWithOptions(getUserRequest, runtime);

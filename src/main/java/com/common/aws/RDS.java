@@ -35,7 +35,7 @@ public class RDS {
                     databasesInstance.setRegion(region.id());
                     databasesInstance.setType(dbInstance.engine());
                     databasesInstance.setInstanceId(dbInstance.dbInstanceIdentifier());
-                    databasesInstance.setKeyId(key.getId());
+                    databasesInstance.setKeyId((Integer) key.getId());
                     databasesInstance.setInstanceName(dbInstance.dbName());
                     databasesInstance.setKeyName(key.getName());
                     result.add(databasesInstance);

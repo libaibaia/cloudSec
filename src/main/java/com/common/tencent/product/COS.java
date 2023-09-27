@@ -16,13 +16,11 @@ import com.qcloud.cos.exception.CosServiceException;
 import com.qcloud.cos.http.HttpMethodName;
 import com.qcloud.cos.model.*;
 import com.qcloud.cos.region.Region;
-import com.qcloud.cos.utils.IOUtils;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.region.v20220627.models.RegionInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -114,10 +112,10 @@ public class COS {
     private static COSCredentials getCred(Key key){
         COSCredentials cred = null;
         if (key.getToken() != null && !key.getToken().equals("")){
-            cred = new BasicSessionCredentials(key.getSecretid(), key.getSecretkey(), key.getToken());
+            cred = new BasicSessionCredentials(key.getSecretId(), key.getSecretKey(), key.getToken());
         }
         else {
-            cred = new BasicCOSCredentials(key.getSecretid(), key.getSecretkey());
+            cred = new BasicCOSCredentials(key.getSecretId(), key.getSecretKey());
         }
         return cred;
     }
