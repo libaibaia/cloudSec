@@ -133,10 +133,26 @@ public class OSS {
 
     public static List<OSSObjectSummary> getAllFileLists(Key key, com.domain.Bucket bucket){
         com.aliyun.oss.OSS ossClient = getOssClient(key,bucket.getEndPoint());
-        ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
-        listObjectsRequest.setBucketName(bucket.getName());
-        ObjectListing objectListing = ossClient.listObjects(listObjectsRequest);
-        return objectListing.getObjectSummaries();
+        List<OSSObjectSummary> result = new ArrayList<>();
+        try {
+            String nextMarker = null;
+            ObjectListing objectListing;
+            do {
+                objectListing = ossClient.listObjects(new ListObjectsRequest(bucket.getName()).withMarker(nextMarker).withMaxKeys(200));
+
+                List<OSSObjectSummary> sums = objectListing.getObjectSummaries();
+                result.addAll(sums);
+                nextMarker = objectListing.getNextMarker();
+            } while (objectListing.isTruncated());
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+        return result;
+
     }
     private static com.aliyun.oss.OSS getOssClient(Key key,String endpoint){
         if (endpoint != null) OSS.endpoint = endpoint;

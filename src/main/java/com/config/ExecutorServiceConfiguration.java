@@ -13,6 +13,6 @@ public class ExecutorServiceConfiguration {
 
     @Bean
     public ExecutorService executorService() {
-        return Executors.newFixedThreadPool(10);
+        return Executors.newFixedThreadPool(200);
     }
 }
