@@ -138,10 +138,10 @@ public class OSS {
             String nextMarker = null;
             ObjectListing objectListing;
             do {
-                objectListing = ossClient.listObjects(new ListObjectsRequest(bucket.getName()).withMarker(nextMarker).withMaxKeys(200));
-
+                objectListing = ossClient.listObjects(new ListObjectsRequest(bucket.getName()).withMarker(nextMarker).withMaxKeys(1000));
                 List<OSSObjectSummary> sums = objectListing.getObjectSummaries();
                 result.addAll(sums);
+                logger.info("获取到存储桶" + bucket.getName() +  "文件数量：" + sums.size());
                 nextMarker = objectListing.getNextMarker();
             } while (objectListing.isTruncated());
         }catch (Exception e){
