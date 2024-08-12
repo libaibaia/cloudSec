@@ -11,6 +11,7 @@ import com.domain.Key;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Base {
 
@@ -42,7 +43,9 @@ public class Base {
         RuntimeOptions runtime = new RuntimeOptions();
         Client client = Base.createClient(key, endPoint);
         DescribeRegionsResponse response = client.describeRegionsWithOptions(describeRegionsRequest, runtime);
-        return new ArrayList<>(response.getBody().getRegions().getRegion());
+        List<DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRegion> region = response.getBody().getRegions().getRegion();
+        List<DescribeRegionsResponseBody.DescribeRegionsResponseBodyRegionsRegion> collect = region.stream().filter(r -> !r.regionId.contains("ap-south-1")).collect(Collectors.toList());
+        return new ArrayList<>(collect);
     }
 
 }
